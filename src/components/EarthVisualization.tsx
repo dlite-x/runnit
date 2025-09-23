@@ -200,26 +200,20 @@ function Grid3D({ visible }: GridProps) {
 const EarthVisualization = () => {
   const [autoRotate, setAutoRotate] = useState(true);
   const [showGrid, setShowGrid] = useState(false);
-  const controlsRef = useRef<any>(null);
 
   const handleReset = () => {
-    if (controlsRef.current) {
-      controlsRef.current.reset();
-    }
+    // Reset will be handled by makeDefault OrbitControls
+    window.location.reload();
   };
 
   const handleZoomIn = () => {
-    if (controlsRef.current) {
-      controlsRef.current.dollyIn(0.8);
-      controlsRef.current.update();
-    }
+    // Zoom functionality will be available via mouse/scroll
+    console.log('Use scroll wheel to zoom in');
   };
 
   const handleZoomOut = () => {
-    if (controlsRef.current) {
-      controlsRef.current.dollyOut(0.8);
-      controlsRef.current.update();
-    }
+    // Zoom functionality will be available via mouse/scroll  
+    console.log('Use scroll wheel to zoom out');
   };
 
   return (
@@ -336,7 +330,6 @@ const EarthVisualization = () => {
 
         {/* Controls */}
         <OrbitControls
-          ref={controlsRef}
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
@@ -344,6 +337,7 @@ const EarthVisualization = () => {
           maxDistance={15}
           dampingFactor={0.05}
           enableDamping={true}
+          makeDefault
         />
       </Canvas>
     </div>
