@@ -1832,26 +1832,22 @@ const EarthVisualization = () => {
           </div>
           
           {/* Right side - Resources */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 bg-yellow-600/20 px-3 py-1 rounded-lg border border-yellow-500/30">
-              <span className="text-yellow-400 text-sm">💰</span>
-              <span className="text-yellow-300 font-bold">2,707</span>
-              <span className="text-yellow-400/70 text-xs">Credits</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 text-slate-300 text-sm">
+              <span className="text-yellow-400">💰</span>
+              <span className="font-medium">27,07</span>
             </div>
-            <div className="flex items-center gap-1 bg-cyan-600/20 px-3 py-1 rounded-lg border border-cyan-500/30">
-              <span className="text-cyan-400 text-sm">💎</span>
-              <span className="text-cyan-300 font-bold">12</span>
-              <span className="text-cyan-400/70 text-xs">Crystal</span>
+            <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
+              <span className="text-cyan-400 text-xs">💎</span>
+              <span className="text-cyan-300 font-medium text-sm">12</span>
             </div>
-            <div className="flex items-center gap-1 bg-purple-600/20 px-3 py-1 rounded-lg border border-purple-500/30">
-              <span className="text-purple-400 text-sm">⚛️</span>
-              <span className="text-purple-300 font-bold">1</span>
-              <span className="text-purple-400/70 text-xs">Antimatter</span>
+            <div className="flex items-center gap-1 bg-purple-600/20 px-2 py-1 rounded border border-purple-500/30">
+              <span className="text-purple-400 text-xs">⚛️</span>
+              <span className="text-purple-300 font-medium text-sm">1</span>
             </div>
-            <div className="flex items-center gap-1 bg-emerald-600/20 px-3 py-1 rounded-lg border border-emerald-500/30">
-              <span className="text-emerald-400 text-sm">🎯</span>
-              <span className="text-emerald-300 font-bold">24</span>
-              <span className="text-emerald-400/70 text-xs">Score</span>
+            <div className="flex items-center gap-1 bg-emerald-600/20 px-2 py-1 rounded border border-emerald-500/30">
+              <span className="text-emerald-400 text-xs">🎯</span>
+              <span className="text-emerald-300 font-medium text-sm">24</span>
             </div>
           </div>
         </div>
@@ -1905,7 +1901,7 @@ const EarthVisualization = () => {
                   <span>💨</span>
                   <span>CO₂:</span>
                 </div>
-                <div className="text-lg font-bold text-purple-400">420.0 ppm</div>
+                <div className="text-lg font-bold text-purple-400">420 ppm</div>
               </div>
             </div>
           </div>
