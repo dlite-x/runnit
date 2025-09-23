@@ -1781,30 +1781,31 @@ const EarthVisualization = () => {
               {showBaseCube ? '🟢 Hide Base Cube' : '🟢 Show Base Cube'}
             </Button>
           </div>
-        </div>
-
-        {/* Construction Panel */}
-        <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm border rounded-lg p-4 min-w-[280px]">
-          <h3 className="text-lg font-semibold mb-3 text-foreground">Construction Panel</h3>
-          <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
-              className="flex items-center gap-2 justify-start"
-            >
-              🛰️ {spaceStationBuilt ? 'Dismantle Space Station' : 'Build Space Station'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShipFactoryBuilt(!shipFactoryBuilt)}
-              className="flex items-center gap-2 justify-start"
-            >
-              🏭 {shipFactoryBuilt ? 'Dismantle Ship Factory' : 'Build Ship Factory'}
-            </Button>
+          
+          {/* Construction Panel - positioned beneath Earth Controls */}
+          <div className="mt-4 bg-background/80 backdrop-blur-sm border rounded-lg p-4">
+            <h3 className="text-lg font-semibold mb-3 text-foreground">Construction Panel</h3>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
+                className="flex items-center gap-2 justify-start"
+              >
+                🛰️ {spaceStationBuilt ? 'Dismantle Space Station' : 'Build Space Station'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShipFactoryBuilt(!shipFactoryBuilt)}
+                className="flex items-center gap-2 justify-start"
+              >
+                🏭 {shipFactoryBuilt ? 'Dismantle Ship Factory' : 'Build Ship Factory'}
+              </Button>
+            </div>
           </div>
         </div>
+
       </div>
 
       {/* Info Panel */}
