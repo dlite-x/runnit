@@ -695,10 +695,9 @@ const EarthVisualization = () => {
           keysPressed={keysPressed}
         />
 
-        {/* Earth, Moon, Moon Base, Ship, Orbiting Ships, Grid and Atmosphere */}
+        {/* Earth, Moon, Ship, Orbiting Ships, Grid and Atmosphere */}
         <Earth autoRotate={autoRotate} />
         <Moon autoRotate={autoRotate} />
-        <MoonBase />
         {flyMode && <Ship position={shipPosition} rotation={shipRotation} />}
         
         {/* Orbiting ships around moon */}
