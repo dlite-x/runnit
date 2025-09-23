@@ -99,7 +99,7 @@ interface ShipProps {
   onShipClick?: () => void;
 }
 
-function Ship({ position, rotation, selected, onShipClick }: ShipProps) {
+function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
   const shipRef = useRef<THREE.Group>(null);
   
   useFrame(() => {
@@ -111,7 +111,7 @@ function Ship({ position, rotation, selected, onShipClick }: ShipProps) {
 
   return (
     <group ref={shipRef}>
-      {/* Ship body - 3D cube */}
+      {/* Capital Ship body - Cylindrical space station */}
       <mesh 
         position={[0, 0, 0]}
         onClick={onShipClick}
@@ -123,7 +123,7 @@ function Ship({ position, rotation, selected, onShipClick }: ShipProps) {
           document.body.style.cursor = 'default';
         }}
       >
-        <boxGeometry args={[0.3, 0.3, 0.3]} />
+        <cylinderGeometry args={[0.4, 0.4, 0.8, 16]} />
         <meshStandardMaterial 
           color={selected ? "#FFD700" : "#87CEEB"} 
           metalness={0.6} 
@@ -132,11 +132,35 @@ function Ship({ position, rotation, selected, onShipClick }: ShipProps) {
           emissiveIntensity={selected ? 0.3 : 0}
         />
       </mesh>
+
+      {/* Docking ring */}
+      <mesh position={[0, 0, 0]}>
+        <torusGeometry args={[0.45, 0.08, 8, 32]} />
+        <meshStandardMaterial 
+          color={selected ? "#FFD700" : "#1a1a1a"}
+          metalness={0.9} 
+          roughness={0.1}
+          emissive={selected ? "#FFD700" : "#000000"}
+          emissiveIntensity={selected ? 0.2 : 0}
+        />
+      </mesh>
+
+      {/* Command tower */}
+      <mesh position={[0, 0.6, 0]}>
+        <cylinderGeometry args={[0.15, 0.15, 0.3, 8]} />
+        <meshStandardMaterial 
+          color={selected ? "#FFD700" : "#4a4a4a"}
+          metalness={0.8} 
+          roughness={0.2}
+          emissive={selected ? "#FFD700" : "#000000"}
+          emissiveIntensity={selected ? 0.2 : 0}
+        />
+      </mesh>
       
       {/* Selection indicator */}
       {selected && (
         <mesh position={[0, 0, 0]}>
-          <sphereGeometry args={[0.5, 16, 16]} />
+          <sphereGeometry args={[0.8, 16, 16]} />
           <meshBasicMaterial 
             color="#FFD700" 
             transparent 
@@ -828,7 +852,7 @@ const EarthVisualization = () => {
               className="flex items-center gap-2"
             >
               <Plane className="w-4 h-4" />
-              {flyMode ? 'Exit Flight' : 'Fly Ship'}
+              {flyMode ? 'Exit Flight' : 'Fly Capital Ship'}
             </Button>
           </div>
           <div className="flex gap-2">
@@ -854,7 +878,7 @@ const EarthVisualization = () => {
               <p className="mb-1">• Space/Shift: Up/Down</p>
               <p className="mb-1">• QE: Roll left/right</p>
               <p className="mb-1">• RF: Pitch up/down</p>
-              <p className="mb-1">• Click ship to select it</p>
+              <p className="mb-1">• Click capital ship to select it</p>
               <p>• Click Earth/Moon to navigate</p>
             </>
           ) : (
@@ -917,7 +941,7 @@ const EarthVisualization = () => {
         <Earth autoRotate={autoRotate} onEarthClick={handleEarthClick} />
         <Moon autoRotate={autoRotate} onMoonClick={handleMoonClick} />
         {flyMode && (
-          <Ship 
+          <CapitalShip 
             position={shipPosition} 
             rotation={shipRotation} 
             selected={shipSelected}
