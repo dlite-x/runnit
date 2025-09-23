@@ -551,11 +551,11 @@ function CoordinateSystem() {
 function HorizontalCylinder() {
   return (
     <group position={[12, 2, 4]}>
-      {/* Horizontal cylinder on red X-axis */}
+      {/* Horizontal cylinder on red X-axis - shortened and light blue */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.1, 0.1, 4, 16]} />
+        <cylinderGeometry args={[0.1, 0.1, 2, 16]} />
         <meshStandardMaterial 
-          color="#FF6666" 
+          color="#87CEEB" 
           metalness={0.6} 
           roughness={0.3}
         />
