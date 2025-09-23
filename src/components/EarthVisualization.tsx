@@ -4,7 +4,7 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { TextureLoader } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3 } from 'lucide-react';
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -122,8 +122,76 @@ function Atmosphere() {
   );
 }
 
+interface GridProps {
+  visible: boolean;
+}
+
+function Grid3D({ visible }: GridProps) {
+  if (!visible) return null;
+
+  const gridRef = useRef<THREE.LineSegments>(null);
+  
+  const createGridGeometry = () => {
+    const size = 30;
+    const divisions = 30;
+    const step = size / divisions;
+    const halfSize = size / 2;
+    
+    const vertices = [];
+    
+    // Create grid lines on XY plane
+    for (let i = 0; i <= divisions; i++) {
+      const pos = -halfSize + i * step;
+      
+      // Horizontal lines
+      vertices.push(-halfSize, pos, 0, halfSize, pos, 0);
+      // Vertical lines
+      vertices.push(pos, -halfSize, 0, pos, halfSize, 0);
+    }
+    
+    // Create grid lines on XZ plane
+    for (let i = 0; i <= divisions; i++) {
+      const pos = -halfSize + i * step;
+      
+      // Lines parallel to X axis
+      vertices.push(-halfSize, 0, pos, halfSize, 0, pos);
+      // Lines parallel to Z axis
+      vertices.push(pos, 0, -halfSize, pos, 0, halfSize);
+    }
+    
+    // Create grid lines on YZ plane
+    for (let i = 0; i <= divisions; i++) {
+      const pos = -halfSize + i * step;
+      
+      // Lines parallel to Y axis
+      vertices.push(0, -halfSize, pos, 0, halfSize, pos);
+      // Lines parallel to Z axis
+      vertices.push(0, pos, -halfSize, 0, pos, halfSize);
+    }
+    
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    return geometry;
+  };
+
+  const geometry = createGridGeometry();
+
+  return (
+    <lineSegments ref={gridRef} geometry={geometry}>
+      <lineDashedMaterial
+        color="#00ff00"
+        dashSize={0.3}
+        gapSize={0.15}
+        opacity={0.6}
+        transparent={true}
+      />
+    </lineSegments>
+  );
+}
+
 const EarthVisualization = () => {
   const [autoRotate, setAutoRotate] = useState(true);
+  const [showGrid, setShowGrid] = useState(false);
   const controlsRef = useRef<any>(null);
 
   const handleReset = () => {
@@ -192,6 +260,17 @@ const EarthVisualization = () => {
               Zoom Out
             </Button>
           </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowGrid(!showGrid)}
+              className="flex items-center gap-2"
+            >
+              <Grid3X3 className="w-4 h-4" />
+              {showGrid ? 'Hide Grid' : 'Show Grid'}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -229,10 +308,11 @@ const EarthVisualization = () => {
         />
         <pointLight position={[-5, -5, -5]} intensity={0.8} color="#4A90E2" />
 
-        {/* Earth, Moon, Space Station and Atmosphere */}
+        {/* Earth, Moon, Space Station, Grid and Atmosphere */}
         <Earth autoRotate={autoRotate} />
         <Moon autoRotate={autoRotate} />
         <SpaceStation autoRotate={autoRotate} />
+        <Grid3D visible={showGrid} />
         <Atmosphere />
 
         {/* Stars background */}
