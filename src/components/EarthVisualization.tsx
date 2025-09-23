@@ -1798,8 +1798,65 @@ const EarthVisualization = () => {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
-      {/* Controls Panel */}
+    <div className="relative w-full h-screen overflow-hidden bg-slate-950">
+      {/* Top Header Bar */}
+      <div className="absolute top-0 left-0 right-0 z-20 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700">
+        <div className="flex items-center justify-between px-6 py-3">
+          {/* Left side - Game info */}
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold text-blue-400">Expanse v0.1</h1>
+              <span className="text-slate-400">|</span>
+              <span className="text-emerald-400 font-semibold">Terran Corp</span>
+            </div>
+            <div className="flex items-center gap-4 text-sm">
+              <span className="text-slate-300">Level <span className="text-blue-400 font-bold">1</span></span>
+              <span className="text-slate-300">Time <span className="text-emerald-400 font-mono">5:44:03</span></span>
+            </div>
+          </div>
+          
+          {/* Center - Action buttons */}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="bg-blue-600/20 border-blue-500 text-blue-300 hover:bg-blue-600/30">
+              2D Map
+            </Button>
+            <Button variant="outline" size="sm" className="bg-purple-600/20 border-purple-500 text-purple-300 hover:bg-purple-600/30">
+              Mission Control
+            </Button>
+            <Button variant="outline" size="sm" className="bg-green-600/20 border-green-500 text-green-300 hover:bg-green-600/30" onClick={() => setShowGrid(!showGrid)}>
+              Show Grid
+            </Button>
+          </div>
+          
+          {/* Right side - Resources */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 bg-yellow-600/20 px-3 py-1 rounded-lg border border-yellow-500/30">
+              <span className="text-yellow-400 text-sm">💰</span>
+              <span className="text-yellow-300 font-bold">2,707</span>
+              <span className="text-yellow-400/70 text-xs">Credits</span>
+            </div>
+            <div className="flex items-center gap-1 bg-cyan-600/20 px-3 py-1 rounded-lg border border-cyan-500/30">
+              <span className="text-cyan-400 text-sm">💎</span>
+              <span className="text-cyan-300 font-bold">12</span>
+              <span className="text-cyan-400/70 text-xs">Crystal</span>
+            </div>
+            <div className="flex items-center gap-1 bg-purple-600/20 px-3 py-1 rounded-lg border border-purple-500/30">
+              <span className="text-purple-400 text-sm">⚛️</span>
+              <span className="text-purple-300 font-bold">1</span>
+              <span className="text-purple-400/70 text-xs">Antimatter</span>
+            </div>
+            <div className="flex items-center gap-1 bg-emerald-600/20 px-3 py-1 rounded-lg border border-emerald-500/30">
+              <span className="text-emerald-400 text-sm">🎯</span>
+              <span className="text-emerald-300 font-bold">24</span>
+              <span className="text-emerald-400/70 text-xs">Score</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Enhanced Left Sidebar */}
+      <div className="absolute top-16 left-0 bottom-0 z-10 w-80 bg-slate-900/95 backdrop-blur-sm border-r border-slate-700 overflow-y-auto">
+        <div className="p-4 space-y-4">
       {/* Controls Panel */}
       <div className="absolute top-6 left-6 z-10 space-surface rounded-xl p-4 border border-border cosmic-glow">
         <div className="flex flex-col gap-3">
@@ -2082,11 +2139,12 @@ const EarthVisualization = () => {
         </div>
       </div>
 
-      {/* 3D Canvas */}
-      <Canvas
-        camera={{ position: [0, 0, 15], fov: 50 }}
-        className="w-full h-full"
-      >
+      {/* 3D Canvas - positioned to account for header */}
+      <div className="absolute top-16 left-80 right-0 bottom-0">
+        <Canvas
+          camera={{ position: [0, 0, 15], fov: 50 }}
+          className="w-full h-full"
+        >
         {/* Lighting - Increased brightness by 30% */}
         <ambientLight intensity={0.35} />
         <directionalLight
@@ -2273,6 +2331,7 @@ const EarthVisualization = () => {
           makeDefault
         />
       </Canvas>
+      </div>
     </div>
   );
 };
