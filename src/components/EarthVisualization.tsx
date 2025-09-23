@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ZoomIn, ZoomOut, Play, Pause } from 'lucide-react';
 import earthTexture from '@/assets/earth-2k-texture.jpg';
+import moonTexture from '@/assets/moon-texture-2k.jpg';
 
 interface EarthProps {
   autoRotate: boolean;
@@ -33,6 +34,31 @@ function Earth({ autoRotate }: EarthProps) {
         metalness={0.05}
         emissive="#111111"
         emissiveIntensity={0.15}
+      />
+    </mesh>
+  );
+}
+
+function Moon({ autoRotate }: EarthProps) {
+  const moonRef = useRef<THREE.Mesh>(null);
+  const texture = useLoader(TextureLoader, moonTexture);
+  
+  // Configure texture for better appearance
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  
+  useFrame((state, delta) => {
+    if (moonRef.current && autoRotate) {
+      moonRef.current.rotation.y += delta * 0.05; // Slower rotation than Earth
+    }
+  });
+
+  return (
+    <mesh ref={moonRef} position={[6, 1, 2]}>
+      <sphereGeometry args={[0.6, 32, 32]} />
+      <meshStandardMaterial
+        map={texture}
+        roughness={0.9}
+        metalness={0.0}
       />
     </mesh>
   );
@@ -161,8 +187,9 @@ const EarthVisualization = () => {
         />
         <pointLight position={[-5, -5, -5]} intensity={0.8} color="#4A90E2" />
 
-        {/* Earth and Atmosphere */}
+        {/* Earth, Moon and Atmosphere */}
         <Earth autoRotate={autoRotate} />
+        <Moon autoRotate={autoRotate} />
         <Atmosphere />
 
         {/* Stars background */}
