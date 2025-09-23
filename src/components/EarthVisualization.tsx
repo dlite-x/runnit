@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { TextureLoader } from 'three';
 import * as THREE from 'three';
@@ -224,22 +224,6 @@ function SpaceStation({ autoRotate }: EarthProps) {
   );
 }
 
-function Atmosphere() {
-  const atmosphereRef = useRef<THREE.Mesh>(null);
-  
-  return (
-    <mesh ref={atmosphereRef} position={[0, 0, 0]}>
-      <sphereGeometry args={[2.05, 64, 64]} />
-      <meshStandardMaterial
-        color="#87CEEB"
-        transparent
-        opacity={0.1}
-        side={THREE.BackSide}
-      />
-    </mesh>
-  );
-}
-
 interface GridProps {
   visible: boolean;
 }
@@ -312,6 +296,22 @@ function Grid3D({ visible }: GridProps) {
         />
       </lineSegments>
     </group>
+  );
+}
+
+function Atmosphere() {
+  const atmosphereRef = useRef<THREE.Mesh>(null);
+  
+  return (
+    <mesh ref={atmosphereRef} position={[0, 0, 0]}>
+      <sphereGeometry args={[2.05, 64, 64]} />
+      <meshStandardMaterial
+        color="#87CEEB"
+        transparent
+        opacity={0.1}
+        side={THREE.BackSide}
+      />
+    </mesh>
   );
 }
 
