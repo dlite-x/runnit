@@ -29,8 +29,10 @@ function Earth({ autoRotate }: EarthProps) {
       <sphereGeometry args={[2, 64, 64]} />
       <meshStandardMaterial
         map={texture}
-        roughness={0.8}
-        metalness={0.1}
+        roughness={0.6}
+        metalness={0.05}
+        emissive="#111111"
+        emissiveIntensity={0.15}
       />
     </mesh>
   );
@@ -148,16 +150,16 @@ const EarthVisualization = () => {
         camera={{ position: [0, 0, 8], fov: 45 }}
         className="w-full h-full"
       >
-        {/* Lighting */}
-        <ambientLight intensity={0.2} />
+        {/* Lighting - Increased brightness by 30% */}
+        <ambientLight intensity={0.35} />
         <directionalLight
           position={[5, 5, 5]}
-          intensity={1}
+          intensity={1.5}
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
         />
-        <pointLight position={[-5, -5, -5]} intensity={0.5} color="#4A90E2" />
+        <pointLight position={[-5, -5, -5]} intensity={0.8} color="#4A90E2" />
 
         {/* Earth and Atmosphere */}
         <Earth autoRotate={autoRotate} />
