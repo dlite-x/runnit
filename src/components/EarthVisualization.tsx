@@ -418,15 +418,79 @@ function MoonBase() {
   );
 }
 
-function FighterDrones({ onDroneDestroyed }: { onDroneDestroyed?: (droneId: string) => void }) {
+function FighterDrones({ onDroneDestroyed, alienShipPosition, cubeAlive, onAlienHit }: { 
+  onDroneDestroyed?: (droneId: string) => void;
+  alienShipPosition?: [number, number, number];
+  cubeAlive: boolean;
+  onAlienHit?: () => void;
+}) {
   const dronesRef = useRef<THREE.Group>(null);
+  const [droneProjectiles, setDroneProjectiles] = useState<Array<{
+    id: string;
+    position: [number, number, number];
+    direction: [number, number, number];
+    shooterId: string;
+  }>>([]);
+  const lastShotTimes = useRef<Map<string, number>>(new Map());
   
   useFrame((state, delta) => {
     if (dronesRef.current) {
       // Gentle rotation of the entire formation
       dronesRef.current.rotation.y += delta * 0.3;
+      
+      // Drone shooting logic
+      if (cubeAlive && alienShipPosition) {
+        const time = state.clock.getElapsedTime();
+        
+        // Each drone shoots every 2 seconds at the alien ship
+        for (let x = 0; x < 5; x++) {
+          for (let z = 0; z < 5; z++) {
+            const droneId = `drone-${x}-${z}`;
+            const lastShot = lastShotTimes.current.get(droneId) || 0;
+            
+            if (time - lastShot > 2) {
+              // Calculate drone world position
+              const droneLocalPos = [
+                (x - 2) * 0.3,
+                0.2,
+                (z - 2) * 0.3
+              ];
+              
+              const droneWorldPos: [number, number, number] = [
+                6 + droneLocalPos[0] * Math.cos(dronesRef.current.rotation.y) - droneLocalPos[2] * Math.sin(dronesRef.current.rotation.y),
+                1 + droneLocalPos[1],
+                2 + droneLocalPos[0] * Math.sin(dronesRef.current.rotation.y) + droneLocalPos[2] * Math.cos(dronesRef.current.rotation.y)
+              ];
+              
+              // Calculate direction to alien ship
+              const dx = alienShipPosition[0] - droneWorldPos[0];
+              const dy = alienShipPosition[1] - droneWorldPos[1];
+              const dz = alienShipPosition[2] - droneWorldPos[2];
+              const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+              
+              if (distance > 0) {
+                const direction: [number, number, number] = [dx / distance, dy / distance, dz / distance];
+                const projectileId = `drone-projectile-${Date.now()}-${droneId}`;
+                
+                setDroneProjectiles(prev => [...prev, {
+                  id: projectileId,
+                  position: [...droneWorldPos],
+                  direction,
+                  shooterId: droneId
+                }]);
+                
+                lastShotTimes.current.set(droneId, time);
+              }
+            }
+          }
+        }
+      }
     }
   });
+
+  const handleDroneProjectileHit = (projectileId: string) => {
+    setDroneProjectiles(prev => prev.filter(p => p.id !== projectileId));
+  };
 
   // Create 5x5 matrix of yellow spheres
   const drones = [];
@@ -457,9 +521,83 @@ function FighterDrones({ onDroneDestroyed }: { onDroneDestroyed?: (droneId: stri
   }
 
   return (
-    <group ref={dronesRef} position={[6, 1, 2]}>
-      {drones}
-    </group>
+    <>
+      <group ref={dronesRef} position={[6, 1, 2]}>
+        {drones}
+      </group>
+      
+      {/* Render drone projectiles */}
+      {droneProjectiles.map(projectile => (
+        <DroneProjectile
+          key={projectile.id}
+          position={projectile.position}
+          direction={projectile.direction}
+          onHit={handleDroneProjectileHit}
+          alienShipPosition={alienShipPosition}
+          onAlienHit={onAlienHit}
+        />
+      ))}
+    </>
+  );
+}
+
+// Drone Projectile component
+function DroneProjectile({ position, direction, onHit, alienShipPosition, onAlienHit }: {
+  position: [number, number, number];
+  direction: [number, number, number];
+  onHit: (projectileId: string) => void;
+  alienShipPosition?: [number, number, number];
+  onAlienHit?: () => void;
+}) {
+  const projectileRef = useRef<THREE.Mesh>(null);
+  const startTime = useRef(Date.now());
+  const projectileId = useRef(`drone-projectile-${Math.random()}`);
+
+  useFrame(() => {
+    if (projectileRef.current) {
+      const speed = 8;
+      const elapsed = (Date.now() - startTime.current) / 1000;
+      
+      // Move projectile
+      const newPos: [number, number, number] = [
+        position[0] + direction[0] * speed * elapsed,
+        position[1] + direction[1] * speed * elapsed,
+        position[2] + direction[2] * speed * elapsed
+      ];
+      
+      projectileRef.current.position.set(...newPos);
+
+      // Check collision with alien ship
+      if (alienShipPosition) {
+        const distance = Math.sqrt(
+          Math.pow(newPos[0] - alienShipPosition[0], 2) +
+          Math.pow(newPos[1] - alienShipPosition[1], 2) +
+          Math.pow(newPos[2] - alienShipPosition[2], 2)
+        );
+        
+        if (distance < 0.5) { // Hit the alien ship
+          onAlienHit?.();
+          onHit(projectileId.current);
+          return;
+        }
+      }
+
+      // Remove projectile after 4 seconds
+      if (elapsed > 4) {
+        onHit(projectileId.current);
+      }
+    }
+  });
+
+  return (
+    <mesh ref={projectileRef} position={position}>
+      <sphereGeometry args={[0.03, 8, 8]} />
+      <meshStandardMaterial 
+        color="#00FF00" 
+        emissive="#00FF00" 
+        emissiveIntensity={0.9}
+      />
+    </mesh>
   );
 }
 
@@ -631,12 +769,17 @@ function TargetCube({ hitsTaken = 0 }: { hitsTaken?: number }) {
 }
 
 // Alien Ship component
-function AlienShip({ targetPosition, onTargetHit }: { 
+function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, alienShipHits }: { 
   targetPosition: [number, number, number];
   onTargetHit: () => void;
+  onAlienHit: () => void;
+  onPositionChange?: (pos: [number, number, number]) => void;
+  alienShipHits: number;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const [position, setPosition] = useState<[number, number, number]>([15, 5, 8]);
+  const [hitpoints, setHitpoints] = useState(100 - alienShipHits);
+  const [lastHitTime, setLastHitTime] = useState(0);
   const [projectiles, setProjectiles] = useState<Array<{
     id: string;
     position: [number, number, number];
@@ -667,6 +810,10 @@ function AlienShip({ targetPosition, onTargetHit }: {
           position[2] + normalizedDz * moveSpeed * 0.016
         ];
         setPosition(newPos);
+        onPositionChange?.(newPos);
+      } else {
+        // Still report position even when not moving
+        onPositionChange?.(position);
       }
       
       // Point towards target
@@ -734,6 +881,39 @@ function AlienShip({ targetPosition, onTargetHit }: {
             opacity={0.7}
           />
         </mesh>
+        
+        {/* Health Bar */}
+        <group position={[0, 1, 0]}>
+          {/* Health bar background */}
+          <mesh position={[0, 0, 0]}>
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial 
+              color="#444444" 
+              transparent 
+              opacity={0.8}
+            />
+          </mesh>
+          
+          {/* Health bar fill */}
+          <mesh position={[-(1 - hitpoints/100), 0, 0.01]} scale={[hitpoints/100, 1, 1]}>
+            <planeGeometry args={[2, 0.15]} />
+            <meshStandardMaterial 
+              color={hitpoints > 30 ? "#00FF00" : hitpoints > 10 ? "#FFFF00" : "#FF0000"}
+              emissive={hitpoints > 30 ? "#00FF00" : hitpoints > 10 ? "#FFFF00" : "#FF0000"}
+              emissiveIntensity={0.3}
+            />
+          </mesh>
+          
+          {/* Health text indicator */}
+          <mesh position={[0, 0.3, 0]}>
+            <sphereGeometry args={[0.05, 8, 8]} />
+            <meshStandardMaterial 
+              color={hitpoints > 0 ? "#FFFFFF" : "#FF0000"}
+              emissive={hitpoints > 0 ? "#FFFFFF" : "#FF0000"}
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+        </group>
       </group>
       
       {/* Render projectiles */}
@@ -1148,6 +1328,8 @@ const EarthVisualization = () => {
   const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
   const [alienShipActive, setAlienShipActive] = useState(false);
   const [targetCubeHits, setTargetCubeHits] = useState(0);
+  const [alienShipHits, setAlienShipHits] = useState(0);
+  const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -1400,7 +1582,13 @@ const EarthVisualization = () => {
         <Atmosphere />
         
         {/* Fighter Drones */}
-        {fighterDronesBuilt && <FighterDrones />}
+        {fighterDronesBuilt && (
+          <FighterDrones 
+            alienShipPosition={alienShipActive ? alienShipPosition : undefined}
+            cubeAlive={targetCubeHits < 10}
+            onAlienHit={() => setAlienShipHits(prev => prev + 1)}
+          />
+        )}
         
         {/* Target Cube */}
         <TargetCube hitsTaken={targetCubeHits} />
@@ -1410,6 +1598,9 @@ const EarthVisualization = () => {
           <AlienShip 
             targetPosition={[6, 1, 2]} 
             onTargetHit={() => setTargetCubeHits(prev => prev + 1)}
+            onAlienHit={() => setAlienShipHits(prev => prev + 1)}
+            onPositionChange={setAlienShipPosition}
+            alienShipHits={alienShipHits}
           />
         )}
 
