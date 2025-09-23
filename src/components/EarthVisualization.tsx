@@ -570,6 +570,27 @@ function HorizontalCylinder() {
           roughness={0.1}
         />
       </mesh>
+
+      {/* 6 spokes connecting ring to cylinder */}
+      {Array.from({ length: 6 }, (_, i) => {
+        const angle = (i * Math.PI * 2) / 6;
+        const y = Math.cos(angle) * 0.4;
+        const z = Math.sin(angle) * 0.4;
+        return (
+          <mesh 
+            key={i}
+            position={[0, y, z]}
+            rotation={[0, -angle, Math.PI / 2]}
+          >
+            <cylinderGeometry args={[0.02, 0.02, 0.8, 8]} />
+            <meshStandardMaterial 
+              color="#C0C0C0" 
+              metalness={0.8} 
+              roughness={0.2}
+            />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
