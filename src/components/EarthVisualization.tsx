@@ -111,9 +111,9 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
 
   return (
     <group ref={shipRef} rotation={[0, 0, -Math.PI / 2]}>
-      {/* Capital Ship body - Cylindrical space station */}
+      {/* Main cylinder body */}
       <mesh 
-        position={[0, 0, 0]}
+        rotation={[0, 0, Math.PI / 2]}
         onClick={onShipClick}
         onPointerOver={(e) => {
           e.stopPropagation();
@@ -123,7 +123,19 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
           document.body.style.cursor = 'default';
         }}
       >
-        <cylinderGeometry args={[0.08, 0.08, 1.2, 16]} />
+        <cylinderGeometry args={[0.1, 0.1, 2, 16]} />
+        <meshStandardMaterial 
+          color={selected ? "#FFD700" : "#87CEEB"} 
+          metalness={0.6} 
+          roughness={0.3}
+          emissive={selected ? "#FFD700" : "#000000"}
+          emissiveIntensity={selected ? 0.3 : 0}
+        />
+      </mesh>
+      
+      {/* Cone point at one end of the ship */}
+      <mesh position={[1.2, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+        <coneGeometry args={[0.1, 0.4, 16]} />
         <meshStandardMaterial 
           color={selected ? "#FFD700" : "#87CEEB"} 
           metalness={0.6} 
@@ -133,11 +145,11 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
         />
       </mesh>
 
-      {/* Docking ring - large torus perpendicular to cylinder */}
-      <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.8, 0.1, 8, 32]} />
+      {/* Silver loop around cylinder */}
+      <mesh rotation={[0, Math.PI / 2, 0]}>
+        <torusGeometry args={[0.8, 0.08, 8, 32]} />
         <meshStandardMaterial 
-          color={selected ? "#FFD700" : "#1a1a1a"}
+          color={selected ? "#FFD700" : "#C0C0C0"} 
           metalness={0.9} 
           roughness={0.1}
           emissive={selected ? "#FFD700" : "#000000"}
@@ -145,63 +157,27 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
         />
       </mesh>
 
-      {/* Command tower */}
-      <mesh position={[0, 0.8, 0]}>
-        <cylinderGeometry args={[0.06, 0.06, 0.4, 8]} />
+      {/* Diameter cylinder 1 (Y-axis) */}
+      <mesh rotation={[0, 0, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, 1.6, 8]} />
         <meshStandardMaterial 
-          color={selected ? "#FFD700" : "#4a4a4a"}
-          metalness={0.8} 
-          roughness={0.2}
+          color={selected ? "#FFD700" : "#C0C0C0"} 
+          metalness={0.9} 
+          roughness={0.1}
           emissive={selected ? "#FFD700" : "#000000"}
           emissiveIntensity={selected ? 0.2 : 0}
         />
       </mesh>
 
-      {/* Red light at bottom of cylinder */}
-      <mesh position={[0, -0.8, 0]}>
-        <sphereGeometry args={[0.15, 16, 16]} />
+      {/* Diameter cylinder 2 (Z-axis) */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, 1.6, 8]} />
         <meshStandardMaterial 
-          color="#FF0000" 
-          emissive="#FF0000" 
-          emissiveIntensity={0.8}
-          transparent
-          opacity={0.7}
-        />
-      </mesh>
-
-      {/* Red light glow effect */}
-      <mesh position={[0, -0.8, 0]}>
-        <sphereGeometry args={[0.25, 16, 16]} />
-        <meshStandardMaterial 
-          color="#FF0000" 
-          emissive="#FF0000" 
-          emissiveIntensity={0.3}
-          transparent
-          opacity={0.3}
-        />
-      </mesh>
-
-      {/* Gray light at top of cylinder */}
-      <mesh position={[0, 0.8, 0]}>
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshStandardMaterial 
-          color="#808080" 
-          emissive="#808080" 
-          emissiveIntensity={0.6}
-          transparent
-          opacity={0.7}
-        />
-      </mesh>
-
-      {/* Gray light glow effect */}
-      <mesh position={[0, 0.8, 0]}>
-        <sphereGeometry args={[0.25, 16, 16]} />
-        <meshStandardMaterial 
-          color="#808080" 
-          emissive="#808080" 
-          emissiveIntensity={0.2}
-          transparent
-          opacity={0.3}
+          color={selected ? "#FFD700" : "#C0C0C0"} 
+          metalness={0.9} 
+          roughness={0.1}
+          emissive={selected ? "#FFD700" : "#000000"}
+          emissiveIntensity={selected ? 0.2 : 0}
         />
       </mesh>
       
@@ -548,61 +524,6 @@ function CoordinateSystem() {
   );
 }
 
-function HorizontalCylinder() {
-  return (
-    <group position={[12, 2, 4]}>
-      {/* Horizontal cylinder on red X-axis - shortened and light blue */}
-      <mesh rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.1, 0.1, 2, 16]} />
-        <meshStandardMaterial 
-          color="#87CEEB" 
-          metalness={0.6} 
-          roughness={0.3}
-        />
-      </mesh>
-      
-      {/* Cone point at one end of the ship */}
-      <mesh position={[1.2, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
-        <coneGeometry args={[0.1, 0.4, 16]} />
-        <meshStandardMaterial 
-          color="#87CEEB" 
-          metalness={0.6} 
-          roughness={0.3}
-        />
-      </mesh>
-
-      {/* Silver loop around cylinder, oriented in Y-Z plane (green axis plane) */}
-      <mesh rotation={[0, Math.PI / 2, 0]}>
-        <torusGeometry args={[0.8, 0.08, 8, 32]} />
-        <meshStandardMaterial 
-          color="#C0C0C0" 
-          metalness={0.9} 
-          roughness={0.1}
-        />
-      </mesh>
-
-      {/* Single cylinder spanning the diameter of the ring - Y axis */}
-      <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.03, 0.03, 1.6, 8]} />
-        <meshStandardMaterial 
-          color="#C0C0C0" 
-          metalness={0.8} 
-          roughness={0.2}
-        />
-      </mesh>
-
-      {/* Second diameter cylinder - Z axis (perpendicular to first) */}
-      <mesh position={[0, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <cylinderGeometry args={[0.03, 0.03, 1.6, 8]} />
-        <meshStandardMaterial 
-          color="#C0C0C0" 
-          metalness={0.8} 
-          roughness={0.2}
-        />
-      </mesh>
-    </group>
-  );
-}
 
 function CoordinateSystem() {
   return (
@@ -1183,9 +1104,6 @@ const EarthVisualization = () => {
         <OrbitingShip moonPosition={[24, 4, 8]} index={0} />
         <OrbitingShip moonPosition={[24, 4, 8]} index={1} />
         <OrbitingShip moonPosition={[24, 4, 8]} index={2} />
-        
-        {/* Horizontal Cylinder on Red Axis */}
-        <HorizontalCylinder />
         
         {/* Coordinate System */}
         <CoordinateSystem />
