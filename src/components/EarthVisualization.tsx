@@ -443,44 +443,42 @@ function FighterDrones({ onDroneDestroyed, alienShipPosition, cubeAlive, onAlien
         const time = state.clock.getElapsedTime();
         
         // Each drone shoots every 2 seconds at the alien ship
-        for (let x = 0; x < 5; x++) {
-          for (let z = 0; z < 5; z++) {
-            const droneId = `drone-${x}-${z}`;
-            const lastShot = lastShotTimes.current.get(droneId) || 0;
+        for (let i = 0; i < 3; i++) {
+          const droneId = `drone-${i}`;
+          const lastShot = lastShotTimes.current.get(droneId) || 0;
+          
+          if (time - lastShot > 2) {
+            // Calculate drone world position
+            const droneLocalPos = [
+              (i - 1) * 0.5, // Space them out more
+              0.2,
+              0
+            ];
             
-            if (time - lastShot > 2) {
-              // Calculate drone world position
-              const droneLocalPos = [
-                (x - 2) * 0.3,
-                0.2,
-                (z - 2) * 0.3
-              ];
+            const droneWorldPos: [number, number, number] = [
+              6 + droneLocalPos[0] * Math.cos(dronesRef.current.rotation.y) - droneLocalPos[2] * Math.sin(dronesRef.current.rotation.y),
+              1 + droneLocalPos[1],
+              2 + droneLocalPos[0] * Math.sin(dronesRef.current.rotation.y) + droneLocalPos[2] * Math.cos(dronesRef.current.rotation.y)
+            ];
+            
+            // Calculate direction to alien ship
+            const dx = alienShipPosition[0] - droneWorldPos[0];
+            const dy = alienShipPosition[1] - droneWorldPos[1];
+            const dz = alienShipPosition[2] - droneWorldPos[2];
+            const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            
+            if (distance > 0) {
+              const direction: [number, number, number] = [dx / distance, dy / distance, dz / distance];
+              const projectileId = `drone-projectile-${Date.now()}-${droneId}`;
               
-              const droneWorldPos: [number, number, number] = [
-                6 + droneLocalPos[0] * Math.cos(dronesRef.current.rotation.y) - droneLocalPos[2] * Math.sin(dronesRef.current.rotation.y),
-                1 + droneLocalPos[1],
-                2 + droneLocalPos[0] * Math.sin(dronesRef.current.rotation.y) + droneLocalPos[2] * Math.cos(dronesRef.current.rotation.y)
-              ];
+              setDroneProjectiles(prev => [...prev, {
+                id: projectileId,
+                position: [...droneWorldPos],
+                direction,
+                shooterId: droneId
+              }]);
               
-              // Calculate direction to alien ship
-              const dx = alienShipPosition[0] - droneWorldPos[0];
-              const dy = alienShipPosition[1] - droneWorldPos[1];
-              const dz = alienShipPosition[2] - droneWorldPos[2];
-              const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-              
-              if (distance > 0) {
-                const direction: [number, number, number] = [dx / distance, dy / distance, dz / distance];
-                const projectileId = `drone-projectile-${Date.now()}-${droneId}`;
-                
-                setDroneProjectiles(prev => [...prev, {
-                  id: projectileId,
-                  position: [...droneWorldPos],
-                  direction,
-                  shooterId: droneId
-                }]);
-                
-                lastShotTimes.current.set(droneId, time);
-              }
+              lastShotTimes.current.set(droneId, time);
             }
           }
         }
@@ -492,32 +490,30 @@ function FighterDrones({ onDroneDestroyed, alienShipPosition, cubeAlive, onAlien
     setDroneProjectiles(prev => prev.filter(p => p.id !== projectileId));
   };
 
-  // Create 5x5 matrix of yellow spheres
+  // Create 3 fighter drones in a line formation
   const drones = [];
-  for (let x = 0; x < 5; x++) {
-    for (let z = 0; z < 5; z++) {
-      const droneId = `drone-${x}-${z}`;
-      drones.push(
-        <mesh 
-          key={droneId}
-          name={droneId}
-          position={[
-            (x - 2) * 0.3, // Center the formation
-            0.2, 
-            (z - 2) * 0.3
-          ]}
-        >
-          <sphereGeometry args={[0.1, 16, 16]} />
-          <meshStandardMaterial 
-            color="#FFD700" 
-            metalness={0.7} 
-            roughness={0.2}
-            emissive="#FFD700"
-            emissiveIntensity={0.3}
-          />
-        </mesh>
-      );
-    }
+  for (let i = 0; i < 3; i++) {
+    const droneId = `drone-${i}`;
+    drones.push(
+      <mesh 
+        key={droneId}
+        name={droneId}
+        position={[
+          (i - 1) * 0.5, // Space them out horizontally: -0.5, 0, 0.5
+          0.2, 
+          0
+        ]}
+      >
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial 
+          color="#FFD700" 
+          metalness={0.7} 
+          roughness={0.2}
+          emissive="#FFD700"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+    );
   }
 
   return (
