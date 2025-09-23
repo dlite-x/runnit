@@ -123,7 +123,7 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
           document.body.style.cursor = 'default';
         }}
       >
-        <cylinderGeometry args={[0.4, 0.4, 0.8, 16]} />
+        <cylinderGeometry args={[0.08, 0.08, 1.2, 16]} />
         <meshStandardMaterial 
           color={selected ? "#FFD700" : "#87CEEB"} 
           metalness={0.6} 
@@ -133,9 +133,9 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
         />
       </mesh>
 
-      {/* Docking ring */}
-      <mesh position={[0, 0, 0]}>
-        <torusGeometry args={[0.45, 0.08, 8, 32]} />
+      {/* Docking ring - large torus perpendicular to cylinder */}
+      <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.8, 0.1, 8, 32]} />
         <meshStandardMaterial 
           color={selected ? "#FFD700" : "#1a1a1a"}
           metalness={0.9} 
@@ -146,8 +146,8 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
       </mesh>
 
       {/* Command tower */}
-      <mesh position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.15, 0.15, 0.3, 8]} />
+      <mesh position={[0, 0.8, 0]}>
+        <cylinderGeometry args={[0.06, 0.06, 0.4, 8]} />
         <meshStandardMaterial 
           color={selected ? "#FFD700" : "#4a4a4a"}
           metalness={0.8} 
@@ -160,7 +160,7 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
       {/* Selection indicator */}
       {selected && (
         <mesh position={[0, 0, 0]}>
-          <sphereGeometry args={[0.8, 16, 16]} />
+          <sphereGeometry args={[1.2, 16, 16]} />
           <meshBasicMaterial 
             color="#FFD700" 
             transparent 
