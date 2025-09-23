@@ -560,6 +560,16 @@ function HorizontalCylinder() {
           roughness={0.3}
         />
       </mesh>
+
+      {/* Silver loop around cylinder, oriented in Y-Z plane (green axis plane) */}
+      <mesh rotation={[0, Math.PI / 2, 0]}>
+        <torusGeometry args={[0.8, 0.08, 8, 32]} />
+        <meshStandardMaterial 
+          color="#C0C0C0" 
+          metalness={0.9} 
+          roughness={0.1}
+        />
+      </mesh>
     </group>
   );
 }
