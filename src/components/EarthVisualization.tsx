@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import React, { useRef, useState, useEffect } from 'react';
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { TextureLoader } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3 } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane } from 'lucide-react';
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -62,6 +62,124 @@ function Moon({ autoRotate }: EarthProps) {
       />
     </mesh>
   );
+}
+
+interface ShipProps {
+  position: [number, number, number];
+  rotation: [number, number, number];
+}
+
+function Ship({ position, rotation }: ShipProps) {
+  const shipRef = useRef<THREE.Group>(null);
+  
+  useFrame(() => {
+    if (shipRef.current) {
+      shipRef.current.position.set(...position);
+      shipRef.current.rotation.set(...rotation);
+    }
+  });
+
+  return (
+    <group ref={shipRef}>
+      {/* Main hull */}
+      <mesh position={[0, 0, 0]}>
+        <cylinderGeometry args={[0.05, 0.15, 0.8, 8]} />
+        <meshStandardMaterial color="#C0C0C0" metalness={0.8} roughness={0.2} />
+      </mesh>
+      
+      {/* Wings */}
+      <mesh position={[-0.3, 0, -0.1]} rotation={[0, 0, -Math.PI / 6]}>
+        <boxGeometry args={[0.6, 0.05, 0.2]} />
+        <meshStandardMaterial color="#808080" metalness={0.6} roughness={0.3} />
+      </mesh>
+      <mesh position={[0.3, 0, -0.1]} rotation={[0, 0, Math.PI / 6]}>
+        <boxGeometry args={[0.6, 0.05, 0.2]} />
+        <meshStandardMaterial color="#808080" metalness={0.6} roughness={0.3} />
+      </mesh>
+      
+      {/* Cockpit */}
+      <mesh position={[0, 0.05, 0.2]}>
+        <sphereGeometry args={[0.08, 16, 16]} />
+        <meshStandardMaterial color="#4A90E2" transparent opacity={0.8} />
+      </mesh>
+      
+      {/* Engine glow */}
+      <mesh position={[0, 0, -0.5]}>
+        <cylinderGeometry args={[0.03, 0.08, 0.1, 8]} />
+        <meshStandardMaterial 
+          color="#FF4500" 
+          emissive="#FF4500" 
+          emissiveIntensity={0.5}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function ShipController({ 
+  flyMode, 
+  onPositionChange, 
+  onRotationChange, 
+  onVelocityChange,
+  keysPressed 
+}: {
+  flyMode: boolean;
+  onPositionChange: (pos: [number, number, number]) => void;
+  onRotationChange: (rot: [number, number, number]) => void;
+  onVelocityChange: (vel: [number, number, number]) => void;
+  keysPressed: React.MutableRefObject<Set<string>>;
+}) {
+  const [position, setPosition] = useState<[number, number, number]>([5, 2, 3]);
+  const [rotation, setRotation] = useState<[number, number, number]>([0, 0, 0]);
+  const [velocity, setVelocity] = useState<[number, number, number]>([0, 0, 0]);
+
+  useFrame((state, delta) => {
+    if (!flyMode) return;
+
+    const keys = keysPressed.current;
+    const speed = 5;
+    const rotationSpeed = 2;
+    
+    let [vx, vy, vz] = velocity;
+    let [rx, ry, rz] = rotation;
+    
+    // Movement controls
+    if (keys.has('w')) vz -= speed * delta; // Forward
+    if (keys.has('s')) vz += speed * delta; // Backward
+    if (keys.has('a')) vx -= speed * delta; // Left
+    if (keys.has('d')) vx += speed * delta; // Right
+    if (keys.has(' ')) vy += speed * delta; // Up
+    if (keys.has('shift')) vy -= speed * delta; // Down
+    
+    // Rotation controls
+    if (keys.has('q')) rz += rotationSpeed * delta; // Roll left
+    if (keys.has('e')) rz -= rotationSpeed * delta; // Roll right
+    if (keys.has('r')) rx += rotationSpeed * delta; // Pitch up
+    if (keys.has('f')) rx -= rotationSpeed * delta; // Pitch down
+    
+    // Apply drag
+    vx *= 0.95;
+    vy *= 0.95;
+    vz *= 0.95;
+    
+    // Update position
+    const [px, py, pz] = position;
+    const newPosition: [number, number, number] = [
+      px + vx * delta,
+      py + vy * delta,
+      pz + vz * delta
+    ];
+    
+    setPosition(newPosition);
+    setVelocity([vx, vy, vz]);
+    setRotation([rx, ry, rz]);
+    
+    onPositionChange(newPosition);
+    onRotationChange([rx, ry, rz]);
+    onVelocityChange([vx, vy, vz]);
+  });
+
+  return null; // This component doesn't render anything
 }
 
 function SpaceStation({ autoRotate }: EarthProps) {
@@ -200,6 +318,34 @@ function Grid3D({ visible }: GridProps) {
 const EarthVisualization = () => {
   const [autoRotate, setAutoRotate] = useState(true);
   const [showGrid, setShowGrid] = useState(false);
+  const [flyMode, setFlyMode] = useState(false);
+  
+  // Ship state
+  const [shipPosition, setShipPosition] = useState<[number, number, number]>([5, 2, 3]);
+  const [shipRotation, setShipRotation] = useState<[number, number, number]>([0, 0, 0]);
+  const [shipVelocity, setShipVelocity] = useState<[number, number, number]>([0, 0, 0]);
+  
+  // Keyboard state
+  const keysPressed = useRef<Set<string>>(new Set());
+
+  // Flight controls
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      keysPressed.current.add(event.key.toLowerCase());
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      keysPressed.current.delete(event.key.toLowerCase());
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   const handleReset = () => {
     // Reset will be handled by makeDefault OrbitControls
@@ -272,6 +418,15 @@ const EarthVisualization = () => {
               <Grid3X3 className="w-4 h-4" />
               {showGrid ? 'Hide Grid' : 'Show Grid'}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFlyMode(!flyMode)}
+              className="flex items-center gap-2"
+            >
+              <Plane className="w-4 h-4" />
+              {flyMode ? 'Exit Flight' : 'Fly Ship'}
+            </Button>
           </div>
         </div>
       </div>
@@ -279,10 +434,22 @@ const EarthVisualization = () => {
       {/* Info Panel */}
       <div className="absolute bottom-6 left-6 z-10 space-surface rounded-xl p-4 border border-border">
         <div className="text-sm text-muted-foreground">
-          <p className="mb-1">🌍 Interactive Earth Visualization</p>
-          <p className="mb-1">• Drag to rotate</p>
-          <p className="mb-1">• Scroll to zoom</p>
-          <p>• Use controls for precise navigation</p>
+          {flyMode ? (
+            <>
+              <p className="mb-1">🚀 Flight Mode Active</p>
+              <p className="mb-1">• WASD: Move horizontally</p>
+              <p className="mb-1">• Space/Shift: Up/Down</p>
+              <p className="mb-1">• QE: Roll left/right</p>
+              <p>• RF: Pitch up/down</p>
+            </>
+          ) : (
+            <>
+              <p className="mb-1">🌍 Interactive Earth Visualization</p>
+              <p className="mb-1">• Drag to rotate</p>
+              <p className="mb-1">• Scroll to zoom</p>
+              <p>• Use controls for precise navigation</p>
+            </>
+          )}
         </div>
       </div>
 
@@ -310,10 +477,20 @@ const EarthVisualization = () => {
         />
         <pointLight position={[-5, -5, -5]} intensity={0.8} color="#4A90E2" />
 
-        {/* Earth, Moon, Space Station, Grid and Atmosphere */}
+        {/* Ship Controller */}
+        <ShipController
+          flyMode={flyMode}
+          onPositionChange={setShipPosition}
+          onRotationChange={setShipRotation}
+          onVelocityChange={setShipVelocity}
+          keysPressed={keysPressed}
+        />
+
+        {/* Earth, Moon, Space Station, Ship, Grid and Atmosphere */}
         <Earth autoRotate={autoRotate} />
         <Moon autoRotate={autoRotate} />
         <SpaceStation autoRotate={autoRotate} />
+        {flyMode && <Ship position={shipPosition} rotation={shipRotation} />}
         <Grid3D visible={showGrid} />
         <Atmosphere />
 
