@@ -72,7 +72,7 @@ function Moon({ autoRotate, onMoonClick }: MoonProps) {
   return (
     <mesh 
       ref={moonRef} 
-      position={[12, 2, 4]}
+      position={[24, 4, 8]}
       onClick={onMoonClick}
       onPointerOver={(e) => {
         e.stopPropagation();
@@ -570,8 +570,8 @@ function Grid3D({ visible }: GridProps) {
   }, [visible]);
   
   const createGridGeometry = () => {
-    const size = 30;
-    const divisions = 30;
+    const size = 60; // Increased from 30 to accommodate larger scene
+    const divisions = 60; // Increased proportionally
     const step = size / divisions;
     const halfSize = size / 2;
     
@@ -676,7 +676,7 @@ const EarthVisualization = () => {
 
   const handleMoonClick = () => {
     if (shipSelected) {
-      setShipTarget([10, 2, 4]); // Position near Moon
+      setShipTarget([22, 4, 8]); // Position near Moon (updated for new distance)
       setIsMovingToTarget(true);
       setShipSelected(false);
     }
@@ -872,9 +872,9 @@ const EarthVisualization = () => {
         )}
         
         {/* Orbiting ships around moon */}
-        <OrbitingShip moonPosition={[12, 2, 4]} index={0} />
-        <OrbitingShip moonPosition={[12, 2, 4]} index={1} />
-        <OrbitingShip moonPosition={[12, 2, 4]} index={2} />
+        <OrbitingShip moonPosition={[24, 4, 8]} index={0} />
+        <OrbitingShip moonPosition={[24, 4, 8]} index={1} />
+        <OrbitingShip moonPosition={[24, 4, 8]} index={2} />
         
         <Grid3D visible={showGrid} />
         <Atmosphere />
@@ -895,8 +895,8 @@ const EarthVisualization = () => {
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
-          minDistance={3}
-          maxDistance={flyMode ? 20 : 15}
+          minDistance={5}
+          maxDistance={flyMode ? 40 : 30}
           dampingFactor={0.05}
           enableDamping={true}
           target={flyMode ? new Vector3(...shipPosition) : new Vector3(0, 0, 0)}
