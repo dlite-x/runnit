@@ -4,7 +4,7 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building } from 'lucide-react';
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -1858,77 +1858,199 @@ const EarthVisualization = () => {
       </div>
 
       {/* Enhanced Left Sidebar */}
-      <div className="absolute top-16 left-0 bottom-0 z-10 w-80 bg-slate-900/95 backdrop-blur-sm border-r border-slate-700 overflow-y-auto">
+      <div className="absolute top-16 left-0 w-80 h-full bg-slate-900/95 backdrop-blur-sm border-r border-slate-700 overflow-y-auto">
         <div className="p-4 space-y-4">
-          {/* Planet Status Panel */}
-          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-blue-300 mb-3">Planet Status</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-300">Population:</span>
-                <span className="text-emerald-400 font-bold">7.8B</span>
+          
+          {/* Earth Status Card */}
+          <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <div className="w-4 h-4 rounded-full bg-blue-400"></div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-300">Defense Level:</span>
-                <span className="text-green-400 font-bold">Level 3</span>
+              <h3 className="text-lg font-semibold text-slate-200">Earth</h3>
+              <div className="flex gap-2 ml-auto">
+                <span className="px-2 py-1 text-xs bg-emerald-500/20 text-emerald-300 rounded-md border border-emerald-500/30">
+                  Colonized
+                </span>
+                <span className="px-2 py-1 text-xs bg-blue-500/20 text-blue-300 rounded-md border border-blue-500/30">
+                  1g
+                </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-300">Shield Status:</span>
-                <span className="text-blue-400 font-bold">85%</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <Users className="w-3 h-3" />
+                  <span>Population:</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">8.0B</div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <span>💰</span>
+                  <span>Income:</span>
+                </div>
+                <div className="text-lg font-bold text-emerald-400">+11,500 Cr/hr</div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <span>🌡️</span>
+                  <span>Temp:</span>
+                </div>
+                <div className="text-lg font-bold text-blue-400">15.0°C</div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <span>💨</span>
+                  <span>CO₂:</span>
+                </div>
+                <div className="text-lg font-bold text-purple-400">420.0 ppm</div>
               </div>
             </div>
           </div>
 
-          {/* Resource Grid */}
-          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-purple-300 mb-3">Resources</h3>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-slate-700/50 p-2 rounded border border-slate-600">
-                <div className="text-orange-400 font-bold">Iron</div>
-                <div className="text-slate-300">1,234</div>
+          {/* Resources Card */}
+          <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <span className="text-amber-400">📦</span>
               </div>
-              <div className="bg-slate-700/50 p-2 rounded border border-slate-600">
-                <div className="text-blue-400 font-bold">Water</div>
-                <div className="text-slate-300">890</div>
+              <h3 className="text-lg font-semibold text-slate-200">Resources</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-blue-400">💧</span>
+                  <span className="text-xs text-slate-400">Water</span>
+                  <span className="text-xs text-emerald-400 ml-auto">+249</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">1,000</div>
               </div>
-              <div className="bg-slate-700/50 p-2 rounded border border-slate-600">
-                <div className="text-green-400 font-bold">Food</div>
-                <div className="text-slate-300">567</div>
+              
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="w-3 h-3 text-blue-400" />
+                  <span className="text-xs text-slate-400">Oxygen</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">4</div>
               </div>
-              <div className="bg-slate-700/50 p-2 rounded border border-slate-600">
-                <div className="text-purple-400 font-bold">Tech</div>
-                <div className="text-slate-300">234</div>
+              
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-red-400">⛽</span>
+                  <span className="text-xs text-slate-400">Fuel</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">200</div>
+              </div>
+              
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-green-400">🍃</span>
+                  <span className="text-xs text-slate-400">Food</span>
+                  <span className="text-xs text-emerald-400 ml-auto">+60</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">1</div>
+              </div>
+              
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-purple-400">💻</span>
+                  <span className="text-xs text-slate-400">Compute</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">1</div>
+              </div>
+              
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-yellow-400">⚡</span>
+                  <span className="text-xs text-slate-400">Power</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">1</div>
               </div>
             </div>
           </div>
 
-          {/* Space Operations */}
-          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-cyan-300 mb-3">Operations</h3>
+          {/* Space Assets Card */}
+          <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                <span className="text-indigo-400">🚀</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-200">Space</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-orange-400">🚀</span>
+                  <span className="text-xs text-slate-400">Launch Pads</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">4</div>
+              </div>
+              
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-red-400">🎯</span>
+                  <span className="text-xs text-slate-400">Missions</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">5</div>
+              </div>
+              
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-cyan-400">🛰️</span>
+                  <span className="text-xs text-slate-400">Satellites</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">2</div>
+              </div>
+              
+              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Building className="w-3 h-3 text-slate-400" />
+                  <span className="text-xs text-slate-400">Space Stations</span>
+                </div>
+                <div className="text-lg font-bold text-slate-200">0</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Operations Panel */}
+          <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                <span className="text-emerald-400">⚙️</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-200">Operations</h3>
+            </div>
+            
             <div className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setAutoRotate(!autoRotate)}
-                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+                className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
               >
                 {autoRotate ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
-                {autoRotate ? 'Pause Rotation' : 'Auto Rotate'}
+                {autoRotate ? 'Pause Rotation' : 'Resume Rotation'}
               </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setFlyMode(!flyMode)}
-                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+                className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
               >
                 <Plane className="w-4 h-4 mr-2" />
                 {flyMode ? 'Exit Flight Mode' : 'Enter Flight Mode'}
               </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowGrid(!showGrid)}
-                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+                className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
               >
                 <Grid3X3 className="w-4 h-4 mr-2" />
                 {showGrid ? 'Hide Grid' : 'Show Grid'}
@@ -1937,40 +2059,56 @@ const EarthVisualization = () => {
           </div>
 
           {/* Construction Panel */}
-          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-yellow-300 mb-3">Construction</h3>
+          <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                <Factory className="w-4 h-4 text-orange-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-200">Construction</h3>
+            </div>
+            
             <div className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
-                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+                className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
               >
-                🛰️ {spaceStationBuilt ? 'Dismantle Station' : 'Build Station'}
+                <Building className="w-4 h-4 mr-2" />
+                {spaceStationBuilt ? 'Dismantle' : 'Build'} Station
               </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShipFactoryBuilt(!shipFactoryBuilt)}
-                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+                className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
               >
-                🏭 {shipFactoryBuilt ? 'Dismantle Factory' : 'Build Factory'}
+                <Factory className="w-4 h-4 mr-2" />
+                {shipFactoryBuilt ? 'Dismantle' : 'Build'} Factory
               </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setFighterDronesBuilt(!fighterDronesBuilt)}
-                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
-                disabled={!shipFactoryBuilt}
+                className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
               >
-                🚁 {fighterDronesBuilt ? 'Recall Drones' : 'Deploy Drones'}
+                <span className="w-4 h-4 mr-2">🤖</span>
+                {fighterDronesBuilt ? 'Recall' : 'Build'} Drones
               </Button>
             </div>
           </div>
 
           {/* Selection Panel */}
-          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-green-300 mb-3">Selection</h3>
+          <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                <span className="text-violet-400">📍</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-200">Selection</h3>
+            </div>
+            
             {selectedObject ? (
               <div className="space-y-2">
                 <div className="text-sm font-semibold text-blue-400">
