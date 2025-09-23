@@ -548,6 +548,22 @@ function CoordinateSystem() {
   );
 }
 
+function HorizontalCylinder() {
+  return (
+    <group position={[12, 2, 4]}>
+      {/* Horizontal cylinder on red X-axis */}
+      <mesh rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.1, 0.1, 4, 16]} />
+        <meshStandardMaterial 
+          color="#FF6666" 
+          metalness={0.6} 
+          roughness={0.3}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function CoordinateSystem() {
   return (
     <group position={[12, 2, 4]}>
@@ -1127,6 +1143,9 @@ const EarthVisualization = () => {
         <OrbitingShip moonPosition={[24, 4, 8]} index={0} />
         <OrbitingShip moonPosition={[24, 4, 8]} index={1} />
         <OrbitingShip moonPosition={[24, 4, 8]} index={2} />
+        
+        {/* Horizontal Cylinder on Red Axis */}
+        <HorizontalCylinder />
         
         {/* Coordinate System */}
         <CoordinateSystem />
