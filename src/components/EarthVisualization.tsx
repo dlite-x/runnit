@@ -339,6 +339,11 @@ function ShipController({
     const speed = 5;
     const rotationSpeed = 2;
     
+    // Debug logging
+    if (keys.size > 0) {
+      console.log('Keys pressed:', Array.from(keys));
+    }
+    
     let [vx, vy, vz] = velocity;
     let [rx, ry, rz] = rotation;
     
@@ -372,6 +377,11 @@ function ShipController({
     setPosition(newPosition);
     setVelocity([vx, vy, vz]);
     setRotation([rx, ry, rz]);
+    
+    // Debug logging for movement
+    if (Math.abs(vx) > 0.1 || Math.abs(vy) > 0.1 || Math.abs(vz) > 0.1) {
+      console.log('Ship moving:', { position: newPosition, velocity: [vx, vy, vz] });
+    }
     
     onPositionChange(newPosition);
     onRotationChange([rx, ry, rz]);
