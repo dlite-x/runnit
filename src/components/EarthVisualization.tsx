@@ -620,63 +620,61 @@ function ShipController({
     let [vx, vy, vz] = velocity;
     let [rx, ry, rz] = rotation;
     
-    // Movement controls - all directions relative to ship's orientation
+    // Create a rotation matrix from the ship's current rotation
+    // Account for the ship's base rotation of [0, 0, -Math.PI / 2]
+    const totalRx = rx;
+    const totalRy = ry; 
+    const totalRz = rz - Math.PI / 2; // Base rotation
+
+    // Calculate direction vectors using proper rotation matrix
+    // Forward direction (where the cone points) - positive X in ship's local space
+    const forwardX = Math.cos(totalRy) * Math.cos(totalRz);
+    const forwardY = Math.cos(totalRy) * Math.sin(totalRz);
+    const forwardZ = -Math.sin(totalRy);
+
+    // Right direction (perpendicular to forward)
+    const rightX = -Math.sin(totalRz);
+    const rightY = Math.cos(totalRz);
+    const rightZ = 0;
+
+    // Up direction (cross product of forward and right)
+    const upX = Math.sin(totalRy) * Math.cos(totalRz);
+    const upY = Math.sin(totalRy) * Math.sin(totalRz);
+    const upZ = Math.cos(totalRy);
+
+    // Movement controls using ship-relative directions
     if (keys.has('w')) {
-      // Forward direction based on ship's rotation (cone points in +X local space)
-      const forwardX = Math.cos(ry) * Math.cos(rz);
-      const forwardY = Math.sin(rz);
-      const forwardZ = -Math.sin(ry) * Math.cos(rz);
-      
+      // Forward
       vx += forwardX * speed * delta;
       vy += forwardY * speed * delta;
       vz += forwardZ * speed * delta;
     }
     if (keys.has('s')) {
-      // Backward - opposite of forward direction
-      const backwardX = -Math.cos(ry) * Math.cos(rz);
-      const backwardY = -Math.sin(rz);
-      const backwardZ = Math.sin(ry) * Math.cos(rz);
-      
-      vx += backwardX * speed * delta;
-      vy += backwardY * speed * delta;
-      vz += backwardZ * speed * delta;
+      // Backward
+      vx -= forwardX * speed * delta;
+      vy -= forwardY * speed * delta;
+      vz -= forwardZ * speed * delta;
     }
     if (keys.has('a')) {
-      // Left direction relative to ship (cross product of forward and up)
-      const rightX = -Math.sin(ry);
-      const rightY = 0;
-      const rightZ = -Math.cos(ry);
-      
+      // Left (negative right direction)
       vx -= rightX * speed * delta;
       vy -= rightY * speed * delta;
       vz -= rightZ * speed * delta;
     }
     if (keys.has('d')) {
-      // Right direction relative to ship
-      const rightX = -Math.sin(ry);
-      const rightY = 0;
-      const rightZ = -Math.cos(ry);
-      
+      // Right
       vx += rightX * speed * delta;
       vy += rightY * speed * delta;
       vz += rightZ * speed * delta;
     }
     if (keys.has(' ')) {
-      // Up direction relative to ship
-      const upX = Math.cos(ry) * Math.sin(rz);
-      const upY = Math.cos(rz);
-      const upZ = -Math.sin(ry) * Math.sin(rz);
-      
+      // Up
       vx += upX * speed * delta;
       vy += upY * speed * delta;
       vz += upZ * speed * delta;
     }
     if (keys.has('shift')) {
-      // Down direction relative to ship
-      const upX = Math.cos(ry) * Math.sin(rz);
-      const upY = Math.cos(rz);
-      const upZ = -Math.sin(ry) * Math.sin(rz);
-      
+      // Down
       vx -= upX * speed * delta;
       vy -= upY * speed * delta;
       vz -= upZ * speed * delta;
