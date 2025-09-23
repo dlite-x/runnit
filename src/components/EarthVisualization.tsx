@@ -53,7 +53,7 @@ function Moon({ autoRotate }: EarthProps) {
   });
 
   return (
-    <mesh ref={moonRef} position={[6, 1, 2]}>
+    <mesh ref={moonRef} position={[12, 2, 4]}>
       <sphereGeometry args={[0.6, 32, 32]} />
       <meshStandardMaterial
         map={texture}
@@ -74,7 +74,7 @@ function SpaceStation({ autoRotate }: EarthProps) {
   });
 
   return (
-    <group ref={stationRef} position={[3, 0.5, 1]}>
+    <group ref={stationRef} position={[5.1, 0.85, 1.7]}>
       {/* Main hub */}
       <mesh position={[0, 0, 0]}>
         <cylinderGeometry args={[0.15, 0.15, 0.3, 16]} />
