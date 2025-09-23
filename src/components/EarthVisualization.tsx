@@ -1418,9 +1418,14 @@ function ShipController({
 }
 
 // CameraController component - follows ship in fly mode but allows rotation
-const CameraController = ({ flyMode, shipPosition }: { flyMode: boolean; shipPosition: Vector3 }) => {
+const CameraController = ({ flyMode, shipPosition, cameraTarget }: { 
+  flyMode: boolean; 
+  shipPosition: Vector3;
+  cameraTarget: [number, number, number];
+}) => {
   const { camera } = useThree();
   const targetRef = useRef(new Vector3());
+  const lastCameraTarget = useRef<[number, number, number]>([0, 0, 0]);
   
   useFrame(() => {
     if (flyMode && shipPosition) {
@@ -1436,6 +1441,36 @@ const CameraController = ({ flyMode, shipPosition }: { flyMode: boolean; shipPos
         const direction = new Vector3().subVectors(shipPosition, camera.position).normalize();
         const targetPosition = new Vector3().copy(shipPosition).sub(direction.multiplyScalar(5));
         camera.position.lerp(targetPosition, 0.05);
+      }
+    } else {
+      // Handle camera target changes when not in fly mode
+      const [x, y, z] = cameraTarget;
+      const [lastX, lastY, lastZ] = lastCameraTarget.current;
+      
+      // Check if camera target has changed
+      if (x !== lastX || y !== lastY || z !== lastZ) {
+        lastCameraTarget.current = [x, y, z];
+        
+        // Move camera to a good viewing position for the target
+        const targetPos = new Vector3(x, y, z);
+        let cameraDistance = 8; // Default distance
+        
+        // Adjust distance based on target
+        if (x === 24 && y === 4 && z === 8) { // Moon position
+          cameraDistance = 4; // Closer for moon
+        } else if (x === 0 && y === 0 && z === 0) { // Earth position
+          cameraDistance = 8; // Standard distance for Earth
+        }
+        
+        // Position camera at a good angle
+        const cameraPos = new Vector3(
+          targetPos.x + cameraDistance * 0.8,
+          targetPos.y + cameraDistance * 0.5,
+          targetPos.z + cameraDistance * 0.8
+        );
+        
+        camera.position.copy(cameraPos);
+        camera.lookAt(targetPos);
       }
     }
   });
@@ -1932,7 +1967,7 @@ const EarthVisualization = () => {
         />
 
         {/* Camera Controller - follows ship in fly mode */}
-        <CameraController flyMode={flyMode} shipPosition={new Vector3(...shipPosition)} />
+        <CameraController flyMode={flyMode} shipPosition={new Vector3(...shipPosition)} cameraTarget={cameraTarget} />
 
         {/* Earth, Moon, Ship, Orbiting Ships, Grid and Atmosphere */}
         <Earth autoRotate={autoRotate} onEarthClick={handleEarthClick} />
