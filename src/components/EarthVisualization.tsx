@@ -764,6 +764,71 @@ function TargetCube({ hitsTaken = 0 }: { hitsTaken?: number }) {
   );
 }
 
+// Custom Ship Loader Component
+function CustomShip({ position, rotation, selected, onShipClick }: ShipProps) {
+  const shipRef = useRef<THREE.Group>(null);
+  
+  // For now, create a placeholder custom ship design
+  // This will be replaced with OBJ/MTL loader once files are extracted
+  
+  useFrame(() => {
+    if (shipRef.current) {
+      shipRef.current.position.set(...position);
+      shipRef.current.rotation.set(...rotation);
+    }
+  });
+
+  return (
+    <group ref={shipRef} rotation={[0, 0, 0]}>
+      {/* Custom ship body - angular design */}
+      <mesh 
+        onClick={onShipClick}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = onShipClick ? 'pointer' : 'default';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'default';
+        }}
+      >
+        <coneGeometry args={[0.2, 1.0, 8]} />
+        <meshStandardMaterial 
+          color={selected ? "#FFD700" : "#4169E1"} 
+          metalness={0.8} 
+          roughness={0.2}
+          emissive={selected ? "#FFD700" : "#4169E1"}
+          emissiveIntensity={selected ? 0.3 : 0.1}
+        />
+      </mesh>
+      
+      {/* Ship wings */}
+      <mesh position={[0, 0, 0.3]} rotation={[0, 0, Math.PI / 6]}>
+        <boxGeometry args={[1.2, 0.1, 0.4]} />
+        <meshStandardMaterial 
+          color={selected ? "#FFD700" : "#4169E1"} 
+          metalness={0.8} 
+          roughness={0.2}
+          emissive={selected ? "#FFD700" : "#4169E1"}
+          emissiveIntensity={selected ? 0.2 : 0.05}
+        />
+      </mesh>
+      
+      {/* Selection indicator */}
+      {selected && (
+        <mesh position={[0, 0, 0]}>
+          <sphereGeometry args={[1.5, 16, 16]} />
+          <meshBasicMaterial 
+            color="#FFD700" 
+            transparent 
+            opacity={0.2}
+            wireframe
+          />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
 // Alien Ship component
 function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, alienShipHits }: { 
   targetPosition: [number, number, number];
@@ -1572,7 +1637,7 @@ const EarthVisualization = () => {
         <Earth autoRotate={autoRotate} onEarthClick={handleEarthClick} />
         <Moon autoRotate={autoRotate} onMoonClick={handleMoonClick} />
         {flyMode && (
-          <CapitalShip 
+          <CustomShip 
             position={shipPosition} 
             rotation={shipRotation} 
             selected={shipSelected}
