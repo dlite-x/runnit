@@ -2099,7 +2099,7 @@ const EarthVisualization = () => {
       </Canvas>
       
       {/* Selection Panel on the right */}
-      <div className="w-80 bg-background/90 backdrop-blur-sm border-l border-border p-6 overflow-y-auto">
+      <div className="w-80 h-screen bg-background/90 backdrop-blur-sm border-l border-border p-6 overflow-y-auto flex-shrink-0">
         <h3 className="text-xl font-bold text-foreground mb-4">Current Selection</h3>
         
         {selectedObject ? (
