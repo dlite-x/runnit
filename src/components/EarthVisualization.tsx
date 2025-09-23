@@ -370,7 +370,50 @@ function MoonBase() {
   );
 }
 
-function ShipController({ 
+function FighterDrones() {
+  const dronesRef = useRef<THREE.Group>(null);
+  
+  useFrame((state, delta) => {
+    if (dronesRef.current) {
+      // Gentle rotation of the entire formation
+      dronesRef.current.rotation.y += delta * 0.3;
+    }
+  });
+
+  // Create 5x5 matrix of yellow spheres
+  const drones = [];
+  for (let x = 0; x < 5; x++) {
+    for (let z = 0; z < 5; z++) {
+      drones.push(
+        <mesh 
+          key={`drone-${x}-${z}`} 
+          position={[
+            (x - 2) * 0.3, // Center the formation
+            0.2, 
+            (z - 2) * 0.3
+          ]}
+        >
+          <sphereGeometry args={[0.1, 16, 16]} />
+          <meshStandardMaterial 
+            color="#FFD700" 
+            metalness={0.7} 
+            roughness={0.2}
+            emissive="#FFD700"
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+      );
+    }
+  }
+
+  return (
+    <group ref={dronesRef} position={[6, 1, 2]}>
+      {drones}
+    </group>
+  );
+}
+
+function ShipController({
   flyMode, 
   onPositionChange, 
   onRotationChange, 
@@ -649,6 +692,7 @@ const EarthVisualization = () => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
   const [flyMode, setFlyMode] = useState(false);
+  const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([5, 2, 3]);
@@ -787,6 +831,16 @@ const EarthVisualization = () => {
               {flyMode ? 'Exit Flight' : 'Fly Ship'}
             </Button>
           </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFighterDronesBuilt(!fighterDronesBuilt)}
+              className="flex items-center gap-2"
+            >
+              {fighterDronesBuilt ? '🚁 Recall Drones' : '🚁 Build Fighter Drones'}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -878,6 +932,9 @@ const EarthVisualization = () => {
         
         <Grid3D visible={showGrid} />
         <Atmosphere />
+        
+        {/* Fighter Drones */}
+        {fighterDronesBuilt && <FighterDrones />}
 
         {/* Stars background */}
         <Stars
