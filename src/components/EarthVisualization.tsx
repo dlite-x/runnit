@@ -111,7 +111,7 @@ function Ship({ position, rotation, selected, onShipClick }: ShipProps) {
 
   return (
     <group ref={shipRef}>
-      {/* Ship body */}
+      {/* Ship body - 3D cube */}
       <mesh 
         position={[0, 0, 0]}
         onClick={onShipClick}
@@ -646,7 +646,7 @@ function Atmosphere() {
 }
 
 const EarthVisualization = () => {
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
   const [flyMode, setFlyMode] = useState(false);
   
@@ -824,7 +824,7 @@ const EarthVisualization = () => {
 
       {/* 3D Canvas */}
       <Canvas
-        camera={{ position: [0, 0, 8], fov: 45 }}
+        camera={{ position: [0, 0, 15], fov: 50 }}
         className="w-full h-full"
       >
         {/* Lighting - Increased brightness by 30% */}
