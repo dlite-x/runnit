@@ -401,7 +401,70 @@ function FighterDrones() {
     if (dronesRef.current) {
       // Gentle rotation of the entire formation
       dronesRef.current.rotation.y += delta * 0.3;
-    }
+}
+
+function CoordinateSystem() {
+  return (
+    <group position={[12, 2, 4]}>
+      {/* X-axis - Red */}
+      <group>
+        <mesh position={[1, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <cylinderGeometry args={[0.02, 0.02, 2, 8]} />
+          <meshStandardMaterial color="#FF0000" />
+        </mesh>
+        <mesh position={[2.2, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <coneGeometry args={[0.08, 0.3, 8]} />
+          <meshStandardMaterial color="#FF0000" />
+        </mesh>
+        {/* X label */}
+        <mesh position={[2.8, 0, 0]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.3} />
+        </mesh>
+      </group>
+
+      {/* Y-axis - Green */}
+      <group>
+        <mesh position={[0, 1, 0]}>
+          <cylinderGeometry args={[0.02, 0.02, 2, 8]} />
+          <meshStandardMaterial color="#00FF00" />
+        </mesh>
+        <mesh position={[0, 2.2, 0]}>
+          <coneGeometry args={[0.08, 0.3, 8]} />
+          <meshStandardMaterial color="#00FF00" />
+        </mesh>
+        {/* Y label */}
+        <mesh position={[0, 2.8, 0]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color="#00FF00" emissive="#00FF00" emissiveIntensity={0.3} />
+        </mesh>
+      </group>
+
+      {/* Z-axis - Blue (pointing toward North Pole) */}
+      <group>
+        <mesh position={[0, 0, 1]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.02, 0.02, 2, 8]} />
+          <meshStandardMaterial color="#0000FF" />
+        </mesh>
+        <mesh position={[0, 0, 2.2]} rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.08, 0.3, 8]} />
+          <meshStandardMaterial color="#0000FF" />
+        </mesh>
+        {/* Z label */}
+        <mesh position={[0, 0, 2.8]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color="#0000FF" emissive="#0000FF" emissiveIntensity={0.3} />
+        </mesh>
+      </group>
+
+      {/* Origin marker */}
+      <mesh position={[0, 0, 0]}>
+        <sphereGeometry args={[0.08, 16, 16]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={0.2} />
+      </mesh>
+    </group>
+  );
+}
   });
 
   // Create 5x5 matrix of yellow spheres
@@ -433,6 +496,69 @@ function FighterDrones() {
   return (
     <group ref={dronesRef} position={[6, 1, 2]}>
       {drones}
+    </group>
+  );
+}
+
+function CoordinateSystem() {
+  return (
+    <group position={[12, 2, 4]}>
+      {/* X-axis - Red */}
+      <group>
+        <mesh position={[1, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <cylinderGeometry args={[0.02, 0.02, 2, 8]} />
+          <meshStandardMaterial color="#FF0000" />
+        </mesh>
+        <mesh position={[2.2, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <coneGeometry args={[0.08, 0.3, 8]} />
+          <meshStandardMaterial color="#FF0000" />
+        </mesh>
+        {/* X label */}
+        <mesh position={[2.8, 0, 0]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.3} />
+        </mesh>
+      </group>
+
+      {/* Y-axis - Green */}
+      <group>
+        <mesh position={[0, 1, 0]}>
+          <cylinderGeometry args={[0.02, 0.02, 2, 8]} />
+          <meshStandardMaterial color="#00FF00" />
+        </mesh>
+        <mesh position={[0, 2.2, 0]}>
+          <coneGeometry args={[0.08, 0.3, 8]} />
+          <meshStandardMaterial color="#00FF00" />
+        </mesh>
+        {/* Y label */}
+        <mesh position={[0, 2.8, 0]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color="#00FF00" emissive="#00FF00" emissiveIntensity={0.3} />
+        </mesh>
+      </group>
+
+      {/* Z-axis - Blue (pointing toward North Pole) */}
+      <group>
+        <mesh position={[0, 0, 1]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.02, 0.02, 2, 8]} />
+          <meshStandardMaterial color="#0000FF" />
+        </mesh>
+        <mesh position={[0, 0, 2.2]} rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.08, 0.3, 8]} />
+          <meshStandardMaterial color="#0000FF" />
+        </mesh>
+        {/* Z label */}
+        <mesh position={[0, 0, 2.8]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color="#0000FF" emissive="#0000FF" emissiveIntensity={0.3} />
+        </mesh>
+      </group>
+
+      {/* Origin marker */}
+      <mesh position={[0, 0, 0]}>
+        <sphereGeometry args={[0.08, 16, 16]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={0.2} />
+      </mesh>
     </group>
   );
 }
@@ -953,6 +1079,9 @@ const EarthVisualization = () => {
         <OrbitingShip moonPosition={[24, 4, 8]} index={0} />
         <OrbitingShip moonPosition={[24, 4, 8]} index={1} />
         <OrbitingShip moonPosition={[24, 4, 8]} index={2} />
+        
+        {/* Coordinate System */}
+        <CoordinateSystem />
         
         <Grid3D visible={showGrid} />
         <Atmosphere />
