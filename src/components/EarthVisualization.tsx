@@ -103,8 +103,8 @@ function OrbitingShip({ moonPosition, index }: { moonPosition: [number, number, 
     if (shipRef.current) {
       const time = state.clock.getElapsedTime();
       const radius = 2 + index * 0.5; // Different orbital distances
-      const speed = 0.3 + index * 0.1; // Different speeds
-      const phaseOffset = index * (Math.PI / 2); // Different starting positions
+      const speed = 0.5 + index * 0.2; // Faster speeds for more visible movement
+      const phaseOffset = index * (Math.PI * 2 / 3); // Different starting positions
       
       // Calculate orbital position around moon
       const x = moonPosition[0] + Math.cos(time * speed + phaseOffset) * radius;
@@ -114,16 +114,17 @@ function OrbitingShip({ moonPosition, index }: { moonPosition: [number, number, 
       shipRef.current.position.set(x, y, z);
       
       // Point ship in direction of movement
-      const nextX = moonPosition[0] + Math.cos(time * speed + phaseOffset + 0.1) * radius;
-      const nextZ = moonPosition[2] + Math.sin(time * speed + phaseOffset + 0.1) * radius;
+      const nextAngle = time * speed + phaseOffset + 0.1;
+      const nextX = moonPosition[0] + Math.cos(nextAngle) * radius;
+      const nextZ = moonPosition[2] + Math.sin(nextAngle) * radius;
       shipRef.current.lookAt(nextX, y, nextZ);
       
       // Update trail
       const currentPos = new THREE.Vector3(x, y, z);
       setTrailPoints(prev => {
         const newPoints = [...prev, currentPos];
-        // Keep only last 30 points for trail
-        return newPoints.slice(-30);
+        // Keep only last 20 points for trail
+        return newPoints.slice(-20);
       });
     }
   });
