@@ -764,6 +764,64 @@ function TargetCube({ hitsTaken = 0 }: { hitsTaken?: number }) {
   );
 }
 
+// Base Cube component - appears on moon surface
+function BaseCube() {
+  const cubeRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (cubeRef.current) {
+      // Gentle floating animation
+      cubeRef.current.position.y = 4.8 + Math.sin(state.clock.getElapsedTime() * 1.5) * 0.05;
+    }
+  });
+
+  return (
+    <group ref={cubeRef} position={[24, 4.8, 8]}> {/* Moon position + surface offset */}
+      {/* Main base cube */}
+      <mesh>
+        <boxGeometry args={[0.4, 0.4, 0.4]} />
+        <meshStandardMaterial 
+          color="#00FF00"
+          metalness={0.3} 
+          roughness={0.4}
+          emissive="#00FF00"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+      
+      {/* Base foundation */}
+      <mesh position={[0, -0.3, 0]}>
+        <cylinderGeometry args={[0.3, 0.4, 0.2, 8]} />
+        <meshStandardMaterial 
+          color="#006600"
+          metalness={0.5} 
+          roughness={0.3}
+        />
+      </mesh>
+      
+      {/* Small antenna/beacon on top */}
+      <mesh position={[0, 0.3, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.2, 8]} />
+        <meshStandardMaterial 
+          color="#FFFFFF"
+          emissive="#FFFFFF"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      
+      {/* Blinking light on antenna */}
+      <mesh position={[0, 0.45, 0]}>
+        <sphereGeometry args={[0.03, 8, 8]} />
+        <meshStandardMaterial 
+          color="#00FF00"
+          emissive="#00FF00"
+          emissiveIntensity={0.8}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 // Custom Ship Loader Component
 function CustomShip({ position, rotation, selected, onShipClick }: ShipProps) {
   const shipRef = useRef<THREE.Group>(null);
@@ -1399,6 +1457,7 @@ const EarthVisualization = () => {
   const [alienShipHits, setAlienShipHits] = useState(0);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [showTargetCube, setShowTargetCube] = useState(false);
+  const [showBaseCube, setShowBaseCube] = useState(false);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -1569,6 +1628,14 @@ const EarthVisualization = () => {
             >
               {showTargetCube ? '🔷 Hide Target Cube' : '🔷 Show Target Cube'}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowBaseCube(!showBaseCube)}
+              className="flex items-center gap-2"
+            >
+              {showBaseCube ? '🟢 Hide Base Cube' : '🟢 Show Base Cube'}
+            </Button>
           </div>
         </div>
       </div>
@@ -1676,6 +1743,9 @@ const EarthVisualization = () => {
         
         {/* Target Cube */}
         {showTargetCube && <TargetCube hitsTaken={targetCubeHits} />}
+        
+        {/* Base Cube */}
+        {showBaseCube && <BaseCube />}
         
         {/* Alien Ship */}
         {alienShipActive && (
