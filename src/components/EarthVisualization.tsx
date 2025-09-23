@@ -1857,204 +1857,120 @@ const EarthVisualization = () => {
       {/* Enhanced Left Sidebar */}
       <div className="absolute top-16 left-0 bottom-0 z-10 w-80 bg-slate-900/95 backdrop-blur-sm border-r border-slate-700 overflow-y-auto">
         <div className="p-4 space-y-4">
-      {/* Controls Panel */}
-      <div className="absolute top-6 left-6 z-10 space-surface rounded-xl p-4 border border-border cosmic-glow">
-        <div className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold text-foreground mb-2">Earth Controls</h2>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAutoRotate(!autoRotate)}
-              className="flex items-center gap-2"
-            >
-              {autoRotate ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {autoRotate ? 'Pause' : 'Play'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReset}
-              className="flex items-center gap-2"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Reset
-            </Button>
+          {/* Planet Status Panel */}
+          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-blue-300 mb-3">Planet Status</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-300">Population:</span>
+                <span className="text-emerald-400 font-bold">7.8B</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Defense Level:</span>
+                <span className="text-green-400 font-bold">Level 3</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Shield Status:</span>
+                <span className="text-blue-400 font-bold">85%</span>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleZoomIn}
-              className="flex items-center gap-2"
-            >
-              <ZoomIn className="w-4 h-4" />
-              Zoom In
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleZoomOut}
-              className="flex items-center gap-2"
-            >
-              <ZoomOut className="w-4 h-4" />
-              Zoom Out
-            </Button>
+
+          {/* Resource Grid */}
+          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-purple-300 mb-3">Resources</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-slate-700/50 p-2 rounded border border-slate-600">
+                <div className="text-orange-400 font-bold">Iron</div>
+                <div className="text-slate-300">1,234</div>
+              </div>
+              <div className="bg-slate-700/50 p-2 rounded border border-slate-600">
+                <div className="text-blue-400 font-bold">Water</div>
+                <div className="text-slate-300">890</div>
+              </div>
+              <div className="bg-slate-700/50 p-2 rounded border border-slate-600">
+                <div className="text-green-400 font-bold">Food</div>
+                <div className="text-slate-300">567</div>
+              </div>
+              <div className="bg-slate-700/50 p-2 rounded border border-slate-600">
+                <div className="text-purple-400 font-bold">Tech</div>
+                <div className="text-slate-300">234</div>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowGrid(!showGrid)}
-              className="flex items-center gap-2"
-            >
-              <Grid3X3 className="w-4 h-4" />
-              {showGrid ? 'Hide Grid' : 'Show Grid'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFlyMode(!flyMode)}
-              className="flex items-center gap-2"
-            >
-              <Plane className="w-4 h-4" />
-              {flyMode ? 'Exit Flight' : 'Fly Capital Ship'}
-            </Button>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setFighterDronesBuilt(!fighterDronesBuilt);
-                // Reset both alien ship hits and target cube hits when redeploying drones
-                if (!fighterDronesBuilt) {
-                  setAlienShipHits(0);
-                  setTargetCubeHits(0);
-                }
-              }}
-              className="flex items-center gap-2"
-            >
-              {fighterDronesBuilt ? '🚁 Recall Drones' : '🚁 Build Fighter Drones'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAlienShipActive(!alienShipActive)}
-              className="flex items-center gap-2"
-            >
-              {alienShipActive ? '👽 Recall Alien Ship' : '👽 Deploy Alien Ship'}
-            </Button>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowTargetCube(!showTargetCube)}
-              className="flex items-center gap-2"
-            >
-              {showTargetCube ? '🔷 Hide Target Cube' : '🔷 Show Target Cube'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowBaseCube(!showBaseCube)}
-              className="flex items-center gap-2"
-            >
-              {showBaseCube ? '🟢 Hide Base Cube' : '🟢 Show Base Cube'}
-            </Button>
-          </div>
-          
-          {/* Ship Panel - positioned beneath Earth Controls */}
-          <div className="mt-4 bg-background/80 backdrop-blur-sm border rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-3 text-foreground">Ship Panel</h3>
-            <div className="flex gap-2">
+
+          {/* Space Operations */}
+          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-cyan-300 mb-3">Operations</h3>
+            <div className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShipPanelDrones(prev => prev + 1)}
-                className="flex items-center gap-2"
-                disabled={!shipFactoryBuilt}
+                onClick={() => setAutoRotate(!autoRotate)}
+                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
               >
-                🚀 Build Fighter Drone ({shipPanelDrones})
+                {autoRotate ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                {autoRotate ? 'Pause Rotation' : 'Auto Rotate'}
               </Button>
-              {shipPanelDrones > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShipPanelDrones(0)}
-                  className="flex items-center gap-2"
-                >
-                  🗑️ Clear Drones
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFlyMode(!flyMode)}
+                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+              >
+                <Plane className="w-4 h-4 mr-2" />
+                {flyMode ? 'Exit Flight Mode' : 'Enter Flight Mode'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowGrid(!showGrid)}
+                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+              >
+                <Grid3X3 className="w-4 h-4 mr-2" />
+                {showGrid ? 'Hide Grid' : 'Show Grid'}
+              </Button>
             </div>
-            {!shipFactoryBuilt && (
-              <p className="text-sm text-muted-foreground mt-2">
-                Build a Ship Factory first to construct drones
-              </p>
-            )}
           </div>
-          
-          {/* Construction Panel - positioned beneath Ship Panel */}
-          <div className="mt-4 bg-background/80 backdrop-blur-sm border rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-3 text-foreground">Construction Panel</h3>
-            <div className="flex flex-col gap-2">
+
+          {/* Construction Panel */}
+          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-yellow-300 mb-3">Construction</h3>
+            <div className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
-                className="flex items-center gap-2 justify-start"
+                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
               >
-                🛰️ {spaceStationBuilt ? 'Dismantle Space Station' : 'Build Space Station'}
+                🛰️ {spaceStationBuilt ? 'Dismantle Station' : 'Build Station'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShipFactoryBuilt(!shipFactoryBuilt)}
-                className="flex items-center gap-2 justify-start"
+                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
               >
-                🏭 {shipFactoryBuilt ? 'Dismantle Ship Factory' : 'Build Ship Factory'}
+                🏭 {shipFactoryBuilt ? 'Dismantle Factory' : 'Build Factory'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFighterDronesBuilt(!fighterDronesBuilt)}
+                className="w-full justify-start bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+                disabled={!shipFactoryBuilt}
+              >
+                🚁 {fighterDronesBuilt ? 'Recall Drones' : 'Deploy Drones'}
               </Button>
             </div>
           </div>
-        </div>
 
-      </div>
-
-      {/* Info Panel */}
-      <div className="absolute bottom-6 left-6 z-10 space-surface rounded-xl p-4 border border-border">
-        <div className="text-sm text-muted-foreground">
-          {flyMode ? (
-            <>
-              <p className="mb-1">🚀 Flight Mode Active</p>
-              <p className="mb-1">• WASD: Move horizontally</p>
-              <p className="mb-1">• Space/Shift: Up/Down</p>
-              <p className="mb-1">• QE: Roll left/right</p>
-              <p className="mb-1">• RF: Pitch up/down</p>
-              <p className="mb-1">• Click capital ship to select it</p>
-              <p>• Click Earth/Moon to navigate</p>
-            </>
-          ) : (
-            <>
-              <p className="mb-1">🌍 Interactive Earth Visualization</p>
-              <p className="mb-1">• Drag to rotate</p>
-              <p className="mb-1">• Scroll to zoom</p>
-              <p>• Use controls for precise navigation</p>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Selection Panel - positioned beneath Construction Panel */}
-      <div className="absolute top-6 left-6 z-10 mt-96 w-80">
-        <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-4">
-          <h3 className="text-lg font-semibold mb-3 text-foreground">Current Selection</h3>
-          
-          {selectedObject ? (
-            <div className="space-y-3">
-              <div className="bg-background/60 border rounded-lg p-3">
-                <h4 className="text-base font-semibold text-primary mb-2">
+          {/* Selection Panel */}
+          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-green-300 mb-3">Selection</h3>
+            {selectedObject ? (
+              <div className="space-y-2">
+                <div className="text-sm font-semibold text-blue-400">
                   {selectedObject === 'earth' && 'Planet Earth'}
                   {selectedObject === 'moon' && 'Moon'}
                   {selectedObject === 'ship' && 'Spacecraft'}
@@ -2063,80 +1979,55 @@ const EarthVisualization = () => {
                   {selectedObject === 'spaceStation' && 'Space Station'}
                   {selectedObject === 'shipFactory' && 'Ship Factory'}
                   {selectedObject === 'alienShip' && 'Alien Ship'}
-                </h4>
-                
-                <div className="text-xs text-muted-foreground space-y-1">
-                  {selectedObject === 'earth' && (
-                    <>
-                      <p><strong>Type:</strong> Planet</p>
-                      <p><strong>Position:</strong> Center (0, 0, 0)</p>
-                    </>
-                  )}
-                  
-                  {selectedObject === 'moon' && (
-                    <>
-                      <p><strong>Type:</strong> Natural Satellite</p>
-                      <p><strong>Position:</strong> (24, 4, 8)</p>
-                    </>
-                  )}
-                  
-                  {selectedObject === 'ship' && (
-                    <>
-                      <p><strong>Type:</strong> Spacecraft</p>
-                      <p><strong>Position:</strong> ({shipPosition[0].toFixed(1)}, {shipPosition[1].toFixed(1)}, {shipPosition[2].toFixed(1)})</p>
-                    </>
-                  )}
-                  
-                  {selectedObject === 'targetCube' && (
-                    <>
-                      <p><strong>Type:</strong> Training Target</p>
-                      <p><strong>Hits:</strong> {targetCubeHits}/10</p>
-                    </>
-                  )}
-                  
-                  {selectedObject === 'baseCube' && (
-                    <>
-                      <p><strong>Type:</strong> Space Base</p>
-                      <p><strong>Status:</strong> Operational</p>
-                    </>
-                  )}
-                  
-                  {selectedObject === 'spaceStation' && (
-                    <>
-                      <p><strong>Type:</strong> Orbital Station</p>
-                      <p><strong>Status:</strong> {spaceStationBuilt ? 'Operational' : 'Offline'}</p>
-                    </>
-                  )}
-                  
-                  {selectedObject === 'shipFactory' && (
-                    <>
-                      <p><strong>Type:</strong> Manufacturing Facility</p>
-                      <p><strong>Status:</strong> {shipFactoryBuilt ? 'Active' : 'Offline'}</p>
-                    </>
-                  )}
-                  
-                  {selectedObject === 'alienShip' && (
-                    <>
-                      <p><strong>Type:</strong> Hostile Craft</p>
-                      <p><strong>Health:</strong> {Math.max(0, 100 - alienShipHits)}%</p>
-                    </>
-                  )}
                 </div>
-                
-                <div className="mt-2 pt-2 border-t border-border">
-                  <p className="text-xs text-muted-foreground">
-                    Double-click to select • Press X to focus
-                  </p>
+                <div className="text-xs text-slate-400">
+                  {selectedObject === 'ship' && (
+                    <p>Position: ({shipPosition[0].toFixed(1)}, {shipPosition[1].toFixed(1)}, {shipPosition[2].toFixed(1)})</p>
+                  )}
+                  {selectedObject === 'targetCube' && (
+                    <p>Hits: {targetCubeHits}/10</p>
+                  )}
+                  {selectedObject === 'alienShip' && (
+                    <p>Health: {Math.max(0, 100 - alienShipHits)}%</p>
+                  )}
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="text-center text-muted-foreground">
-              <p className="text-sm">No object selected</p>
-              <p className="text-xs mt-1">Double-click any object</p>
-            </div>
-          )}
+            ) : (
+              <div className="text-sm text-slate-400">
+                No object selected
+              </div>
+            )}
+          </div>
         </div>
+      </div>
+
+      {/* Right Action Buttons */}
+      <div className="absolute top-20 right-4 z-10 space-y-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleReset}
+          className="bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
+        >
+          <RotateCcw className="w-4 h-4 mr-2" />
+          Reset
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setAlienShipActive(!alienShipActive)}
+          className="bg-red-800/80 border-red-600 text-red-300 hover:bg-red-700/80"
+        >
+          {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowTargetCube(!showTargetCube)}
+          className="bg-blue-800/80 border-blue-600 text-blue-300 hover:bg-blue-700/80"
+        >
+          {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
+        </Button>
       </div>
 
       {/* 3D Canvas - positioned to account for header */}
