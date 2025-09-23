@@ -672,7 +672,7 @@ function TargetCube({ hitsTaken = 0 }: { hitsTaken?: number }) {
   });
 
   return (
-    <group ref={cubeRef} position={[6, 1.2, 2]}>
+    <group ref={cubeRef} position={[2.2, 0, 0]}>
       {/* Main cube */}
       <mesh>
         <boxGeometry args={[0.5, 0.5, 0.5]} />
@@ -1398,6 +1398,7 @@ const EarthVisualization = () => {
   const [targetCubeHits, setTargetCubeHits] = useState(0);
   const [alienShipHits, setAlienShipHits] = useState(0);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
+  const [showTargetCube, setShowTargetCube] = useState(false);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -1560,6 +1561,14 @@ const EarthVisualization = () => {
             >
               {alienShipActive ? '👽 Recall Alien Ship' : '👽 Deploy Alien Ship'}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowTargetCube(!showTargetCube)}
+              className="flex items-center gap-2"
+            >
+              {showTargetCube ? '🔷 Hide Target Cube' : '🔷 Show Target Cube'}
+            </Button>
           </div>
         </div>
       </div>
@@ -1666,7 +1675,7 @@ const EarthVisualization = () => {
         )}
         
         {/* Target Cube */}
-        <TargetCube hitsTaken={targetCubeHits} />
+        {showTargetCube && <TargetCube hitsTaken={targetCubeHits} />}
         
         {/* Alien Ship */}
         {alienShipActive && (
