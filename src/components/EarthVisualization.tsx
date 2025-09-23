@@ -64,6 +64,48 @@ function Moon({ autoRotate }: EarthProps) {
   );
 }
 
+function SpaceStation({ autoRotate }: EarthProps) {
+  const stationRef = useRef<THREE.Group>(null);
+  
+  useFrame((state, delta) => {
+    if (stationRef.current && autoRotate) {
+      stationRef.current.rotation.y += delta * 0.2;
+    }
+  });
+
+  return (
+    <group ref={stationRef} position={[3, 0.5, 1]}>
+      {/* Main hub */}
+      <mesh position={[0, 0, 0]}>
+        <cylinderGeometry args={[0.15, 0.15, 0.3, 16]} />
+        <meshStandardMaterial color="#C0C0C0" metalness={0.8} roughness={0.2} />
+      </mesh>
+      
+      {/* Solar panels */}
+      <mesh position={[-0.4, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[0.8, 0.05, 0.3]} />
+        <meshStandardMaterial color="#1E3A8A" metalness={0.3} roughness={0.7} />
+      </mesh>
+      <mesh position={[0.4, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[0.8, 0.05, 0.3]} />
+        <meshStandardMaterial color="#1E3A8A" metalness={0.3} roughness={0.7} />
+      </mesh>
+      
+      {/* Communication dish */}
+      <mesh position={[0, 0.2, 0]} rotation={[Math.PI / 4, 0, 0]}>
+        <cylinderGeometry args={[0.1, 0.05, 0.02, 16]} />
+        <meshStandardMaterial color="#F0F0F0" metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Docking port */}
+      <mesh position={[0, -0.2, 0]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.1, 8]} />
+        <meshStandardMaterial color="#808080" metalness={0.6} roughness={0.4} />
+      </mesh>
+    </group>
+  );
+}
+
 function Atmosphere() {
   const atmosphereRef = useRef<THREE.Mesh>(null);
   
@@ -187,9 +229,10 @@ const EarthVisualization = () => {
         />
         <pointLight position={[-5, -5, -5]} intensity={0.8} color="#4A90E2" />
 
-        {/* Earth, Moon and Atmosphere */}
+        {/* Earth, Moon, Space Station and Atmosphere */}
         <Earth autoRotate={autoRotate} />
         <Moon autoRotate={autoRotate} />
+        <SpaceStation autoRotate={autoRotate} />
         <Atmosphere />
 
         {/* Stars background */}
