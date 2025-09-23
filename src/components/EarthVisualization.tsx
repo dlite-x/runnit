@@ -1764,6 +1764,8 @@ const EarthVisualization = () => {
             >
               {alienShipActive ? '👽 Recall Alien Ship' : '👽 Deploy Alien Ship'}
             </Button>
+          </div>
+          <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
