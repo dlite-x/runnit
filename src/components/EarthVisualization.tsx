@@ -81,138 +81,24 @@ function Ship({ position, rotation }: ShipProps) {
 
   return (
     <group ref={shipRef}>
-      {/* Main fuselage */}
-      <mesh position={[0, 0, 0.2]}>
-        <coneGeometry args={[0.08, 0.6, 8]} />
+      {/* Main cylindrical body */}
+      <mesh position={[0, 0, 0]}>
+        <cylinderGeometry args={[0.08, 0.08, 1.2, 16]} />
         <meshStandardMaterial 
-          color="#E8E8E8" 
-          metalness={0.9} 
-          roughness={0.1}
-          emissive="#001155"
-          emissiveIntensity={0.05}
-        />
-      </mesh>
-      
-      {/* Rear body */}
-      <mesh position={[0, 0, -0.2]}>
-        <cylinderGeometry args={[0.08, 0.12, 0.8, 12]} />
-        <meshStandardMaterial 
-          color="#D0D0D0" 
-          metalness={0.8} 
-          roughness={0.2}
-        />
-      </mesh>
-      
-      {/* Main wings */}
-      <mesh position={[-0.4, 0, 0]} rotation={[0, 0, Math.PI / 12]}>
-        <boxGeometry args={[0.8, 0.08, 0.15]} />
-        <meshStandardMaterial 
-          color="#606060" 
-          metalness={0.7} 
+          color="#87CEEB" 
+          metalness={0.6} 
           roughness={0.3}
-          emissive="#FF4500"
-          emissiveIntensity={0.02}
         />
       </mesh>
-      <mesh position={[0.4, 0, 0]} rotation={[0, 0, -Math.PI / 12]}>
-        <boxGeometry args={[0.8, 0.08, 0.15]} />
+      
+      {/* Pointed front */}
+      <mesh position={[0, 0, 0.6]}>
+        <coneGeometry args={[0.08, 0.3, 16]} />
         <meshStandardMaterial 
-          color="#606060" 
-          metalness={0.7} 
+          color="#87CEEB" 
+          metalness={0.6} 
           roughness={0.3}
-          emissive="#FF4500"
-          emissiveIntensity={0.02}
         />
-      </mesh>
-      
-      {/* Wing tips with lights */}
-      <mesh position={[-0.8, 0, 0]}>
-        <sphereGeometry args={[0.05, 8, 8]} />
-        <meshStandardMaterial 
-          color="#00FF00" 
-          emissive="#00FF00" 
-          emissiveIntensity={0.8}
-          transparent
-          opacity={0.9}
-        />
-      </mesh>
-      <mesh position={[0.8, 0, 0]}>
-        <sphereGeometry args={[0.05, 8, 8]} />
-        <meshStandardMaterial 
-          color="#FF0000" 
-          emissive="#FF0000" 
-          emissiveIntensity={0.8}
-          transparent
-          opacity={0.9}
-        />
-      </mesh>
-      
-      {/* Cockpit canopy */}
-      <mesh position={[0, 0.08, 0.15]}>
-        <sphereGeometry args={[0.12, 16, 12]} />
-        <meshStandardMaterial 
-          color="#4A90E2" 
-          transparent 
-          opacity={0.6}
-          metalness={0.1}
-          roughness={0.05}
-          emissive="#0066FF"
-          emissiveIntensity={0.1}
-        />
-      </mesh>
-      
-      {/* Engine exhausts with glow */}
-      <mesh position={[-0.15, -0.05, -0.6]}>
-        <cylinderGeometry args={[0.04, 0.06, 0.15, 8]} />
-        <meshStandardMaterial 
-          color="#FF4500" 
-          emissive="#FF6600" 
-          emissiveIntensity={1.2}
-          transparent
-          opacity={0.8}
-        />
-      </mesh>
-      <mesh position={[0.15, -0.05, -0.6]}>
-        <cylinderGeometry args={[0.04, 0.06, 0.15, 8]} />
-        <meshStandardMaterial 
-          color="#FF4500" 
-          emissive="#FF6600" 
-          emissiveIntensity={1.2}
-          transparent
-          opacity={0.8}
-        />
-      </mesh>
-      
-      {/* Engine trail particles */}
-      <mesh position={[-0.15, -0.05, -0.8]}>
-        <cylinderGeometry args={[0.02, 0.08, 0.3, 6]} />
-        <meshStandardMaterial 
-          color="#FFaa00" 
-          emissive="#FF8800" 
-          emissiveIntensity={0.6}
-          transparent
-          opacity={0.4}
-        />
-      </mesh>
-      <mesh position={[0.15, -0.05, -0.8]}>
-        <cylinderGeometry args={[0.02, 0.08, 0.3, 6]} />
-        <meshStandardMaterial 
-          color="#FFaa00" 
-          emissive="#FF8800" 
-          emissiveIntensity={0.6}
-          transparent
-          opacity={0.4}
-        />
-      </mesh>
-      
-      {/* Front weapons */}
-      <mesh position={[-0.2, -0.02, 0.45]}>
-        <cylinderGeometry args={[0.015, 0.015, 0.2, 8]} />
-        <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.1} />
-      </mesh>
-      <mesh position={[0.2, -0.02, 0.45]}>
-        <cylinderGeometry args={[0.015, 0.015, 0.2, 8]} />
-        <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.1} />
       </mesh>
     </group>
   );
