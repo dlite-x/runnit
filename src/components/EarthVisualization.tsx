@@ -10,9 +10,15 @@ import moonTexture from '@/assets/moon-texture-2k.jpg';
 
 interface EarthProps {
   autoRotate: boolean;
+  onEarthClick?: () => void;
 }
 
-function Earth({ autoRotate }: EarthProps) {
+interface MoonProps {
+  autoRotate: boolean;
+  onMoonClick?: () => void;
+}
+
+function Earth({ autoRotate, onEarthClick }: EarthProps) {
   const earthRef = useRef<THREE.Mesh>(null);
   const texture = useLoader(TextureLoader, earthTexture);
   
@@ -26,7 +32,18 @@ function Earth({ autoRotate }: EarthProps) {
   });
 
   return (
-    <mesh ref={earthRef} position={[0, 0, 0]}>
+    <mesh 
+      ref={earthRef} 
+      position={[0, 0, 0]}
+      onClick={onEarthClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = onEarthClick ? 'pointer' : 'default';
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'default';
+      }}
+    >
       <sphereGeometry args={[2, 64, 64]} />
       <meshStandardMaterial
         map={texture}
@@ -39,7 +56,7 @@ function Earth({ autoRotate }: EarthProps) {
   );
 }
 
-function Moon({ autoRotate }: EarthProps) {
+function Moon({ autoRotate, onMoonClick }: MoonProps) {
   const moonRef = useRef<THREE.Mesh>(null);
   const texture = useLoader(TextureLoader, moonTexture);
   
@@ -53,7 +70,18 @@ function Moon({ autoRotate }: EarthProps) {
   });
 
   return (
-    <mesh ref={moonRef} position={[12, 2, 4]}>
+    <mesh 
+      ref={moonRef} 
+      position={[12, 2, 4]}
+      onClick={onMoonClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = onMoonClick ? 'pointer' : 'default';
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'default';
+      }}
+    >
       <sphereGeometry args={[0.6, 32, 32]} />
       <meshStandardMaterial
         map={texture}
@@ -67,9 +95,11 @@ function Moon({ autoRotate }: EarthProps) {
 interface ShipProps {
   position: [number, number, number];
   rotation: [number, number, number];
+  selected?: boolean;
+  onShipClick?: () => void;
 }
 
-function Ship({ position, rotation }: ShipProps) {
+function Ship({ position, rotation, selected, onShipClick }: ShipProps) {
   const shipRef = useRef<THREE.Group>(null);
   
   useFrame(() => {
@@ -81,15 +111,40 @@ function Ship({ position, rotation }: ShipProps) {
 
   return (
     <group ref={shipRef}>
-      {/* Single cube */}
-      <mesh position={[0, 0, 0]}>
+      {/* Ship body */}
+      <mesh 
+        position={[0, 0, 0]}
+        onClick={onShipClick}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = onShipClick ? 'pointer' : 'default';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'default';
+        }}
+      >
         <boxGeometry args={[0.3, 0.3, 0.3]} />
         <meshStandardMaterial 
-          color="#87CEEB" 
+          color={selected ? "#FFD700" : "#87CEEB"} 
           metalness={0.6} 
           roughness={0.3}
+          emissive={selected ? "#FFD700" : "#000000"}
+          emissiveIntensity={selected ? 0.3 : 0}
         />
       </mesh>
+      
+      {/* Selection indicator */}
+      {selected && (
+        <mesh position={[0, 0, 0]}>
+          <sphereGeometry args={[0.5, 16, 16]} />
+          <meshBasicMaterial 
+            color="#FFD700" 
+            transparent 
+            opacity={0.2}
+            wireframe
+          />
+        </mesh>
+      )}
     </group>
   );
 }
@@ -417,6 +472,46 @@ const CameraController = ({ flyMode, shipPosition }: { flyMode: boolean; shipPos
   return null;
 };
 
+// TargetMover component - handles ship movement to clicked destinations
+const TargetMover = ({ 
+  isMoving, 
+  shipPosition, 
+  targetPosition, 
+  onPositionChange, 
+  onMovementComplete 
+}: {
+  isMoving: boolean;
+  shipPosition: [number, number, number];
+  targetPosition: [number, number, number] | null;
+  onPositionChange: (pos: [number, number, number]) => void;
+  onMovementComplete: () => void;
+}) => {
+  useFrame(() => {
+    if (isMoving && targetPosition) {
+      const current = new Vector3(...shipPosition);
+      const target = new Vector3(...targetPosition);
+      
+      // Calculate distance to target
+      const distance = current.distanceTo(target);
+      
+      if (distance < 0.1) {
+        // Arrived at target
+        onMovementComplete();
+        return;
+      }
+      
+      // Move towards target
+      const direction = target.clone().sub(current).normalize();
+      const speed = Math.min(distance * 0.05, 0.1); // Adaptive speed
+      const newPosition = current.add(direction.multiplyScalar(speed));
+      
+      onPositionChange([newPosition.x, newPosition.y, newPosition.z]);
+    }
+  });
+  
+  return null;
+};
+
 function SpaceStation({ autoRotate }: EarthProps) {
   const stationRef = useRef<THREE.Group>(null);
   
@@ -559,9 +654,38 @@ const EarthVisualization = () => {
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([5, 2, 3]);
   const [shipRotation, setShipRotation] = useState<[number, number, number]>([0, 0, 0]);
   const [shipVelocity, setShipVelocity] = useState<[number, number, number]>([0, 0, 0]);
+  const [shipSelected, setShipSelected] = useState(false);
+  const [shipTarget, setShipTarget] = useState<[number, number, number] | null>(null);
+  const [isMovingToTarget, setIsMovingToTarget] = useState(false);
   
   // Keyboard state
   const keysPressed = useRef<Set<string>>(new Set());
+
+  // Click handlers
+  const handleShipClick = () => {
+    setShipSelected(true);
+  };
+
+  const handleEarthClick = () => {
+    if (shipSelected) {
+      setShipTarget([0, 3, 0]); // Position near Earth
+      setIsMovingToTarget(true);
+      setShipSelected(false);
+    }
+  };
+
+  const handleMoonClick = () => {
+    if (shipSelected) {
+      setShipTarget([10, 2, 4]); // Position near Moon
+      setIsMovingToTarget(true);
+      setShipSelected(false);
+    }
+  };
+
+  const handleMovementComplete = () => {
+    setIsMovingToTarget(false);
+    setShipTarget(null);
+  };
 
   // Flight controls
   useEffect(() => {
@@ -675,7 +799,9 @@ const EarthVisualization = () => {
               <p className="mb-1">• WASD: Move horizontally</p>
               <p className="mb-1">• Space/Shift: Up/Down</p>
               <p className="mb-1">• QE: Roll left/right</p>
-              <p>• RF: Pitch up/down</p>
+              <p className="mb-1">• RF: Pitch up/down</p>
+              <p className="mb-1">• Click ship to select it</p>
+              <p>• Click Earth/Moon to navigate</p>
             </>
           ) : (
             <>
@@ -721,13 +847,29 @@ const EarthVisualization = () => {
           keysPressed={keysPressed}
         />
 
+        {/* Target Mover - handles automatic ship movement */}
+        <TargetMover
+          isMoving={isMovingToTarget}
+          shipPosition={shipPosition}
+          targetPosition={shipTarget}
+          onPositionChange={setShipPosition}
+          onMovementComplete={handleMovementComplete}
+        />
+
         {/* Camera Controller - follows ship in fly mode */}
         <CameraController flyMode={flyMode} shipPosition={new Vector3(...shipPosition)} />
 
         {/* Earth, Moon, Ship, Orbiting Ships, Grid and Atmosphere */}
-        <Earth autoRotate={autoRotate} />
-        <Moon autoRotate={autoRotate} />
-        {flyMode && <Ship position={shipPosition} rotation={shipRotation} />}
+        <Earth autoRotate={autoRotate} onEarthClick={handleEarthClick} />
+        <Moon autoRotate={autoRotate} onMoonClick={handleMoonClick} />
+        {flyMode && (
+          <Ship 
+            position={shipPosition} 
+            rotation={shipRotation} 
+            selected={shipSelected}
+            onShipClick={handleShipClick}
+          />
+        )}
         
         {/* Orbiting ships around moon */}
         <OrbitingShip moonPosition={[12, 2, 4]} index={0} />
