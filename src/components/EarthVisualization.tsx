@@ -342,8 +342,6 @@ const EarthVisualization = () => {
           enableRotate={true}
           minDistance={3}
           maxDistance={15}
-          autoRotate={autoRotate}
-          autoRotateSpeed={0.5}
           dampingFactor={0.05}
           enableDamping={true}
         />
