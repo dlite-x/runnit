@@ -571,8 +571,18 @@ function HorizontalCylinder() {
         />
       </mesh>
 
-      {/* Single cylinder spanning the diameter of the ring */}
+      {/* Single cylinder spanning the diameter of the ring - Y axis */}
       <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.03, 0.03, 1.6, 8]} />
+        <meshStandardMaterial 
+          color="#C0C0C0" 
+          metalness={0.8} 
+          roughness={0.2}
+        />
+      </mesh>
+
+      {/* Second diameter cylinder - Z axis (perpendicular to first) */}
+      <mesh position={[0, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
         <cylinderGeometry args={[0.03, 0.03, 1.6, 8]} />
         <meshStandardMaterial 
           color="#C0C0C0" 
