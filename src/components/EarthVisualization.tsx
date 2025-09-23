@@ -971,6 +971,26 @@ function ShipFactory() {
   );
 }
 
+// Ship Panel Drones - yellow spheres next to ship factory
+function ShipPanelDrones({ count }: { count: number }) {
+  return (
+    <>
+      {Array.from({ length: count }, (_, i) => (
+        <mesh key={i} position={[3 + (i % 3) * 0.3, 3.5 + Math.floor(i / 3) * 0.3, 2.5]}>
+          <sphereGeometry args={[0.1, 16, 16]} />
+          <meshStandardMaterial 
+            color="#FFD700"
+            metalness={0.3} 
+            roughness={0.4}
+            emissive="#FFD700"
+            emissiveIntensity={0.2}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 // Custom Ship Loader Component
 function CustomShip({ position, rotation, selected, onShipClick }: ShipProps) {
   const shipRef = useRef<THREE.Group>(null);
@@ -1571,6 +1591,7 @@ const EarthVisualization = () => {
   const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([0, 0, 0]);
   const [spaceStationBuilt, setSpaceStationBuilt] = useState(false);
   const [shipFactoryBuilt, setShipFactoryBuilt] = useState(false);
+  const [shipPanelDrones, setShipPanelDrones] = useState(0);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -1784,7 +1805,38 @@ const EarthVisualization = () => {
             </Button>
           </div>
           
-          {/* Construction Panel - positioned beneath Earth Controls */}
+          {/* Ship Panel - positioned beneath Earth Controls */}
+          <div className="mt-4 bg-background/80 backdrop-blur-sm border rounded-lg p-4">
+            <h3 className="text-lg font-semibold mb-3 text-foreground">Ship Panel</h3>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShipPanelDrones(prev => prev + 1)}
+                className="flex items-center gap-2"
+                disabled={!shipFactoryBuilt}
+              >
+                🚀 Build Fighter Drone ({shipPanelDrones})
+              </Button>
+              {shipPanelDrones > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShipPanelDrones(0)}
+                  className="flex items-center gap-2"
+                >
+                  🗑️ Clear Drones
+                </Button>
+              )}
+            </div>
+            {!shipFactoryBuilt && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Build a Ship Factory first to construct drones
+              </p>
+            )}
+          </div>
+          
+          {/* Construction Panel - positioned beneath Ship Panel */}
           <div className="mt-4 bg-background/80 backdrop-blur-sm border rounded-lg p-4">
             <h3 className="text-lg font-semibold mb-3 text-foreground">Construction Panel</h3>
             <div className="flex flex-col gap-2">
@@ -1928,6 +1980,9 @@ const EarthVisualization = () => {
         
         {/* Ship Factory */}
         {shipFactoryBuilt && <ShipFactory />}
+        
+        {/* Ship Panel Drones */}
+        {shipFactoryBuilt && <ShipPanelDrones count={shipPanelDrones} />}
         
         {/* Alien Ship */}
         {alienShipActive && (
