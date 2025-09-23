@@ -110,7 +110,7 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
   });
 
   return (
-    <group ref={shipRef} rotation={[0, 0, -Math.PI / 2]} position={[12, 2, 4]}>
+    <group ref={shipRef} rotation={[0, 0, -Math.PI / 2]}>
       {/* Capital Ship body - Cylindrical space station */}
       <mesh 
         position={[0, 0, 0]}
