@@ -157,25 +157,49 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
         />
       </mesh>
 
-      {/* Blue light at bottom of cylinder */}
+      {/* Red light at bottom of cylinder */}
       <mesh position={[0, -0.8, 0]}>
         <sphereGeometry args={[0.15, 16, 16]} />
         <meshStandardMaterial 
-          color="#0066FF" 
-          emissive="#0066FF" 
+          color="#FF0000" 
+          emissive="#FF0000" 
           emissiveIntensity={0.8}
           transparent
           opacity={0.7}
         />
       </mesh>
 
-      {/* Blue light glow effect */}
+      {/* Red light glow effect */}
       <mesh position={[0, -0.8, 0]}>
         <sphereGeometry args={[0.25, 16, 16]} />
         <meshStandardMaterial 
-          color="#0066FF" 
-          emissive="#0066FF" 
+          color="#FF0000" 
+          emissive="#FF0000" 
           emissiveIntensity={0.3}
+          transparent
+          opacity={0.3}
+        />
+      </mesh>
+
+      {/* Gray light at top of cylinder */}
+      <mesh position={[0, 0.8, 0]}>
+        <sphereGeometry args={[0.15, 16, 16]} />
+        <meshStandardMaterial 
+          color="#808080" 
+          emissive="#808080" 
+          emissiveIntensity={0.6}
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+
+      {/* Gray light glow effect */}
+      <mesh position={[0, 0.8, 0]}>
+        <sphereGeometry args={[0.25, 16, 16]} />
+        <meshStandardMaterial 
+          color="#808080" 
+          emissive="#808080" 
+          emissiveIntensity={0.2}
           transparent
           opacity={0.3}
         />
