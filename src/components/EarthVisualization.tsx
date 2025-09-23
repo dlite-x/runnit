@@ -1798,7 +1798,10 @@ const EarthVisualization = () => {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-slate-950">
+    <div className="relative w-full h-screen overflow-hidden" style={{
+      background: 'radial-gradient(ellipse at center, #1a1f3a 0%, #0f0f23 50%, #000 100%)',
+      boxShadow: 'inset 0 0 200px rgba(74, 144, 226, 0.1)'
+    }}>
       {/* Top Header Bar */}
       <div className="absolute top-0 left-0 right-0 z-20 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700">
         <div className="flex items-center justify-between px-6 py-3">
@@ -2031,21 +2034,36 @@ const EarthVisualization = () => {
       </div>
 
       {/* 3D Canvas - positioned to account for header */}
-      <div className="absolute top-16 left-80 right-0 bottom-0">
+      <div className="absolute top-16 left-80 right-0 bottom-0" style={{
+        background: 'radial-gradient(circle at center, rgba(74, 144, 226, 0.05) 0%, transparent 70%)',
+        boxShadow: 'inset 0 0 100px rgba(135, 206, 235, 0.1)'
+      }}>
         <Canvas
           camera={{ position: [0, 0, 15], fov: 50 }}
           className="w-full h-full"
+          style={{
+            background: 'transparent'
+          }}
         >
-        {/* Lighting - Increased brightness by 30% */}
-        <ambientLight intensity={0.35} />
+        {/* Enhanced Lighting - Brighter with glow effects */}
+        <ambientLight intensity={0.6} />
         <directionalLight
           position={[5, 5, 5]}
-          intensity={1.5}
+          intensity={2.2}
           castShadow
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
+          shadow-mapSize-width={2048}
+          shadow-mapSize-height={2048}
         />
-        <pointLight position={[-5, -5, -5]} intensity={0.8} color="#4A90E2" />
+        <pointLight position={[-5, -5, -5]} intensity={1.4} color="#4A90E2" />
+        <pointLight position={[10, 0, 0]} intensity={0.8} color="#87CEEB" />
+        <pointLight position={[0, 10, 0]} intensity={0.6} color="#FFD700" />
+        <rectAreaLight
+          position={[0, 0, 20]}
+          width={40}
+          height={40}
+          intensity={0.3}
+          color="#4A90E2"
+        />
 
         {/* Ship Controller */}
         <ShipController
