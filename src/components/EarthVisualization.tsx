@@ -5,7 +5,7 @@ import { TextureLoader } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ZoomIn, ZoomOut, Play, Pause } from 'lucide-react';
-import earthTexture from '@/assets/earth-texture-complete.jpg';
+import earthTexture from '@/assets/earth-2k-texture.jpg';
 
 interface EarthProps {
   autoRotate: boolean;
