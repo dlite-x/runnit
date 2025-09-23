@@ -2330,7 +2330,7 @@ const EarthVisualization = () => {
           target={flyMode ? new Vector3(...shipPosition) : new Vector3(...cameraTarget)}
           makeDefault
         />
-      </Canvas>
+        </Canvas>
       </div>
     </div>
   );
