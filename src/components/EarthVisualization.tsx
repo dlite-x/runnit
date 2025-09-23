@@ -391,21 +391,26 @@ function ShipController({
   return null; // This component doesn't render anything
 }
 
-// CameraController component - follows ship in fly mode
+// CameraController component - follows ship in fly mode but allows rotation
 const CameraController = ({ flyMode, shipPosition }: { flyMode: boolean; shipPosition: Vector3 }) => {
   const { camera } = useThree();
+  const targetRef = useRef(new Vector3());
   
   useFrame(() => {
     if (flyMode && shipPosition) {
-      // Position camera behind and above the ship
-      const offset = new Vector3(-3, 1, 2);
-      const targetPosition = new Vector3().copy(shipPosition).add(offset);
+      // Update the target position to the ship's position
+      targetRef.current.copy(shipPosition);
       
-      // Smoothly move camera to follow ship
-      camera.position.lerp(targetPosition, 0.1);
+      // Keep the camera at a relative distance from the ship
+      // but allow OrbitControls to handle the rotation
+      const currentDistance = camera.position.distanceTo(shipPosition);
       
-      // Make camera look at ship
-      camera.lookAt(shipPosition);
+      // If camera gets too far from ship, gently pull it back
+      if (currentDistance > 10) {
+        const direction = new Vector3().subVectors(shipPosition, camera.position).normalize();
+        const targetPosition = new Vector3().copy(shipPosition).sub(direction.multiplyScalar(5));
+        camera.position.lerp(targetPosition, 0.05);
+      }
     }
   });
 
@@ -743,19 +748,18 @@ const EarthVisualization = () => {
           speed={0}
         />
 
-        {/* Controls - disabled in fly mode */}
-        {!flyMode && (
-          <OrbitControls
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
-            minDistance={3}
-            maxDistance={15}
-            dampingFactor={0.05}
-            enableDamping={true}
-            makeDefault
-          />
-        )}
+        {/* Controls - now enabled in both modes with target following in fly mode */}
+        <OrbitControls
+          enablePan={true}
+          enableZoom={true}
+          enableRotate={true}
+          minDistance={3}
+          maxDistance={flyMode ? 20 : 15}
+          dampingFactor={0.05}
+          enableDamping={true}
+          target={flyMode ? new Vector3(...shipPosition) : new Vector3(0, 0, 0)}
+          makeDefault
+        />
       </Canvas>
     </div>
   );
