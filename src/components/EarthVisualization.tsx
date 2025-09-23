@@ -94,6 +94,93 @@ function Ship({ position, rotation }: ShipProps) {
   );
 }
 
+function OrbitingShip({ moonPosition, index }: { moonPosition: [number, number, number]; index: number }) {
+  const shipRef = useRef<THREE.Group>(null);
+  const trailRef = useRef<THREE.LineSegments>(null);
+  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
+  
+  useFrame((state, delta) => {
+    if (shipRef.current) {
+      const time = state.clock.getElapsedTime();
+      const radius = 2 + index * 0.5; // Different orbital distances
+      const speed = 0.3 + index * 0.1; // Different speeds
+      const phaseOffset = index * (Math.PI / 2); // Different starting positions
+      
+      // Calculate orbital position around moon
+      const x = moonPosition[0] + Math.cos(time * speed + phaseOffset) * radius;
+      const y = moonPosition[1] + Math.sin(time * speed + phaseOffset) * 0.3; // Slight vertical movement
+      const z = moonPosition[2] + Math.sin(time * speed + phaseOffset) * radius;
+      
+      shipRef.current.position.set(x, y, z);
+      
+      // Point ship in direction of movement
+      const nextX = moonPosition[0] + Math.cos(time * speed + phaseOffset + 0.1) * radius;
+      const nextZ = moonPosition[2] + Math.sin(time * speed + phaseOffset + 0.1) * radius;
+      shipRef.current.lookAt(nextX, y, nextZ);
+      
+      // Update trail
+      const currentPos = new THREE.Vector3(x, y, z);
+      setTrailPoints(prev => {
+        const newPoints = [...prev, currentPos];
+        // Keep only last 30 points for trail
+        return newPoints.slice(-30);
+      });
+    }
+  });
+
+  // Create trail geometry
+  React.useEffect(() => {
+    if (trailRef.current && trailPoints.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
+      trailRef.current.geometry.dispose();
+      trailRef.current.geometry = geometry;
+    }
+  }, [trailPoints]);
+
+  return (
+    <group>
+      {/* Ship */}
+      <group ref={shipRef}>
+        <mesh>
+          <boxGeometry args={[0.1, 0.05, 0.15]} />
+          <meshStandardMaterial 
+            color={index === 0 ? "#FF6B6B" : index === 1 ? "#4ECDC4" : "#45B7D1"} 
+            metalness={0.7} 
+            roughness={0.2}
+            emissive={index === 0 ? "#FF3333" : index === 1 ? "#33CCCC" : "#3399DD"}
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+        
+        {/* Engine glow */}
+        <mesh position={[0, 0, -0.1]}>
+          <cylinderGeometry args={[0.02, 0.04, 0.08, 8]} />
+          <meshStandardMaterial 
+            color="#FF8800" 
+            emissive="#FF6600" 
+            emissiveIntensity={0.8}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      </group>
+      
+      {/* Trail */}
+      {trailPoints.length > 1 && (
+        <lineSegments ref={trailRef}>
+          <bufferGeometry />
+          <lineBasicMaterial 
+            color={index === 0 ? "#FF6B6B" : index === 1 ? "#4ECDC4" : "#45B7D1"} 
+            transparent 
+            opacity={0.6}
+            linewidth={2}
+          />
+        </lineSegments>
+      )}
+    </group>
+  );
+}
+
 function ShipController({ 
   flyMode, 
   onPositionChange, 
@@ -464,11 +551,17 @@ const EarthVisualization = () => {
           keysPressed={keysPressed}
         />
 
-        {/* Earth, Moon, Space Station, Ship, Grid and Atmosphere */}
+        {/* Earth, Moon, Space Station, Ship, Orbiting Ships, Grid and Atmosphere */}
         <Earth autoRotate={autoRotate} />
         <Moon autoRotate={autoRotate} />
         <SpaceStation autoRotate={autoRotate} />
         {flyMode && <Ship position={shipPosition} rotation={shipRotation} />}
+        
+        {/* Orbiting ships around moon */}
+        <OrbitingShip moonPosition={[12, 2, 4]} index={0} />
+        <OrbitingShip moonPosition={[12, 2, 4]} index={1} />
+        <OrbitingShip moonPosition={[12, 2, 4]} index={2} />
+        
         <Grid3D visible={showGrid} />
         <Atmosphere />
 
