@@ -181,6 +181,139 @@ function OrbitingShip({ moonPosition, index }: { moonPosition: [number, number, 
   );
 }
 
+function MoonBase() {
+  const baseRef = useRef<THREE.Group>(null);
+  
+  useFrame((state, delta) => {
+    if (baseRef.current) {
+      // Subtle rotation to make it feel alive
+      baseRef.current.rotation.y += delta * 0.02;
+    }
+  });
+
+  return (
+    <group ref={baseRef} position={[11.2, 2.3, 3.2]}> {/* Positioned on bright side of moon */}
+      {/* Main central hub */}
+      <mesh position={[0, 0, 0]}>
+        <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
+        <meshStandardMaterial 
+          color="#1a1a1a" 
+          metalness={0.9} 
+          roughness={0.1}
+        />
+      </mesh>
+      
+      {/* Gold ring around hub */}
+      <mesh position={[0, 0.18, 0]}>
+        <torusGeometry args={[0.45, 0.05, 8, 32]} />
+        <meshStandardMaterial 
+          color="#FFD700" 
+          metalness={1.0} 
+          roughness={0.05}
+          emissive="#FFD700"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+      
+      {/* Communication towers */}
+      <mesh position={[0, 0.4, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.6, 8]} />
+        <meshStandardMaterial color="#FFD700" metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Antenna dish */}
+      <mesh position={[0, 0.8, 0]} rotation={[Math.PI / 6, 0, 0]}>
+        <cylinderGeometry args={[0.15, 0.1, 0.05, 16]} />
+        <meshStandardMaterial 
+          color="#1a1a1a" 
+          metalness={0.8} 
+          roughness={0.2}
+        />
+      </mesh>
+      
+      {/* Surrounding modules */}
+      <mesh position={[0.6, 0, 0]}>
+        <boxGeometry args={[0.25, 0.2, 0.25]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.2} />
+      </mesh>
+      <mesh position={[-0.6, 0, 0]}>
+        <boxGeometry args={[0.25, 0.2, 0.25]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.2} />
+      </mesh>
+      <mesh position={[0, 0, 0.6]}>
+        <boxGeometry args={[0.25, 0.2, 0.25]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.2} />
+      </mesh>
+      <mesh position={[0, 0, -0.6]}>
+        <boxGeometry args={[0.25, 0.2, 0.25]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.2} />
+      </mesh>
+      
+      {/* Gold connectors between modules */}
+      <mesh position={[0.3, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.6, 8]} />
+        <meshStandardMaterial color="#FFD700" metalness={0.9} roughness={0.1} />
+      </mesh>
+      <mesh position={[-0.3, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.6, 8]} />
+        <meshStandardMaterial color="#FFD700" metalness={0.9} roughness={0.1} />
+      </mesh>
+      <mesh position={[0, 0, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.6, 8]} />
+        <meshStandardMaterial color="#FFD700" metalness={0.9} roughness={0.1} />
+      </mesh>
+      <mesh position={[0, 0, -0.3]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.6, 8]} />
+        <meshStandardMaterial color="#FFD700" metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Landing pads */}
+      <mesh position={[1.2, -0.1, 0]}>
+        <cylinderGeometry args={[0.2, 0.2, 0.05, 16]} />
+        <meshStandardMaterial 
+          color="#FFD700" 
+          metalness={0.9} 
+          roughness={0.1}
+          emissive="#FFD700"
+          emissiveIntensity={0.05}
+        />
+      </mesh>
+      <mesh position={[-1.2, -0.1, 0]}>
+        <cylinderGeometry args={[0.2, 0.2, 0.05, 16]} />
+        <meshStandardMaterial 
+          color="#FFD700" 
+          metalness={0.9} 
+          roughness={0.1}
+          emissive="#FFD700"
+          emissiveIntensity={0.05}
+        />
+      </mesh>
+      
+      {/* Warning lights */}
+      <mesh position={[0.4, 0.3, 0.4]}>
+        <sphereGeometry args={[0.04, 8, 8]} />
+        <meshStandardMaterial 
+          color="#FF0000" 
+          emissive="#FF0000" 
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      <mesh position={[-0.4, 0.3, 0.4]}>
+        <sphereGeometry args={[0.04, 8, 8]} />
+        <meshStandardMaterial 
+          color="#FF0000" 
+          emissive="#FF0000" 
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function ShipController({ 
   flyMode, 
   onPositionChange, 
@@ -551,9 +684,10 @@ const EarthVisualization = () => {
           keysPressed={keysPressed}
         />
 
-        {/* Earth, Moon, Space Station, Ship, Orbiting Ships, Grid and Atmosphere */}
+        {/* Earth, Moon, Moon Base, Space Station, Ship, Orbiting Ships, Grid and Atmosphere */}
         <Earth autoRotate={autoRotate} />
         <Moon autoRotate={autoRotate} />
+        <MoonBase />
         <SpaceStation autoRotate={autoRotate} />
         {flyMode && <Ship position={shipPosition} rotation={shipRotation} />}
         
