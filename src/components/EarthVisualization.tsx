@@ -797,7 +797,7 @@ function BaseCube({ onCubeClick }: { onCubeClick?: () => void }) {
           document.body.style.cursor = 'default';
         }}
       >
-        <boxGeometry args={[0.4, 0.4, 0.4]} />
+        <boxGeometry args={[0.04, 0.04, 0.04]} />
         <meshStandardMaterial 
           color="#00FF00"
           metalness={0.3} 
@@ -808,8 +808,8 @@ function BaseCube({ onCubeClick }: { onCubeClick?: () => void }) {
       </mesh>
       
       {/* Base foundation */}
-      <mesh position={[0, -0.3, 0]}>
-        <cylinderGeometry args={[0.3, 0.4, 0.2, 8]} />
+      <mesh position={[0, -0.03, 0]}>
+        <cylinderGeometry args={[0.03, 0.04, 0.02, 8]} />
         <meshStandardMaterial 
           color="#006600"
           metalness={0.5} 
@@ -818,8 +818,8 @@ function BaseCube({ onCubeClick }: { onCubeClick?: () => void }) {
       </mesh>
       
       {/* Small antenna/beacon on top */}
-      <mesh position={[0, 0.3, 0]}>
-        <cylinderGeometry args={[0.02, 0.02, 0.2, 8]} />
+      <mesh position={[0, 0.03, 0]}>
+        <cylinderGeometry args={[0.002, 0.002, 0.02, 8]} />
         <meshStandardMaterial 
           color="#FFFFFF"
           emissive="#FFFFFF"
@@ -828,10 +828,141 @@ function BaseCube({ onCubeClick }: { onCubeClick?: () => void }) {
       </mesh>
       
       {/* Blinking light on antenna */}
-      <mesh position={[0, 0.45, 0]}>
-        <sphereGeometry args={[0.03, 8, 8]} />
+      <mesh position={[0, 0.045, 0]}>
+        <sphereGeometry args={[0.003, 8, 8]} />
         <meshStandardMaterial 
           color="#00FF00"
+          emissive="#00FF00"
+          emissiveIntensity={0.8}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// Space Station Component - orbits Earth
+function SpaceStation() {
+  const stationRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (stationRef.current) {
+      const time = state.clock.getElapsedTime();
+      const radius = 4;
+      stationRef.current.position.x = Math.cos(time * 0.3) * radius;
+      stationRef.current.position.y = Math.sin(time * 0.3) * radius * 0.5;
+      stationRef.current.position.z = Math.sin(time * 0.3) * radius;
+      stationRef.current.rotation.y = time * 0.2;
+    }
+  });
+
+  return (
+    <group ref={stationRef}>
+      {/* Central hub */}
+      <mesh>
+        <cylinderGeometry args={[0.3, 0.3, 0.8, 8]} />
+        <meshStandardMaterial 
+          color="#C0C0C0" 
+          metalness={0.8} 
+          roughness={0.2}
+          emissive="#4169E1"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+      
+      {/* Solar panels */}
+      <mesh position={[1.2, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[0.8, 0.05, 1.6]} />
+        <meshStandardMaterial 
+          color="#003366" 
+          metalness={0.1} 
+          roughness={0.9}
+          emissive="#0066CC"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      
+      <mesh position={[-1.2, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[0.8, 0.05, 1.6]} />
+        <meshStandardMaterial 
+          color="#003366" 
+          metalness={0.1} 
+          roughness={0.9}
+          emissive="#0066CC"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      
+      {/* Communication array */}
+      <mesh position={[0, 0.6, 0]}>
+        <sphereGeometry args={[0.1, 8, 8]} />
+        <meshStandardMaterial 
+          color="#FFFFFF" 
+          emissive="#FFFFFF"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// Ship Factory Component - static near Earth
+function ShipFactory() {
+  const factoryRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (factoryRef.current) {
+      // Gentle floating animation
+      factoryRef.current.position.y = 3 + Math.sin(state.clock.getElapsedTime() * 0.5) * 0.1;
+    }
+  });
+
+  return (
+    <group ref={factoryRef} position={[3, 3, 2]}>
+      {/* Main factory structure */}
+      <mesh>
+        <boxGeometry args={[1.2, 0.8, 1.2]} />
+        <meshStandardMaterial 
+          color="#444444" 
+          metalness={0.7} 
+          roughness={0.3}
+          emissive="#FF6600"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+      
+      {/* Construction bays */}
+      <mesh position={[0.8, 0, 0]}>
+        <boxGeometry args={[0.4, 0.6, 0.8]} />
+        <meshStandardMaterial 
+          color="#666666" 
+          metalness={0.5} 
+          roughness={0.4}
+        />
+      </mesh>
+      
+      <mesh position={[-0.8, 0, 0]}>
+        <boxGeometry args={[0.4, 0.6, 0.8]} />
+        <meshStandardMaterial 
+          color="#666666" 
+          metalness={0.5} 
+          roughness={0.4}
+        />
+      </mesh>
+      
+      {/* Factory lights */}
+      <mesh position={[0, 0.5, 0.7]}>
+        <sphereGeometry args={[0.05, 8, 8]} />
+        <meshStandardMaterial 
+          color="#FF0000" 
+          emissive="#FF0000"
+          emissiveIntensity={0.8}
+        />
+      </mesh>
+      
+      <mesh position={[0, 0.5, -0.7]}>
+        <sphereGeometry args={[0.05, 8, 8]} />
+        <meshStandardMaterial 
+          color="#00FF00" 
           emissive="#00FF00"
           emissiveIntensity={0.8}
         />
@@ -1332,47 +1463,6 @@ const TargetMover = ({
   return null;
 };
 
-function SpaceStation({ autoRotate }: EarthProps) {
-  const stationRef = useRef<THREE.Group>(null);
-  
-  useFrame((state, delta) => {
-    if (stationRef.current && autoRotate) {
-      stationRef.current.rotation.y += delta * 0.2;
-    }
-  });
-
-  return (
-    <group ref={stationRef} position={[5.1, 0.85, 1.7]}>
-      {/* Main hub */}
-      <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[0.15, 0.15, 0.3, 16]} />
-        <meshStandardMaterial color="#C0C0C0" metalness={0.8} roughness={0.2} />
-      </mesh>
-      
-      {/* Solar panels */}
-      <mesh position={[-0.4, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <boxGeometry args={[0.8, 0.05, 0.3]} />
-        <meshStandardMaterial color="#1E3A8A" metalness={0.3} roughness={0.7} />
-      </mesh>
-      <mesh position={[0.4, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <boxGeometry args={[0.8, 0.05, 0.3]} />
-        <meshStandardMaterial color="#1E3A8A" metalness={0.3} roughness={0.7} />
-      </mesh>
-      
-      {/* Communication dish */}
-      <mesh position={[0, 0.2, 0]} rotation={[Math.PI / 4, 0, 0]}>
-        <cylinderGeometry args={[0.1, 0.05, 0.02, 16]} />
-        <meshStandardMaterial color="#F0F0F0" metalness={0.9} roughness={0.1} />
-      </mesh>
-      
-      {/* Docking port */}
-      <mesh position={[0, -0.2, 0]}>
-        <cylinderGeometry args={[0.08, 0.08, 0.1, 8]} />
-        <meshStandardMaterial color="#808080" metalness={0.6} roughness={0.4} />
-      </mesh>
-    </group>
-  );
-}
 
 interface GridProps {
   visible: boolean;
@@ -1468,6 +1558,7 @@ function Atmosphere() {
 const EarthVisualization = () => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
+  const [showCoordinates, setShowCoordinates] = useState(false);
   const [flyMode, setFlyMode] = useState(false);
   const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
   const [alienShipActive, setAlienShipActive] = useState(false);
@@ -1478,6 +1569,8 @@ const EarthVisualization = () => {
   const [showBaseCube, setShowBaseCube] = useState(false);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
   const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([0, 0, 0]);
+  const [spaceStationBuilt, setSpaceStationBuilt] = useState(false);
+  const [shipFactoryBuilt, setShipFactoryBuilt] = useState(false);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -1689,6 +1782,29 @@ const EarthVisualization = () => {
             </Button>
           </div>
         </div>
+
+        {/* Construction Panel */}
+        <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm border rounded-lg p-4 min-w-[280px]">
+          <h3 className="text-lg font-semibold mb-3 text-foreground">Construction Panel</h3>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
+              className="flex items-center gap-2 justify-start"
+            >
+              🛰️ {spaceStationBuilt ? 'Dismantle Space Station' : 'Build Space Station'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShipFactoryBuilt(!shipFactoryBuilt)}
+              className="flex items-center gap-2 justify-start"
+            >
+              🏭 {shipFactoryBuilt ? 'Dismantle Ship Factory' : 'Build Ship Factory'}
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Info Panel */}
@@ -1778,7 +1894,7 @@ const EarthVisualization = () => {
         <OrbitingShip moonPosition={[24, 4, 8]} index={2} />
         
         {/* Coordinate System */}
-        <CoordinateSystem />
+        {showCoordinates && <CoordinateSystem />}
         
         <Grid3D visible={showGrid} />
         <Atmosphere />
@@ -1803,6 +1919,12 @@ const EarthVisualization = () => {
           setSelectedObject("baseCube");
           console.log("Base Cube selected! Press X to focus camera.");
         }} />}
+        
+        {/* Space Station */}
+        {spaceStationBuilt && <SpaceStation />}
+        
+        {/* Ship Factory */}
+        {shipFactoryBuilt && <ShipFactory />}
         
         {/* Alien Ship */}
         {alienShipActive && (
