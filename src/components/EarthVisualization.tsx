@@ -249,7 +249,7 @@ const EarthVisualization = () => {
         {/* Controls */}
         <OrbitControls
           ref={controlsRef}
-          enablePan={false}
+          enablePan={true}
           enableZoom={true}
           enableRotate={true}
           minDistance={3}
