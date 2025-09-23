@@ -847,7 +847,7 @@ function BaseCube({ onCubeClick }: { onCubeClick?: () => void }) {
 }
 
 // Space Station Component - orbits Earth
-function SpaceStation() {
+function SpaceStation({ onSpaceStationDoubleClick }: { onSpaceStationDoubleClick?: () => void }) {
   const stationRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
@@ -864,7 +864,16 @@ function SpaceStation() {
   return (
     <group ref={stationRef}>
       {/* Central hub */}
-      <mesh>
+      <mesh
+        onDoubleClick={onSpaceStationDoubleClick}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = onSpaceStationDoubleClick ? 'pointer' : 'default';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'default';
+        }}
+      >
         <cylinderGeometry args={[0.3, 0.3, 0.8, 8]} />
         <meshStandardMaterial 
           color="#C0C0C0" 
@@ -912,7 +921,7 @@ function SpaceStation() {
 }
 
 // Ship Factory Component - static near Earth
-function ShipFactory() {
+function ShipFactory({ onShipFactoryDoubleClick }: { onShipFactoryDoubleClick?: () => void }) {
   const factoryRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
@@ -925,7 +934,16 @@ function ShipFactory() {
   return (
     <group ref={factoryRef} position={[3, 3, 2]}>
       {/* Main factory structure */}
-      <mesh>
+      <mesh
+        onDoubleClick={onShipFactoryDoubleClick}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = onShipFactoryDoubleClick ? 'pointer' : 'default';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'default';
+        }}
+      >
         <boxGeometry args={[1.2, 0.8, 1.2]} />
         <meshStandardMaterial 
           color="#444444" 
@@ -1064,12 +1082,13 @@ function CustomShip({ position, rotation, selected, onShipClick, onShipDoubleCli
 }
 
 // Alien Ship component
-function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, alienShipHits }: { 
+function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, alienShipHits, onAlienShipDoubleClick }: { 
   targetPosition: [number, number, number];
   onTargetHit: () => void;
   onAlienHit: () => void;
   onPositionChange?: (pos: [number, number, number]) => void;
   alienShipHits: number;
+  onAlienShipDoubleClick?: () => void;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const [position, setPosition] = useState<[number, number, number]>([15, 5, 8]);
@@ -1151,7 +1170,16 @@ function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, 
     <>
       <group ref={shipRef} position={position}>
         {/* Alien ship body - angular, menacing design */}
-        <mesh>
+        <mesh
+          onDoubleClick={onAlienShipDoubleClick}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            document.body.style.cursor = onAlienShipDoubleClick ? 'pointer' : 'default';
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'default';
+          }}
+        >
           <coneGeometry args={[0.3, 0.8, 6]} />
           <meshStandardMaterial 
             color={Date.now() - lastHitTime < 200 ? "#FF0000" : "#8B0000"} 
@@ -2025,10 +2053,10 @@ const EarthVisualization = () => {
         }} />}
         
         {/* Space Station */}
-        {spaceStationBuilt && <SpaceStation />}
+        {spaceStationBuilt && <SpaceStation onSpaceStationDoubleClick={() => setSelectedObject("spaceStation")} />}
         
         {/* Ship Factory */}
-        {shipFactoryBuilt && <ShipFactory />}
+        {shipFactoryBuilt && <ShipFactory onShipFactoryDoubleClick={() => setSelectedObject("shipFactory")} />}
         
         {/* Ship Panel Drones */}
         {shipFactoryBuilt && <ShipPanelDrones count={shipPanelDrones} />}
@@ -2041,6 +2069,7 @@ const EarthVisualization = () => {
             onAlienHit={() => setAlienShipHits(prev => prev + 1)}
             onPositionChange={setAlienShipPosition}
             alienShipHits={alienShipHits}
+            onAlienShipDoubleClick={() => setSelectedObject("alienShip")}
           />
         )}
 
@@ -2082,6 +2111,9 @@ const EarthVisualization = () => {
                 {selectedObject === 'ship' && 'Spacecraft'}
                 {selectedObject === 'targetCube' && 'Target Cube'}
                 {selectedObject === 'baseCube' && 'Base Cube'}
+                {selectedObject === 'spaceStation' && 'Space Station'}
+                {selectedObject === 'shipFactory' && 'Ship Factory'}
+                {selectedObject === 'alienShip' && 'Alien Ship'}
               </h4>
               
               <div className="text-sm text-muted-foreground space-y-2">
@@ -2127,6 +2159,36 @@ const EarthVisualization = () => {
                     <p><strong>Type:</strong> Space Base</p>
                     <p><strong>Status:</strong> Operational</p>
                     <p><strong>Description:</strong> Strategic outpost.</p>
+                  </>
+                )}
+                
+                {selectedObject === 'spaceStation' && (
+                  <>
+                    <p><strong>Type:</strong> Orbital Station</p>
+                    <p><strong>Status:</strong> {spaceStationBuilt ? 'Operational' : 'Offline'}</p>
+                    <p><strong>Orbit:</strong> Around Earth</p>
+                    <p><strong>Function:</strong> Research & Communications</p>
+                    <p><strong>Description:</strong> Advanced orbital research facility with rotating solar panels.</p>
+                  </>
+                )}
+                
+                {selectedObject === 'shipFactory' && (
+                  <>
+                    <p><strong>Type:</strong> Manufacturing Facility</p>
+                    <p><strong>Status:</strong> {shipFactoryBuilt ? 'Active' : 'Offline'}</p>
+                    <p><strong>Position:</strong> (3, 3, 2)</p>
+                    <p><strong>Production:</strong> Fighter Drones</p>
+                    <p><strong>Description:</strong> Automated spacecraft manufacturing facility.</p>
+                  </>
+                )}
+                
+                {selectedObject === 'alienShip' && (
+                  <>
+                    <p><strong>Type:</strong> Hostile Craft</p>
+                    <p><strong>Status:</strong> {alienShipActive ? 'Active' : 'Dormant'}</p>
+                    <p><strong>Health:</strong> {Math.max(0, 100 - alienShipHits)}%</p>
+                    <p><strong>Behavior:</strong> Aggressive</p>
+                    <p><strong>Description:</strong> Unknown alien vessel with hostile intentions.</p>
                   </>
                 )}
               </div>
