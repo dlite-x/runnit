@@ -96,6 +96,35 @@ function Moon({ autoRotate, onMoonClick, onMoonDoubleClick }: MoonProps) {
   );
 }
 
+// Selection Ring Component - shows around selected objects
+function SelectionRing({ position, radius = 2.5, selected }: { 
+  position: [number, number, number]; 
+  radius?: number; 
+  selected: boolean; 
+}) {
+  const ringRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state, delta) => {
+    if (selected && ringRef.current) {
+      ringRef.current.rotation.z += delta * 2; // Spin selection ring
+    }
+  });
+
+  if (!selected) return null;
+
+  return (
+    <mesh ref={ringRef} position={position}>
+      <ringGeometry args={[radius * 1.3, radius * 1.5, 32]} />
+      <meshBasicMaterial 
+        color="#4A90E2" 
+        transparent 
+        opacity={0.8}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
 interface ShipProps {
   position: [number, number, number];
   rotation: [number, number, number];
@@ -2111,6 +2140,25 @@ const EarthVisualization = () => {
           />
         )}
         
+        {/* Selection Rings - animated blue rings around selected objects */}
+        <SelectionRing 
+          position={[0, 0, 0]} 
+          radius={2} 
+          selected={selectedObject === "earth"} 
+        />
+        <SelectionRing 
+          position={[24, 4, 8]} 
+          radius={0.6} 
+          selected={selectedObject === "moon"} 
+        />
+        {flyMode && (
+          <SelectionRing 
+            position={shipPosition} 
+            radius={0.8} 
+            selected={selectedObject === "ship"} 
+          />
+        )}
+        
         {/* Orbiting ships around moon */}
         <OrbitingShip moonPosition={[24, 4, 8]} index={0} />
         <OrbitingShip moonPosition={[24, 4, 8]} index={1} />
@@ -2161,6 +2209,43 @@ const EarthVisualization = () => {
             onPositionChange={setAlienShipPosition}
             alienShipHits={alienShipHits}
             onAlienShipDoubleClick={() => setSelectedObject("alienShip")}
+          />
+        )}
+        
+        {/* Additional Selection Rings for other objects */}
+        {showTargetCube && (
+          <SelectionRing 
+            position={[6, 1, 2]} 
+            radius={0.6} 
+            selected={selectedObject === "targetCube"} 
+          />
+        )}
+        {showBaseCube && (
+          <SelectionRing 
+            position={[-6, 1, -2]} 
+            radius={0.6} 
+            selected={selectedObject === "baseCube"} 
+          />
+        )}
+        {spaceStationBuilt && (
+          <SelectionRing 
+            position={[0, 4, 0]} 
+            radius={1.2} 
+            selected={selectedObject === "spaceStation"} 
+          />
+        )}
+        {shipFactoryBuilt && (
+          <SelectionRing 
+            position={[3, 3, 2]} 
+            radius={0.8} 
+            selected={selectedObject === "shipFactory"} 
+          />
+        )}
+        {alienShipActive && (
+          <SelectionRing 
+            position={alienShipPosition} 
+            radius={0.7} 
+            selected={selectedObject === "alienShip"} 
           />
         )}
 
