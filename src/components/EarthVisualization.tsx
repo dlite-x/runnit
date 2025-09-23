@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
-import { TextureLoader } from 'three';
+import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane } from 'lucide-react';
@@ -391,6 +391,27 @@ function ShipController({
   return null; // This component doesn't render anything
 }
 
+// CameraController component - follows ship in fly mode
+const CameraController = ({ flyMode, shipPosition }: { flyMode: boolean; shipPosition: Vector3 }) => {
+  const { camera } = useThree();
+  
+  useFrame(() => {
+    if (flyMode && shipPosition) {
+      // Position camera behind and above the ship
+      const offset = new Vector3(-3, 1, 2);
+      const targetPosition = new Vector3().copy(shipPosition).add(offset);
+      
+      // Smoothly move camera to follow ship
+      camera.position.lerp(targetPosition, 0.1);
+      
+      // Make camera look at ship
+      camera.lookAt(shipPosition);
+    }
+  });
+
+  return null;
+};
+
 function SpaceStation({ autoRotate }: EarthProps) {
   const stationRef = useRef<THREE.Group>(null);
   
@@ -695,6 +716,9 @@ const EarthVisualization = () => {
           keysPressed={keysPressed}
         />
 
+        {/* Camera Controller - follows ship in fly mode */}
+        <CameraController flyMode={flyMode} shipPosition={new Vector3(...shipPosition)} />
+
         {/* Earth, Moon, Ship, Orbiting Ships, Grid and Atmosphere */}
         <Earth autoRotate={autoRotate} />
         <Moon autoRotate={autoRotate} />
@@ -719,17 +743,19 @@ const EarthVisualization = () => {
           speed={0}
         />
 
-        {/* Controls */}
-        <OrbitControls
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
-          minDistance={3}
-          maxDistance={15}
-          dampingFactor={0.05}
-          enableDamping={true}
-          makeDefault
-        />
+        {/* Controls - disabled in fly mode */}
+        {!flyMode && (
+          <OrbitControls
+            enablePan={true}
+            enableZoom={true}
+            enableRotate={true}
+            minDistance={3}
+            maxDistance={15}
+            dampingFactor={0.05}
+            enableDamping={true}
+            makeDefault
+          />
+        )}
       </Canvas>
     </div>
   );
