@@ -571,29 +571,15 @@ function HorizontalCylinder() {
         />
       </mesh>
 
-      {/* 6 spokes connecting ring inner circumference to cylinder center */}
-      {Array.from({ length: 6 }, (_, i) => {
-        const angle = (i * Math.PI * 2) / 6;
-        const innerRadius = 0.72; // Ring inner circumference (0.8 - 0.08)
-        const spokeLength = innerRadius;
-        const midY = Math.cos(angle) * (innerRadius / 2);
-        const midZ = Math.sin(angle) * (innerRadius / 2);
-        
-        return (
-          <mesh 
-            key={i}
-            position={[0, midY, midZ]}
-            rotation={[0, 0, -angle + Math.PI / 2]}
-          >
-            <cylinderGeometry args={[0.02, 0.02, spokeLength, 8]} />
-            <meshStandardMaterial 
-              color="#C0C0C0" 
-              metalness={0.8} 
-              roughness={0.2}
-            />
-          </mesh>
-        );
-      })}
+      {/* Single cylinder spanning the diameter of the ring */}
+      <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.03, 0.03, 1.6, 8]} />
+        <meshStandardMaterial 
+          color="#C0C0C0" 
+          metalness={0.8} 
+          roughness={0.2}
+        />
+      </mesh>
     </group>
   );
 }
