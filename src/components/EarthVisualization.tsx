@@ -81,19 +81,9 @@ function Ship({ position, rotation }: ShipProps) {
 
   return (
     <group ref={shipRef}>
-      {/* Main cylindrical body */}
+      {/* Single cube */}
       <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[0.08, 0.08, 1.2, 16]} />
-        <meshStandardMaterial 
-          color="#87CEEB" 
-          metalness={0.6} 
-          roughness={0.3}
-        />
-      </mesh>
-      
-      {/* Pointed front */}
-      <mesh position={[0, 0, 0.6]}>
-        <coneGeometry args={[0.08, 0.3, 16]} />
+        <boxGeometry args={[0.3, 0.3, 0.3]} />
         <meshStandardMaterial 
           color="#87CEEB" 
           metalness={0.6} 
