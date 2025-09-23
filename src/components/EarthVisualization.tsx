@@ -11,14 +11,16 @@ import moonTexture from '@/assets/moon-texture-2k.jpg';
 interface EarthProps {
   autoRotate: boolean;
   onEarthClick?: () => void;
+  onEarthDoubleClick?: () => void;
 }
 
 interface MoonProps {
   autoRotate: boolean;
   onMoonClick?: () => void;
+  onMoonDoubleClick?: () => void;
 }
 
-function Earth({ autoRotate, onEarthClick }: EarthProps) {
+function Earth({ autoRotate, onEarthClick, onEarthDoubleClick }: EarthProps) {
   const earthRef = useRef<THREE.Mesh>(null);
   const texture = useLoader(TextureLoader, earthTexture);
   
@@ -36,6 +38,7 @@ function Earth({ autoRotate, onEarthClick }: EarthProps) {
       ref={earthRef} 
       position={[0, 0, 0]}
       onClick={onEarthClick}
+      onDoubleClick={onEarthDoubleClick}
       onPointerOver={(e) => {
         e.stopPropagation();
         document.body.style.cursor = onEarthClick ? 'pointer' : 'default';
@@ -56,7 +59,7 @@ function Earth({ autoRotate, onEarthClick }: EarthProps) {
   );
 }
 
-function Moon({ autoRotate, onMoonClick }: MoonProps) {
+function Moon({ autoRotate, onMoonClick, onMoonDoubleClick }: MoonProps) {
   const moonRef = useRef<THREE.Mesh>(null);
   const texture = useLoader(TextureLoader, moonTexture);
   
@@ -74,6 +77,7 @@ function Moon({ autoRotate, onMoonClick }: MoonProps) {
       ref={moonRef} 
       position={[24, 4, 8]}
       onClick={onMoonClick}
+      onDoubleClick={onMoonDoubleClick}
       onPointerOver={(e) => {
         e.stopPropagation();
         document.body.style.cursor = onMoonClick ? 'pointer' : 'default';
@@ -97,9 +101,10 @@ interface ShipProps {
   rotation: [number, number, number];
   selected?: boolean;
   onShipClick?: () => void;
+  onShipDoubleClick?: () => void;
 }
 
-function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
+function CapitalShip({ position, rotation, selected, onShipClick, onShipDoubleClick }: ShipProps) {
   const shipRef = useRef<THREE.Group>(null);
   
   useFrame(() => {
@@ -115,6 +120,7 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
       <mesh 
         rotation={[0, 0, Math.PI / 2]}
         onClick={onShipClick}
+        onDoubleClick={onShipDoubleClick}
         onPointerOver={(e) => {
           e.stopPropagation();
           document.body.style.cursor = onShipClick ? 'pointer' : 'default';
@@ -992,7 +998,7 @@ function ShipPanelDrones({ count }: { count: number }) {
 }
 
 // Custom Ship Loader Component
-function CustomShip({ position, rotation, selected, onShipClick }: ShipProps) {
+function CustomShip({ position, rotation, selected, onShipClick, onShipDoubleClick }: ShipProps) {
   const shipRef = useRef<THREE.Group>(null);
   
   // For now, create a placeholder custom ship design
@@ -1010,6 +1016,7 @@ function CustomShip({ position, rotation, selected, onShipClick }: ShipProps) {
       {/* Custom ship body - angular design */}
       <mesh 
         onClick={onShipClick}
+        onDoubleClick={onShipDoubleClick}
         onPointerOver={(e) => {
           e.stopPropagation();
           document.body.style.cursor = onShipClick ? 'pointer' : 'default';
@@ -1734,7 +1741,9 @@ const EarthVisualization = () => {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden flex">
+      {/* Main Content */}
+      <div className="flex-1 relative">
       {/* Controls Panel */}
       <div className="absolute top-6 left-6 z-10 space-surface rounded-xl p-4 border border-border cosmic-glow">
         <div className="flex flex-col gap-3">
@@ -1924,13 +1933,6 @@ const EarthVisualization = () => {
         </div>
       </div>
 
-      {/* Title */}
-      <div className="absolute top-6 right-6 z-10 text-right">
-        <h1 className="text-4xl font-bold text-foreground mb-2 earth-glow">
-          Planet Earth
-        </h1>
-        <p className="text-lg text-primary">3D Interactive Globe</p>
-      </div>
 
       {/* 3D Canvas */}
       <Canvas
@@ -1970,14 +1972,23 @@ const EarthVisualization = () => {
         <CameraController flyMode={flyMode} shipPosition={new Vector3(...shipPosition)} cameraTarget={cameraTarget} />
 
         {/* Earth, Moon, Ship, Orbiting Ships, Grid and Atmosphere */}
-        <Earth autoRotate={autoRotate} onEarthClick={handleEarthClick} />
-        <Moon autoRotate={autoRotate} onMoonClick={handleMoonClick} />
+        <Earth 
+          autoRotate={autoRotate} 
+          onEarthClick={handleEarthClick}
+          onEarthDoubleClick={() => setSelectedObject("earth")}
+        />
+        <Moon 
+          autoRotate={autoRotate} 
+          onMoonClick={handleMoonClick}
+          onMoonDoubleClick={() => setSelectedObject("moon")}
+        />
         {flyMode && (
           <CustomShip 
             position={shipPosition} 
             rotation={shipRotation} 
             selected={shipSelected}
             onShipClick={handleShipClick}
+            onShipDoubleClick={() => setSelectedObject("ship")}
           />
         )}
         
@@ -2057,6 +2068,84 @@ const EarthVisualization = () => {
           makeDefault
         />
       </Canvas>
+      
+      {/* Selection Panel on the right */}
+      <div className="w-80 bg-background/90 backdrop-blur-sm border-l border-border p-6 overflow-y-auto">
+        <h3 className="text-xl font-bold text-foreground mb-4">Current Selection</h3>
+        
+        {selectedObject ? (
+          <div className="space-y-4">
+            <div className="bg-background/60 border rounded-lg p-4">
+              <h4 className="text-lg font-semibold text-primary mb-2">
+                {selectedObject === 'earth' && 'Planet Earth'}
+                {selectedObject === 'moon' && 'Moon'}
+                {selectedObject === 'ship' && 'Spacecraft'}
+                {selectedObject === 'targetCube' && 'Target Cube'}
+                {selectedObject === 'baseCube' && 'Base Cube'}
+              </h4>
+              
+              <div className="text-sm text-muted-foreground space-y-2">
+                {selectedObject === 'earth' && (
+                  <>
+                    <p><strong>Type:</strong> Planet</p>
+                    <p><strong>Radius:</strong> 6,371 km</p>
+                    <p><strong>Position:</strong> Center (0, 0, 0)</p>
+                    <p><strong>Description:</strong> Our home planet, a blue marble in space.</p>
+                  </>
+                )}
+                
+                {selectedObject === 'moon' && (
+                  <>
+                    <p><strong>Type:</strong> Natural Satellite</p>
+                    <p><strong>Radius:</strong> 1,737 km</p>
+                    <p><strong>Distance from Earth:</strong> 384,400 km</p>
+                    <p><strong>Position:</strong> (24, 4, 8)</p>
+                    <p><strong>Description:</strong> Earth's only natural satellite.</p>
+                  </>
+                )}
+                
+                {selectedObject === 'ship' && (
+                  <>
+                    <p><strong>Type:</strong> Spacecraft</p>
+                    <p><strong>Status:</strong> Active</p>
+                    <p><strong>Position:</strong> ({shipPosition[0].toFixed(1)}, {shipPosition[1].toFixed(1)}, {shipPosition[2].toFixed(1)})</p>
+                    <p><strong>Description:</strong> Advanced exploration vessel.</p>
+                  </>
+                )}
+                
+                {selectedObject === 'targetCube' && (
+                  <>
+                    <p><strong>Type:</strong> Training Target</p>
+                    <p><strong>Status:</strong> {targetCubeHits >= 10 ? 'Destroyed' : 'Active'}</p>
+                    <p><strong>Hits Taken:</strong> {targetCubeHits}/10</p>
+                    <p><strong>Description:</strong> Combat training target.</p>
+                  </>
+                )}
+                
+                {selectedObject === 'baseCube' && (
+                  <>
+                    <p><strong>Type:</strong> Space Base</p>
+                    <p><strong>Status:</strong> Operational</p>
+                    <p><strong>Description:</strong> Strategic outpost.</p>
+                  </>
+                )}
+              </div>
+              
+              <div className="mt-4 pt-3 border-t border-border">
+                <p className="text-xs text-muted-foreground">
+                  Double-click objects to select them • Press X to focus camera
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center text-muted-foreground">
+            <p className="text-sm">No object selected</p>
+            <p className="text-xs mt-2">Double-click on any object to select it</p>
+          </div>
+        )}
+      </div>
+      </div>
     </div>
   );
 };
