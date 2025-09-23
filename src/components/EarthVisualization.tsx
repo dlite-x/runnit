@@ -131,6 +131,12 @@ function Grid3D({ visible }: GridProps) {
 
   const gridRef = useRef<THREE.LineSegments>(null);
   
+  React.useEffect(() => {
+    if (gridRef.current) {
+      gridRef.current.computeLineDistances();
+    }
+  }, [visible]);
+  
   const createGridGeometry = () => {
     const size = 30;
     const divisions = 30;
@@ -139,7 +145,7 @@ function Grid3D({ visible }: GridProps) {
     
     const vertices = [];
     
-    // Create grid lines on XY plane
+    // Create grid lines on XY plane (z = 0)
     for (let i = 0; i <= divisions; i++) {
       const pos = -halfSize + i * step;
       
@@ -149,7 +155,7 @@ function Grid3D({ visible }: GridProps) {
       vertices.push(pos, -halfSize, 0, pos, halfSize, 0);
     }
     
-    // Create grid lines on XZ plane
+    // Create grid lines on XZ plane (y = 0)
     for (let i = 0; i <= divisions; i++) {
       const pos = -halfSize + i * step;
       
@@ -159,7 +165,7 @@ function Grid3D({ visible }: GridProps) {
       vertices.push(pos, 0, -halfSize, pos, 0, halfSize);
     }
     
-    // Create grid lines on YZ plane
+    // Create grid lines on YZ plane (x = 0)
     for (let i = 0; i <= divisions; i++) {
       const pos = -halfSize + i * step;
       
@@ -177,15 +183,17 @@ function Grid3D({ visible }: GridProps) {
   const geometry = createGridGeometry();
 
   return (
-    <lineSegments ref={gridRef} geometry={geometry}>
-      <lineDashedMaterial
-        color="#00ff00"
-        dashSize={0.3}
-        gapSize={0.15}
-        opacity={0.6}
-        transparent={true}
-      />
-    </lineSegments>
+    <group position={[0, 0, 0]} rotation={[0, 0, 0]}>
+      <lineSegments ref={gridRef} geometry={geometry}>
+        <lineDashedMaterial
+          color="#00ff00"
+          dashSize={0.5}
+          gapSize={0.25}
+          opacity={0.4}
+          transparent={true}
+        />
+      </lineSegments>
+    </group>
   );
 }
 
