@@ -1769,9 +1769,8 @@ const EarthVisualization = () => {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden flex">
-      {/* Main Content */}
-      <div className="flex-1 relative">
+    <div className="relative w-full h-screen overflow-hidden">
+      {/* Controls Panel */}
       {/* Controls Panel */}
       <div className="absolute top-6 left-6 z-10 space-surface rounded-xl p-4 border border-border cosmic-glow">
         <div className="flex flex-col gap-3">
@@ -1961,6 +1960,98 @@ const EarthVisualization = () => {
         </div>
       </div>
 
+      {/* Selection Panel - positioned beneath Construction Panel */}
+      <div className="absolute top-6 left-6 z-10 mt-96 w-80">
+        <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-4">
+          <h3 className="text-lg font-semibold mb-3 text-foreground">Current Selection</h3>
+          
+          {selectedObject ? (
+            <div className="space-y-3">
+              <div className="bg-background/60 border rounded-lg p-3">
+                <h4 className="text-base font-semibold text-primary mb-2">
+                  {selectedObject === 'earth' && 'Planet Earth'}
+                  {selectedObject === 'moon' && 'Moon'}
+                  {selectedObject === 'ship' && 'Spacecraft'}
+                  {selectedObject === 'targetCube' && 'Target Cube'}
+                  {selectedObject === 'baseCube' && 'Base Cube'}
+                  {selectedObject === 'spaceStation' && 'Space Station'}
+                  {selectedObject === 'shipFactory' && 'Ship Factory'}
+                  {selectedObject === 'alienShip' && 'Alien Ship'}
+                </h4>
+                
+                <div className="text-xs text-muted-foreground space-y-1">
+                  {selectedObject === 'earth' && (
+                    <>
+                      <p><strong>Type:</strong> Planet</p>
+                      <p><strong>Position:</strong> Center (0, 0, 0)</p>
+                    </>
+                  )}
+                  
+                  {selectedObject === 'moon' && (
+                    <>
+                      <p><strong>Type:</strong> Natural Satellite</p>
+                      <p><strong>Position:</strong> (24, 4, 8)</p>
+                    </>
+                  )}
+                  
+                  {selectedObject === 'ship' && (
+                    <>
+                      <p><strong>Type:</strong> Spacecraft</p>
+                      <p><strong>Position:</strong> ({shipPosition[0].toFixed(1)}, {shipPosition[1].toFixed(1)}, {shipPosition[2].toFixed(1)})</p>
+                    </>
+                  )}
+                  
+                  {selectedObject === 'targetCube' && (
+                    <>
+                      <p><strong>Type:</strong> Training Target</p>
+                      <p><strong>Hits:</strong> {targetCubeHits}/10</p>
+                    </>
+                  )}
+                  
+                  {selectedObject === 'baseCube' && (
+                    <>
+                      <p><strong>Type:</strong> Space Base</p>
+                      <p><strong>Status:</strong> Operational</p>
+                    </>
+                  )}
+                  
+                  {selectedObject === 'spaceStation' && (
+                    <>
+                      <p><strong>Type:</strong> Orbital Station</p>
+                      <p><strong>Status:</strong> {spaceStationBuilt ? 'Operational' : 'Offline'}</p>
+                    </>
+                  )}
+                  
+                  {selectedObject === 'shipFactory' && (
+                    <>
+                      <p><strong>Type:</strong> Manufacturing Facility</p>
+                      <p><strong>Status:</strong> {shipFactoryBuilt ? 'Active' : 'Offline'}</p>
+                    </>
+                  )}
+                  
+                  {selectedObject === 'alienShip' && (
+                    <>
+                      <p><strong>Type:</strong> Hostile Craft</p>
+                      <p><strong>Health:</strong> {Math.max(0, 100 - alienShipHits)}%</p>
+                    </>
+                  )}
+                </div>
+                
+                <div className="mt-2 pt-2 border-t border-border">
+                  <p className="text-xs text-muted-foreground">
+                    Double-click to select • Press X to focus
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground">
+              <p className="text-sm">No object selected</p>
+              <p className="text-xs mt-1">Double-click any object</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* 3D Canvas */}
       <Canvas
@@ -2097,117 +2188,6 @@ const EarthVisualization = () => {
           makeDefault
         />
       </Canvas>
-      
-      {/* Selection Panel on the right */}
-      <div className="w-80 h-screen bg-background/90 backdrop-blur-sm border-l border-border p-6 overflow-y-auto flex-shrink-0">
-        <h3 className="text-xl font-bold text-foreground mb-4">Current Selection</h3>
-        
-        {selectedObject ? (
-          <div className="space-y-4">
-            <div className="bg-background/60 border rounded-lg p-4">
-              <h4 className="text-lg font-semibold text-primary mb-2">
-                {selectedObject === 'earth' && 'Planet Earth'}
-                {selectedObject === 'moon' && 'Moon'}
-                {selectedObject === 'ship' && 'Spacecraft'}
-                {selectedObject === 'targetCube' && 'Target Cube'}
-                {selectedObject === 'baseCube' && 'Base Cube'}
-                {selectedObject === 'spaceStation' && 'Space Station'}
-                {selectedObject === 'shipFactory' && 'Ship Factory'}
-                {selectedObject === 'alienShip' && 'Alien Ship'}
-              </h4>
-              
-              <div className="text-sm text-muted-foreground space-y-2">
-                {selectedObject === 'earth' && (
-                  <>
-                    <p><strong>Type:</strong> Planet</p>
-                    <p><strong>Radius:</strong> 6,371 km</p>
-                    <p><strong>Position:</strong> Center (0, 0, 0)</p>
-                    <p><strong>Description:</strong> Our home planet, a blue marble in space.</p>
-                  </>
-                )}
-                
-                {selectedObject === 'moon' && (
-                  <>
-                    <p><strong>Type:</strong> Natural Satellite</p>
-                    <p><strong>Radius:</strong> 1,737 km</p>
-                    <p><strong>Distance from Earth:</strong> 384,400 km</p>
-                    <p><strong>Position:</strong> (24, 4, 8)</p>
-                    <p><strong>Description:</strong> Earth's only natural satellite.</p>
-                  </>
-                )}
-                
-                {selectedObject === 'ship' && (
-                  <>
-                    <p><strong>Type:</strong> Spacecraft</p>
-                    <p><strong>Status:</strong> Active</p>
-                    <p><strong>Position:</strong> ({shipPosition[0].toFixed(1)}, {shipPosition[1].toFixed(1)}, {shipPosition[2].toFixed(1)})</p>
-                    <p><strong>Description:</strong> Advanced exploration vessel.</p>
-                  </>
-                )}
-                
-                {selectedObject === 'targetCube' && (
-                  <>
-                    <p><strong>Type:</strong> Training Target</p>
-                    <p><strong>Status:</strong> {targetCubeHits >= 10 ? 'Destroyed' : 'Active'}</p>
-                    <p><strong>Hits Taken:</strong> {targetCubeHits}/10</p>
-                    <p><strong>Description:</strong> Combat training target.</p>
-                  </>
-                )}
-                
-                {selectedObject === 'baseCube' && (
-                  <>
-                    <p><strong>Type:</strong> Space Base</p>
-                    <p><strong>Status:</strong> Operational</p>
-                    <p><strong>Description:</strong> Strategic outpost.</p>
-                  </>
-                )}
-                
-                {selectedObject === 'spaceStation' && (
-                  <>
-                    <p><strong>Type:</strong> Orbital Station</p>
-                    <p><strong>Status:</strong> {spaceStationBuilt ? 'Operational' : 'Offline'}</p>
-                    <p><strong>Orbit:</strong> Around Earth</p>
-                    <p><strong>Function:</strong> Research & Communications</p>
-                    <p><strong>Description:</strong> Advanced orbital research facility with rotating solar panels.</p>
-                  </>
-                )}
-                
-                {selectedObject === 'shipFactory' && (
-                  <>
-                    <p><strong>Type:</strong> Manufacturing Facility</p>
-                    <p><strong>Status:</strong> {shipFactoryBuilt ? 'Active' : 'Offline'}</p>
-                    <p><strong>Position:</strong> (3, 3, 2)</p>
-                    <p><strong>Production:</strong> Fighter Drones</p>
-                    <p><strong>Description:</strong> Automated spacecraft manufacturing facility.</p>
-                  </>
-                )}
-                
-                {selectedObject === 'alienShip' && (
-                  <>
-                    <p><strong>Type:</strong> Hostile Craft</p>
-                    <p><strong>Status:</strong> {alienShipActive ? 'Active' : 'Dormant'}</p>
-                    <p><strong>Health:</strong> {Math.max(0, 100 - alienShipHits)}%</p>
-                    <p><strong>Behavior:</strong> Aggressive</p>
-                    <p><strong>Description:</strong> Unknown alien vessel with hostile intentions.</p>
-                  </>
-                )}
-              </div>
-              
-              <div className="mt-4 pt-3 border-t border-border">
-                <p className="text-xs text-muted-foreground">
-                  Double-click objects to select them • Press X to focus camera
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center text-muted-foreground">
-            <p className="text-sm">No object selected</p>
-            <p className="text-xs mt-2">Double-click on any object to select it</p>
-          </div>
-        )}
-      </div>
-      </div>
     </div>
   );
 };
