@@ -562,7 +562,7 @@ function HorizontalCylinder() {
       </mesh>
       
       {/* Cone point at one end of the ship */}
-      <mesh position={[1.2, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+      <mesh position={[1.2, 0, 0]} rotation={[0, 0, 0]}>
         <coneGeometry args={[0.1, 0.4, 16]} />
         <meshStandardMaterial 
           color="#87CEEB" 
