@@ -200,6 +200,7 @@ const EarthVisualization = () => {
           factor={4}
           saturation={0}
           fade={true}
+          speed={0}
         />
 
         {/* Controls */}
