@@ -1627,6 +1627,9 @@ const EarthVisualization = () => {
       setShipTarget([22, 4, 8]); // Position near Moon (updated for new distance)
       setIsMovingToTarget(true);
       setShipSelected(false);
+    } else {
+      setSelectedObject("moon");
+      console.log("Moon selected! Press X to focus camera.");
     }
   };
 
