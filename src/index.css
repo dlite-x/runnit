@@ -2,41 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Space-themed design system with cosmic colors and Earth accents */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Deep space background */
+    --background: 220 35% 8%;
+    --foreground: 210 40% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Space cards and surfaces */
+    --card: 220 30% 12%;
+    --card-foreground: 210 40% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 30% 12%;
+    --popover-foreground: 210 40% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Earth blue primary */
+    --primary: 200 90% 55%;
+    --primary-foreground: 220 35% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Cosmic secondary */
+    --secondary: 220 25% 18%;
+    --secondary-foreground: 210 40% 95%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted space elements */
+    --muted: 220 20% 15%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Earth green accent */
+    --accent: 140 65% 45%;
+    --accent-foreground: 220 35% 8%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 25% 22%;
+    --input: 220 25% 22%;
+    --ring: 200 90% 55%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Custom space gradients */
+    --gradient-cosmic: linear-gradient(135deg, hsl(220, 35%, 8%) 0%, hsl(240, 45%, 12%) 50%, hsl(220, 35%, 8%) 100%);
+    --gradient-earth: linear-gradient(135deg, hsl(200, 90%, 55%) 0%, hsl(140, 65%, 45%) 100%);
+    --gradient-space: radial-gradient(ellipse at center, hsl(220, 35%, 12%) 0%, hsl(220, 35%, 8%) 100%);
+    
+    /* Shadows with cosmic glow */
+    --shadow-cosmic: 0 0 30px hsl(200, 90%, 55% / 0.3);
+    --shadow-earth: 0 0 40px hsl(140, 65%, 45% / 0.2);
+    --shadow-deep: 0 10px 40px -10px hsl(220, 35%, 4% / 0.8);
 
     --sidebar-background: 0 0% 98%;
 
@@ -55,43 +69,7 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+  /* Light mode uses same cosmic theme for consistency */
 }
 
 @layer base {
@@ -101,5 +79,21 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: var(--gradient-space);
+    min-height: 100vh;
+  }
+
+  /* Space-themed component utilities */
+  .cosmic-glow {
+    box-shadow: var(--shadow-cosmic);
+  }
+  
+  .earth-glow {
+    box-shadow: var(--shadow-earth);
+  }
+  
+  .space-surface {
+    background: var(--gradient-cosmic);
+    backdrop-filter: blur(10px);
   }
 }
