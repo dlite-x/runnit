@@ -656,7 +656,7 @@ function Projectile({ position, direction, onHit, onCollision }: {
 }
 
 // Target Cube component
-function TargetCube({ hitsTaken = 0 }: { hitsTaken?: number }) {
+function TargetCube({ hitsTaken = 0, onCubeClick }: { hitsTaken?: number; onCubeClick?: () => void }) {
   const hitpoints = Math.max(0, 10 - hitsTaken);
   const cubeRef = useRef<THREE.Group>(null);
   
@@ -674,7 +674,16 @@ function TargetCube({ hitsTaken = 0 }: { hitsTaken?: number }) {
   return (
     <group ref={cubeRef} position={[2.2, 0, 0]}>
       {/* Main cube */}
-      <mesh>
+      <mesh 
+        onClick={onCubeClick}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = onCubeClick ? 'pointer' : 'default';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'default';
+        }}
+      >
         <boxGeometry args={[0.5, 0.5, 0.5]} />
         <meshStandardMaterial 
           color={hitpoints > 0 ? "#00FF00" : "#FF0000"}
@@ -765,7 +774,7 @@ function TargetCube({ hitsTaken = 0 }: { hitsTaken?: number }) {
 }
 
 // Base Cube component - appears on moon surface
-function BaseCube() {
+function BaseCube({ onCubeClick }: { onCubeClick?: () => void }) {
   const cubeRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
@@ -778,7 +787,16 @@ function BaseCube() {
   return (
     <group ref={cubeRef} position={[24, 4.8, 8]}> {/* Moon position + surface offset */}
       {/* Main base cube */}
-      <mesh>
+      <mesh 
+        onClick={onCubeClick}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = onCubeClick ? 'pointer' : 'default';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'default';
+        }}
+      >
         <boxGeometry args={[0.4, 0.4, 0.4]} />
         <meshStandardMaterial 
           color="#00FF00"
@@ -1458,6 +1476,8 @@ const EarthVisualization = () => {
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [showTargetCube, setShowTargetCube] = useState(false);
   const [showBaseCube, setShowBaseCube] = useState(false);
+  const [selectedObject, setSelectedObject] = useState<string | null>(null);
+  const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([0, 0, 0]);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -1473,6 +1493,8 @@ const EarthVisualization = () => {
   // Click handlers
   const handleShipClick = () => {
     setShipSelected(true);
+    setSelectedObject("ship");
+    console.log("Ship selected! Press X to focus camera.");
   };
 
   const handleEarthClick = () => {
@@ -1480,6 +1502,9 @@ const EarthVisualization = () => {
       setShipTarget([0, 3, 0]); // Position near Earth
       setIsMovingToTarget(true);
       setShipSelected(false);
+    } else {
+      setSelectedObject("earth");
+      console.log("Earth selected! Press X to focus camera.");
     }
   };
 
@@ -1500,6 +1525,32 @@ const EarthVisualization = () => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       keysPressed.current.add(event.key.toLowerCase());
+      
+      // Handle X key for camera focusing
+      if (event.key.toLowerCase() === 'x' && selectedObject) {
+        switch (selectedObject) {
+          case 'earth':
+            setCameraTarget([0, 0, 0]);
+            console.log("Camera focused on Earth");
+            break;
+          case 'moon':
+            setCameraTarget([24, 4, 8]);
+            console.log("Camera focused on Moon");
+            break;
+          case 'ship':
+            setCameraTarget(shipPosition);
+            console.log("Camera focused on Ship");
+            break;
+          case 'targetCube':
+            setCameraTarget([2.2, 0, 0]);
+            console.log("Camera focused on Target Cube");
+            break;
+          case 'baseCube':
+            setCameraTarget([24, 4.8, 8]);
+            console.log("Camera focused on Base Cube");
+            break;
+        }
+      }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
@@ -1742,10 +1793,16 @@ const EarthVisualization = () => {
         )}
         
         {/* Target Cube */}
-        {showTargetCube && <TargetCube hitsTaken={targetCubeHits} />}
+        {showTargetCube && <TargetCube hitsTaken={targetCubeHits} onCubeClick={() => {
+          setSelectedObject("targetCube");
+          console.log("Target Cube selected! Press X to focus camera.");
+        }} />}
         
         {/* Base Cube */}
-        {showBaseCube && <BaseCube />}
+        {showBaseCube && <BaseCube onCubeClick={() => {
+          setSelectedObject("baseCube");
+          console.log("Base Cube selected! Press X to focus camera.");
+        }} />}
         
         {/* Alien Ship */}
         {alienShipActive && (
@@ -1778,7 +1835,7 @@ const EarthVisualization = () => {
           maxDistance={flyMode ? 40 : 30}
           dampingFactor={0.05}
           enableDamping={true}
-          target={flyMode ? new Vector3(...shipPosition) : new Vector3(0, 0, 0)}
+          target={flyMode ? new Vector3(...shipPosition) : new Vector3(...cameraTarget)}
           makeDefault
         />
       </Canvas>
