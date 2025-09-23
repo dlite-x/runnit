@@ -110,7 +110,7 @@ function CapitalShip({ position, rotation, selected, onShipClick }: ShipProps) {
   });
 
   return (
-    <group ref={shipRef} rotation={[Math.PI / 2, 0, 0]}>
+    <group ref={shipRef} rotation={[0, 0, -Math.PI / 2]} position={[12, 2, 4]}>
       {/* Capital Ship body - Cylindrical space station */}
       <mesh 
         position={[0, 0, 0]}
@@ -893,7 +893,7 @@ const EarthVisualization = () => {
   const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
   
   // Ship state
-  const [shipPosition, setShipPosition] = useState<[number, number, number]>([5, 2, 3]);
+  const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
   const [shipRotation, setShipRotation] = useState<[number, number, number]>([0, 0, 0]);
   const [shipVelocity, setShipVelocity] = useState<[number, number, number]>([0, 0, 0]);
   const [shipSelected, setShipSelected] = useState(false);
