@@ -778,8 +778,15 @@ function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, 
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const [position, setPosition] = useState<[number, number, number]>([15, 5, 8]);
-  const [hitpoints, setHitpoints] = useState(100 - alienShipHits);
+  const hitpoints = Math.max(0, 100 - alienShipHits); // Calculate hitpoints from hits taken
   const [lastHitTime, setLastHitTime] = useState(0);
+  
+  // Track when alien ship gets hit for visual feedback
+  React.useEffect(() => {
+    if (alienShipHits > 0) {
+      setLastHitTime(Date.now());
+    }
+  }, [alienShipHits]);
   const [projectiles, setProjectiles] = useState<Array<{
     id: string;
     position: [number, number, number];
@@ -852,11 +859,11 @@ function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, 
         <mesh>
           <coneGeometry args={[0.3, 0.8, 6]} />
           <meshStandardMaterial 
-            color="#8B0000" 
+            color={Date.now() - lastHitTime < 200 ? "#FF0000" : "#8B0000"} 
             metalness={0.8} 
             roughness={0.2}
-            emissive="#8B0000"
-            emissiveIntensity={0.3}
+            emissive={Date.now() - lastHitTime < 200 ? "#FF0000" : "#8B0000"}
+            emissiveIntensity={Date.now() - lastHitTime < 200 ? 0.8 : 0.3}
           />
         </mesh>
         
@@ -1472,7 +1479,14 @@ const EarthVisualization = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setFighterDronesBuilt(!fighterDronesBuilt)}
+              onClick={() => {
+                setFighterDronesBuilt(!fighterDronesBuilt);
+                // Reset both alien ship hits and target cube hits when redeploying drones
+                if (!fighterDronesBuilt) {
+                  setAlienShipHits(0);
+                  setTargetCubeHits(0);
+                }
+              }}
               className="flex items-center gap-2"
             >
               {fighterDronesBuilt ? '🚁 Recall Drones' : '🚁 Build Fighter Drones'}
