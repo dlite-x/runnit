@@ -620,9 +620,29 @@ function ShipController({
     let [vx, vy, vz] = velocity;
     let [rx, ry, rz] = rotation;
     
-    // Movement controls
-    if (keys.has('w')) vz -= speed * delta; // Forward
-    if (keys.has('s')) vz += speed * delta; // Backward
+    // Movement controls - W moves in ship's forward direction
+    if (keys.has('w')) {
+      // Calculate forward direction based on ship's rotation
+      // The ship's cone points in the +X direction in local space
+      // Apply the ship's Y rotation to get world-space forward direction
+      const forwardX = Math.cos(ry) * Math.cos(rz);
+      const forwardY = Math.sin(rz);
+      const forwardZ = -Math.sin(ry) * Math.cos(rz);
+      
+      vx += forwardX * speed * delta;
+      vy += forwardY * speed * delta;
+      vz += forwardZ * speed * delta;
+    }
+    if (keys.has('s')) {
+      // Backward - opposite of forward direction
+      const backwardX = -Math.cos(ry) * Math.cos(rz);
+      const backwardY = -Math.sin(rz);
+      const backwardZ = Math.sin(ry) * Math.cos(rz);
+      
+      vx += backwardX * speed * delta;
+      vy += backwardY * speed * delta;
+      vz += backwardZ * speed * delta;
+    }
     if (keys.has('a')) vx -= speed * delta; // Left
     if (keys.has('d')) vx += speed * delta; // Right
     if (keys.has(' ')) vy += speed * delta; // Up
