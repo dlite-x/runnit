@@ -464,10 +464,11 @@ function FighterDrones({ onDroneDestroyed }: { onDroneDestroyed?: (droneId: stri
 }
 
 // Projectile component
-function Projectile({ position, direction, onHit }: {
+function Projectile({ position, direction, onHit, onCollision }: {
   position: [number, number, number];
   direction: [number, number, number];
   onHit: (projectileId: string) => void;
+  onCollision?: (projectilePosition: [number, number, number]) => void;
 }) {
   const projectileRef = useRef<THREE.Mesh>(null);
   const startTime = useRef(Date.now());
@@ -479,11 +480,27 @@ function Projectile({ position, direction, onHit }: {
       const elapsed = (Date.now() - startTime.current) / 1000;
       
       // Move projectile
-      projectileRef.current.position.set(
+      const newPos: [number, number, number] = [
         position[0] + direction[0] * speed * elapsed,
         position[1] + direction[1] * speed * elapsed,
         position[2] + direction[2] * speed * elapsed
+      ];
+      
+      projectileRef.current.position.set(...newPos);
+
+      // Check collision with target cube (rough collision detection)
+      const cubePos = [6, 1, 2]; // Center of drone field
+      const distance = Math.sqrt(
+        Math.pow(newPos[0] - cubePos[0], 2) +
+        Math.pow(newPos[1] - cubePos[1], 2) +
+        Math.pow(newPos[2] - cubePos[2], 2)
       );
+      
+      if (distance < 0.3) { // Hit the cube
+        onCollision?.(newPos);
+        onHit(projectileId.current);
+        return;
+      }
 
       // Remove projectile after 3 seconds
       if (elapsed > 3) {
@@ -504,8 +521,120 @@ function Projectile({ position, direction, onHit }: {
   );
 }
 
+// Target Cube component
+function TargetCube({ hitsTaken = 0 }: { hitsTaken?: number }) {
+  const hitpoints = Math.max(0, 10 - hitsTaken);
+  const cubeRef = useRef<THREE.Group>(null);
+  
+  const handleHit = () => {
+    // This function is no longer needed since hits are managed externally
+  };
+
+  useFrame((state) => {
+    if (cubeRef.current) {
+      // Gentle floating animation
+      cubeRef.current.position.y = 1.2 + Math.sin(state.clock.getElapsedTime() * 2) * 0.1;
+    }
+  });
+
+  return (
+    <group ref={cubeRef} position={[6, 1.2, 2]}>
+      {/* Main cube */}
+      <mesh>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshStandardMaterial 
+          color={hitpoints > 0 ? "#00FF00" : "#FF0000"}
+          metalness={0.6} 
+          roughness={0.3}
+          emissive={hitpoints > 0 ? "#00FF00" : "#FF0000"}
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      
+      {/* Hitpoint display */}
+      <mesh position={[0, 0.4, 0]}>
+        <planeGeometry args={[0.8, 0.2]} />
+        <meshStandardMaterial 
+          color="#FFFFFF" 
+          transparent 
+          opacity={0.8}
+        />
+      </mesh>
+      
+      {/* Text would go here - for now we'll use a simple indicator */}
+      <mesh position={[0, 0.6, 0]}>
+        <sphereGeometry args={[0.05, 8, 8]} />
+        <meshStandardMaterial 
+          color={hitpoints > 0 ? "#FFFFFF" : "#000000"}
+          emissive={hitpoints > 0 ? "#FFFFFF" : "#000000"}
+          emissiveIntensity={0.5}
+        />
+      </mesh>
+      
+      {/* HP Bar visualization */}
+      {Array.from({ length: 10 }, (_, i) => (
+        <mesh 
+          key={i} 
+          position={[
+            -0.35 + (i * 0.07), 
+            0.4, 
+            0.01
+          ]}
+        >
+          <boxGeometry args={[0.05, 0.1, 0.01]} />
+          <meshStandardMaterial 
+            color={i < hitpoints ? "#00FF00" : "#FF0000"}
+            emissive={i < hitpoints ? "#00FF00" : "#FF0000"}
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+      ))}
+      
+      {/* Status text indicator - "DEAD" when destroyed */}
+      {hitpoints === 0 && (
+        <>
+          {/* Dead indicator sphere */}
+          <mesh position={[0, -0.4, 0]}>
+            <sphereGeometry args={[0.1, 16, 16]} />
+            <meshStandardMaterial 
+              color="#FF0000" 
+              emissive="#FF0000" 
+              emissiveIntensity={0.8}
+            />
+          </mesh>
+          
+          {/* "DEAD" text representation using small cubes */}
+          {/* D */}
+          <mesh position={[-0.3, -0.6, 0]}>
+            <boxGeometry args={[0.05, 0.1, 0.01]} />
+            <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.5} />
+          </mesh>
+          {/* E */}
+          <mesh position={[-0.1, -0.6, 0]}>
+            <boxGeometry args={[0.05, 0.1, 0.01]} />
+            <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.5} />
+          </mesh>
+          {/* A */}
+          <mesh position={[0.1, -0.6, 0]}>
+            <boxGeometry args={[0.05, 0.1, 0.01]} />
+            <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.5} />
+          </mesh>
+          {/* D */}
+          <mesh position={[0.3, -0.6, 0]}>
+            <boxGeometry args={[0.05, 0.1, 0.01]} />
+            <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.5} />
+          </mesh>
+        </>
+      )}
+    </group>
+  );
+}
+
 // Alien Ship component
-function AlienShip({ dronesPosition }: { dronesPosition: [number, number, number] }) {
+function AlienShip({ targetPosition, onTargetHit }: { 
+  targetPosition: [number, number, number];
+  onTargetHit: () => void;
+}) {
   const shipRef = useRef<THREE.Group>(null);
   const [position, setPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [projectiles, setProjectiles] = useState<Array<{
@@ -519,11 +648,11 @@ function AlienShip({ dronesPosition }: { dronesPosition: [number, number, number
     if (shipRef.current) {
       const time = state.clock.getElapsedTime();
       
-      // Move towards drones
+      // Move towards target
       const targetDistance = 8; // Keep some distance
-      const dx = dronesPosition[0] - position[0];
-      const dy = dronesPosition[1] - position[1];
-      const dz = dronesPosition[2] - position[2];
+      const dx = targetPosition[0] - position[0];
+      const dy = targetPosition[1] - position[1];
+      const dz = targetPosition[2] - position[2];
       const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
       
       if (distance > targetDistance) {
@@ -540,8 +669,8 @@ function AlienShip({ dronesPosition }: { dronesPosition: [number, number, number
         setPosition(newPos);
       }
       
-      // Point towards drones
-      shipRef.current.lookAt(dronesPosition[0], dronesPosition[1], dronesPosition[2]);
+      // Point towards target
+      shipRef.current.lookAt(targetPosition[0], targetPosition[1], targetPosition[2]);
       
       // Shoot every 1.5 seconds when in range
       if (distance < 15 && time - lastShotTime.current > 1.5) {
@@ -563,6 +692,10 @@ function AlienShip({ dronesPosition }: { dronesPosition: [number, number, number
 
   const handleProjectileHit = (projectileId: string) => {
     setProjectiles(prev => prev.filter(p => p.id !== projectileId));
+  };
+
+  const handleCollision = () => {
+    onTargetHit();
   };
 
   return (
@@ -610,6 +743,7 @@ function AlienShip({ dronesPosition }: { dronesPosition: [number, number, number
           position={projectile.position}
           direction={projectile.direction}
           onHit={handleProjectileHit}
+          onCollision={handleCollision}
         />
       ))}
     </>
@@ -1013,6 +1147,7 @@ const EarthVisualization = () => {
   const [flyMode, setFlyMode] = useState(false);
   const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
   const [alienShipActive, setAlienShipActive] = useState(false);
+  const [targetCubeHits, setTargetCubeHits] = useState(0);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -1267,8 +1402,16 @@ const EarthVisualization = () => {
         {/* Fighter Drones */}
         {fighterDronesBuilt && <FighterDrones />}
         
+        {/* Target Cube */}
+        <TargetCube hitsTaken={targetCubeHits} />
+        
         {/* Alien Ship */}
-        {alienShipActive && <AlienShip dronesPosition={[6, 1, 2]} />}
+        {alienShipActive && (
+          <AlienShip 
+            targetPosition={[6, 1, 2]} 
+            onTargetHit={() => setTargetCubeHits(prev => prev + 1)}
+          />
+        )}
 
         {/* Stars background */}
         <Stars
