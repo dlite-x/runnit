@@ -2169,12 +2169,46 @@ const EarthVisualization = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+                
+                {/* Test Deploy Alien Button */}
+                <div className="mt-4 relative z-[9999] pointer-events-auto">
+                  <button
+                    className="w-full bg-blue-800/80 border border-blue-600 text-blue-300 hover:bg-blue-700/80 px-3 py-2 rounded transition-colors relative z-[9999] pointer-events-auto cursor-pointer"
+                    onClick={() => {
+                      console.log('Ships panel Deploy Alien clicked!');
+                      setAlienShipActive(!alienShipActive);
+                    }}
+                  >
+                    {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien (Test)
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Test Button - Separate Section to the Right */}
+      <div className="absolute bottom-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-l border-slate-700 rounded-tl-xl p-4 z-[9999]" style={{ height: '253px', width: '200px' }}>
+        <div className="flex flex-col justify-center h-full">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded transition-colors cursor-pointer font-semibold"
+            onClick={() => {
+              console.log('Test button clicked!');
+              alert('Test button works!');
+              setModalContent('Test Button Clicked - Modal System Working!');
+              setShowModal(true);
+              console.log('Modal should show:', showModal);
+            }}
+          >
+            Test
+          </button>
+          <div className="mt-2 text-xs text-slate-400">
+            Click to test modal
+          </div>
+        </div>
+      </div>
 
       {/* Right Side Panels */}
       <div className="absolute top-20 right-4 z-10 space-y-4 w-52">
@@ -2281,6 +2315,18 @@ const EarthVisualization = () => {
             className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
           >
             {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              console.log('Right panel Deploy Alien #2 clicked!');
+              setAlienShipActive(!alienShipActive);
+            }}
+            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
+          >
+            {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien 2
           </Button>
           
           <Button
@@ -2507,9 +2553,8 @@ const EarthVisualization = () => {
         />
         </Canvas>
       </div>
-    </div>
 
-    {/* Modal Popup */}
+      {/* Modal Popup */}
       {showModal && (
         <div 
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
