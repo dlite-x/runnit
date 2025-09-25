@@ -39,6 +39,8 @@ const Game = () => {
   const [colonies, setColonies] = useState<Colony[]>([]);
   const [missions, setMissions] = useState<Mission[]>([]);
   const [showOperations, setShowOperations] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
+  const [aliens, setAliens] = useState<Array<{ id: string; position: [number, number, number]; active: boolean }>>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -233,6 +235,53 @@ const Game = () => {
     navigate('/auth');
   };
 
+  const deployAlien = () => {
+    const newAlien = {
+      id: `alien-${Date.now()}`,
+      position: [
+        (Math.random() - 0.5) * 10, // Random X position around Earth
+        (Math.random() - 0.5) * 4,  // Random Y position  
+        (Math.random() - 0.5) * 10  // Random Z position
+      ] as [number, number, number],
+      active: true
+    };
+    
+    setAliens(prev => [...prev, newAlien]);
+    toast({
+      title: "Alien Deployed",
+      description: "An alien ship has been deployed and is now active!",
+    });
+  };
+
+  const toggleGrid = () => {
+    setShowGrid(!showGrid);
+    toast({
+      title: showGrid ? "Grid Hidden" : "Grid Displayed",
+      description: showGrid ? "Map grid has been hidden" : "Green grid overlay is now visible",
+    });
+  };
+
+  const constructFactory = () => {
+    toast({
+      title: "Factory Construction",
+      description: "Factory construction initiated on selected planet",
+    });
+  };
+
+  const buildFighterDrones = () => {
+    toast({
+      title: "Fighter Drones",
+      description: "Building fighter drones at shipyard",
+    });
+  };
+
+  const launchMiningOperation = () => {
+    toast({
+      title: "Mining Operation",
+      description: "Mining operation launched on asteroid belt",
+    });
+  };
+
   const initializeColony = async (planetName: string) => {
     if (!player) return;
 
@@ -287,6 +336,8 @@ const Game = () => {
           setShowOperations={setShowOperations}
           gameTime={gameState.formattedGameTime}
           creditGenerationRate={gameState.creditGenerationRate}
+          showGrid={showGrid}
+          aliens={aliens}
         />
       </div>
 
@@ -301,19 +352,19 @@ const Game = () => {
               <CardTitle className="text-sm">Game Controls</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button size="sm" className="w-full" variant="outline">
+              <Button size="sm" className="w-full" variant="outline" onClick={deployAlien}>
                 Deploy Alien
               </Button>
-              <Button size="sm" className="w-full" variant="outline">
-                Show Grid
+              <Button size="sm" className="w-full" variant="outline" onClick={toggleGrid}>
+                {showGrid ? 'Hide Grid' : 'Show Grid'}
               </Button>
-              <Button size="sm" className="w-full" variant="outline">
+              <Button size="sm" className="w-full" variant="outline" onClick={constructFactory}>
                 Construct Factory
               </Button>
-              <Button size="sm" className="w-full" variant="outline">
+              <Button size="sm" className="w-full" variant="outline" onClick={buildFighterDrones}>
                 Build Fighter Drones
               </Button>
-              <Button size="sm" className="w-full" variant="outline">
+              <Button size="sm" className="w-full" variant="outline" onClick={launchMiningOperation}>
                 Launch Mining Operation
               </Button>
             </CardContent>

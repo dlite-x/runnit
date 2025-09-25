@@ -1222,6 +1222,82 @@ function CustomShip({ position, rotation, selected, onShipClick, onShipDoubleCli
   );
 }
 
+// Simple Deployed Alien component
+function DeployedAlien({ position }: { position: [number, number, number] }) {
+  const alienRef = useRef<THREE.Group>(null);
+  const [isShootingTime, setIsShootingTime] = useState(false);
+  
+  useFrame((state, delta) => {
+    if (alienRef.current) {
+      // Position the alien
+      alienRef.current.position.set(...position);
+      
+      // Slight hover animation
+      alienRef.current.position.y += Math.sin(state.clock.getElapsedTime() * 2) * 0.1;
+      
+      // Rotate slowly
+      alienRef.current.rotation.y += delta * 0.5;
+      
+      // Shoot periodically
+      if (Math.floor(state.clock.getElapsedTime()) % 3 === 0 && !isShootingTime) {
+        setIsShootingTime(true);
+        setTimeout(() => setIsShootingTime(false), 100);
+      }
+    }
+  });
+
+  return (
+    <group ref={alienRef}>
+      {/* Main alien body */}
+      <mesh>
+        <sphereGeometry args={[0.3, 16, 16]} />
+        <meshStandardMaterial 
+          color="#ff4444" 
+          metalness={0.8} 
+          roughness={0.2}
+          emissive="#ff2222"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      
+      {/* Alien details */}
+      <mesh position={[0, 0.2, 0]}>
+        <coneGeometry args={[0.1, 0.2, 8]} />
+        <meshStandardMaterial 
+          color="#ffff00" 
+          emissive="#ffff00"
+          emissiveIntensity={0.5}
+        />
+      </mesh>
+      
+      {/* Shooting effect */}
+      {isShootingTime && (
+        <mesh position={[0, 0, -0.4]}>
+          <cylinderGeometry args={[0.02, 0.05, 0.3, 8]} />
+          <meshStandardMaterial 
+            color="#00ff00" 
+            emissive="#00ff00"
+            emissiveIntensity={0.8}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+      )}
+      
+      {/* Warning glow */}
+      <mesh>
+        <sphereGeometry args={[0.5, 16, 16]} />
+        <meshBasicMaterial 
+          color="#ff4444" 
+          transparent 
+          opacity={0.2}
+          wireframe
+        />
+      </mesh>
+    </group>
+  );
+}
+
 // Alien Ship component
 function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, alienShipHits, onAlienShipDoubleClick }: { 
   targetPosition: [number, number, number];
@@ -1938,11 +2014,12 @@ interface EarthVisualizationProps {
   setShowOperations?: (show: boolean) => void;
   gameTime?: string;
   creditGenerationRate?: number;
+  showGrid?: boolean;
+  aliens?: Array<{ id: string; position: [number, number, number]; active: boolean }>;
 }
 
-const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperations, gameTime, creditGenerationRate }: EarthVisualizationProps = {}) => {
+const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperations, gameTime, creditGenerationRate, showGrid = false, aliens = [] }: EarthVisualizationProps = {}) => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
-  const [showGrid, setShowGrid] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(false);
   const [flyMode, setFlyMode] = useState(false);
   const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
@@ -2712,11 +2789,11 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowGrid(!showGrid)}
-                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                  disabled
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40 opacity-50"
                 >
                   <Grid3X3 className="w-4 h-4 mr-2" />
-                  {showGrid ? 'Hide Grid' : 'Show Grid'}
+                  {showGrid ? 'Hide Grid' : 'Show Grid'} (Use Operations Panel)
                 </Button>
               </div>
 
@@ -2962,6 +3039,14 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
             onAlienShipDoubleClick={() => setSelectedObject("alienShip")}
           />
         )}
+
+        {/* Deployed Aliens */}
+        {aliens.map(alien => alien.active && (
+          <DeployedAlien 
+            key={alien.id}
+            position={alien.position}
+          />
+        ))}
         
         {/* Additional Selection Rings for other objects */}
         {showTargetCube && (
