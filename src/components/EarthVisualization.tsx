@@ -1951,28 +1951,40 @@ const EarthVisualization = () => {
                     <UtensilsCrossed className="w-4 h-4 text-green-400" />
                     <span className="text-sm text-slate-400">Food</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">500</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">500</span>
+                    <span className="text-xs text-green-400">+7</span>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Fuel className="w-4 h-4 text-orange-400" />
                     <span className="text-sm text-slate-400">Fuel</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">200</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">200</span>
+                    <span className="text-xs text-green-400">+3</span>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Hammer className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-slate-400">Metal</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">800</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">800</span>
+                    <span className="text-xs text-green-400">+9</span>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Battery className="w-4 h-4 text-yellow-400" />
                     <span className="text-sm text-slate-400">Power</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">100</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">100</span>
+                    <span className="text-xs text-green-400">+5</span>
+                  </div>
                 </div>
               </div>
             </div>
