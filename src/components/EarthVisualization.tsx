@@ -1901,8 +1901,8 @@ const EarthVisualization = () => {
       </div>
 
       {/* Bottom Panel */}
-      <div className="absolute bottom-0 left-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700" style={{ height: '230px', width: '70%' }}>
-        <div className="p-4 h-full">
+      <div className="absolute bottom-0 left-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 rounded-tr-xl" style={{ height: '253px', width: '70%' }}>
+        <div className="p-2 h-full">
           <div className="grid grid-cols-4 gap-4 h-full">
             {/* Earth Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
