@@ -1741,7 +1741,7 @@ const CameraController = ({ flyMode, shipPosition, cameraTarget }: {
 }) => {
   const { camera } = useThree();
   const targetRef = useRef(new Vector3());
-  const lastCameraTarget = useRef<[number, number, number]>([0, 0, 0]);
+  const lastCameraTarget = useRef<[number, number, number]>([12, 2, 4]);
   
   useFrame(() => {
     if (flyMode && shipPosition) {
