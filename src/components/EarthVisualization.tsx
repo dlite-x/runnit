@@ -331,7 +331,7 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
   useFrame((state, delta) => {
     if (shipRef.current) {
       const time = state.clock.getElapsedTime();
-      const speed = 0.21; // 30% slower for more elegant trajectory
+      const speed = 0.126; // 40% slower for more elegant trajectory
       
       // Figure-8 trajectory that loops around Earth and Moon
       const t = time * speed;
@@ -2340,7 +2340,7 @@ const EarthVisualization = () => {
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <span className="text-purple-400">🎯</span>
+                  <Satellite className="w-4 h-4 text-purple-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Missions</h3>
               </div>
