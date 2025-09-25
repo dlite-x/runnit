@@ -1591,27 +1591,70 @@ function ShipController({
 }
 
 // OrbitingSphere component for ships orbiting Earth
-const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name }: {
+const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, location, sphereData, onLocationUpdate }: {
   type: 'colony' | 'cargo';
   orbitRadius: number;
   orbitSpeed: number;
   initialAngle: number;
   name: string;
+  location: 'earth' | 'moon' | 'traveling';
+  sphereData: { type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'traveling' };
+  onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'traveling') => void;
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const textRef = useRef<THREE.Group>(null);
+  const [travelProgress, setTravelProgress] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   useFrame((state) => {
     if (meshRef.current && textRef.current) {
       const time = state.clock.getElapsedTime();
-      const angle = initialAngle + time * orbitSpeed;
       
-      const x = Math.cos(angle) * orbitRadius;
-      const z = Math.sin(angle) * orbitRadius;
-      const y = Math.sin(angle * 0.5) * 0.5; // Slight vertical oscillation
-      
-      meshRef.current.position.set(x, y, z);
-      textRef.current.position.set(x, y + 0.5, z);
+      if (location === 'traveling') {
+        // Travel animation from Earth to Moon
+        const earthCenter = [0, 0, 0];
+        const moonCenter = [24, 4, 8];
+        const travelSpeed = 0.5; // Adjust travel speed
+        
+        if (travelProgress < 1) {
+          const newProgress = Math.min(1, travelProgress + travelSpeed * 0.016); // ~60fps
+          setTravelProgress(newProgress);
+          
+          // Interpolate position between current Earth orbit and Moon
+          const currentAngle = initialAngle + time * orbitSpeed;
+          const earthX = Math.cos(currentAngle) * orbitRadius;
+          const earthZ = Math.sin(currentAngle) * orbitRadius;
+          const earthY = Math.sin(currentAngle * 0.5) * 0.5;
+          
+          const x = earthX + (moonCenter[0] - earthX) * newProgress;
+          const y = earthY + (moonCenter[1] - earthY) * newProgress;
+          const z = earthZ + (moonCenter[2] - earthZ) * newProgress;
+          
+          meshRef.current.position.set(x, y, z);
+          textRef.current.position.set(x, y + 0.5, z);
+        } else {
+          // Travel complete, switch to moon orbit
+          onLocationUpdate(name, 'moon');
+          setTravelProgress(0);
+        }
+      } else {
+        // Normal orbit logic
+        const angle = initialAngle + time * orbitSpeed;
+        let centerX = 0, centerY = 0, centerZ = 0;
+        
+        if (location === 'moon') {
+          centerX = 24;
+          centerY = 4;
+          centerZ = 8;
+        }
+        
+        const x = centerX + Math.cos(angle) * orbitRadius;
+        const z = centerZ + Math.sin(angle) * orbitRadius;
+        const y = centerY + Math.sin(angle * 0.5) * 0.5;
+        
+        meshRef.current.position.set(x, y, z);
+        textRef.current.position.set(x, y + 0.5, z);
+      }
     }
   });
 
@@ -1842,7 +1885,7 @@ const EarthVisualization = () => {
   const [modalContent, setModalContent] = useState('');
   const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
-  const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number], name: string }>>([]);
+  const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'traveling' }>>([]);
   const [colonyCount, setColonyCount] = useState(0);
   const [cargoCount, setCargoCount] = useState(0);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
@@ -2308,7 +2351,7 @@ const EarthVisualization = () => {
                          Math.random() * 2 - 1,
                          Math.random() * 2 - 1
                        ];
-                       setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition, name: `Colony ${newColonyCount}` }]);
+                       setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition, name: `Colony ${newColonyCount}`, location: 'earth' }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2338,7 +2381,7 @@ const EarthVisualization = () => {
                          Math.random() * 2 - 1,
                          Math.random() * 2 - 1
                        ];
-                       setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition, name: `Cargo ${newCargoCount}` }]);
+                       setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition, name: `Cargo ${newCargoCount}`, location: 'earth' }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2371,7 +2414,18 @@ const EarthVisualization = () => {
               <div className="space-y-3">
                 {/* Show up to 4 built objects */}
                 {builtSpheres.slice(0, 4).map((sphere, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div 
+                    key={index} 
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 px-2 py-1 rounded transition-colors"
+                    onClick={() => {
+                      if (sphere.location === 'earth') {
+                        console.log(`Sending ${sphere.name} to moon!`);
+                        setBuiltSpheres(prev => prev.map(s => 
+                          s.name === sphere.name ? { ...s, location: 'traveling' } : s
+                        ));
+                      }
+                    }}
+                  >
                     <div className="flex items-center gap-2">
                       {sphere.type === 'colony' ? (
                         <Home className="w-4 h-4 text-blue-400" />
@@ -2380,7 +2434,15 @@ const EarthVisualization = () => {
                       )}
                       <span className="text-sm text-slate-300">{sphere.name}</span>
                     </div>
-                    <span className="text-xs text-slate-500">Active</span>
+                    <span className={`text-xs ${
+                      sphere.location === 'earth' ? 'text-green-400' : 
+                      sphere.location === 'traveling' ? 'text-yellow-400' : 
+                      'text-blue-400'
+                    }`}>
+                      {sphere.location === 'earth' ? 'Earth' : 
+                       sphere.location === 'traveling' ? 'En Route' : 
+                       'Moon'}
+                    </span>
                   </div>
                 ))}
                 {builtSpheres.length === 0 && (
@@ -2655,7 +2717,7 @@ const EarthVisualization = () => {
         
         {/* Built Spheres */}
         {builtSpheres.map((sphere, index) => {
-          const orbitRadius = 5 + index * 0.5;
+          const orbitRadius = sphere.location === 'moon' ? 2 + index * 0.3 : 5 + index * 0.5;
           const orbitSpeed = 1.0 / Math.sqrt(orbitRadius);
           return (
             <OrbitingSphere 
@@ -2665,6 +2727,13 @@ const EarthVisualization = () => {
               orbitSpeed={orbitSpeed}
               initialAngle={index * (Math.PI / 3)}
               name={sphere.name}
+              location={sphere.location}
+              sphereData={sphere}
+              onLocationUpdate={(name, newLocation) => {
+                setBuiltSpheres(prev => prev.map(s => 
+                  s.name === name ? { ...s, location: newLocation } : s
+                ));
+              }}
             />
           );
         })}
