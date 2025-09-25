@@ -2180,7 +2180,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                 <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                   <span className="text-xs font-bold text-slate-900">₵</span>
                 </div>
-                <span className="font-medium">{player?.credits?.toLocaleString() || '5,000'}</span>
+                <span className="font-medium">{player?.credits?.toFixed(2) || '5000.00'}</span>
               </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
                 <span className="text-cyan-400 text-xs">💎</span>
@@ -2326,7 +2326,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                     </div>
                     <span className="text-base text-slate-400">Credits</span>
                   </div>
-                  <span className="text-lg font-bold text-green-400">+3</span>
+                  <span className="text-lg font-bold text-green-400">+{((creditGenerationRate || 0) * 365.25 * 24 * 3600).toFixed(0)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
