@@ -282,6 +282,59 @@ const Game = () => {
     });
   };
 
+  const resetGameState = () => {
+    // Reset game timer
+    gameState.resetTimer();
+    
+    // Reset player credits
+    if (player) {
+      updatePlayerCredits(5000);
+    }
+    
+    // Reset colonies to initial demo state
+    setColonies([
+      {
+        id: 'demo-earth',
+        planet: { name: 'Earth', base_temperature: 15 },
+        population: 250,
+        food_stockpile: 500,
+        fuel_stockpile: 300,
+        metal_stockpile: 400
+      },
+      {
+        id: 'demo-moon',
+        planet: { name: 'Moon', base_temperature: -20 },
+        population: 75,
+        food_stockpile: 200,
+        fuel_stockpile: 150,
+        metal_stockpile: 180
+      }
+    ]);
+    
+    // Reset missions
+    setMissions([
+      {
+        id: 'demo-mission-1',
+        name: 'Lunar Colony',
+        description: 'Establish a colony on the Moon with 50 people',
+        reward_credits: 5000,
+        status: 'active'
+      },
+      {
+        id: 'demo-mission-2',
+        name: 'Mars Settlement',
+        description: 'Build a colony on Mars with 100 people',
+        reward_credits: 15000,
+        status: 'active'
+      }
+    ]);
+
+    toast({
+      title: "Game Reset",
+      description: "All game state has been reset to initial values",
+    });
+  };
+
   const initializeColony = async (planetName: string) => {
     if (!player) return;
 
@@ -352,6 +405,9 @@ const Game = () => {
               <CardTitle className="text-sm">Game Controls</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
+              <Button size="sm" className="w-full" variant="destructive" onClick={resetGameState}>
+                Reset Game State
+              </Button>
               <Button size="sm" className="w-full" variant="outline" onClick={deployAlien}>
                 Deploy Alien
               </Button>
