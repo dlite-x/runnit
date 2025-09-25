@@ -2166,7 +2166,7 @@ const EarthVisualization = () => {
           variant="outline"
           size="sm"
           onClick={() => setAlienShipActive(!alienShipActive)}
-          className="bg-red-800/80 border-red-600 text-red-300 hover:bg-red-700/80"
+          className="bg-blue-800/80 border-blue-600 text-blue-300 hover:bg-blue-700/80"
         >
           {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien
         </Button>
