@@ -2485,21 +2485,20 @@ const EarthVisualization = () => {
                   <Satellite className="w-4 h-4 text-purple-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-200">Flight Control</h3>
-                
-                {/* Resource Legend */}
-                <div className="ml-auto flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
-                      <span className="text-xs">🌾</span>
-                    </div>
-                    <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center">
-                      <span className="text-xs">⛽</span>
-                    </div>
-                    <div className="w-4 h-4 rounded-full bg-gray-500 flex items-center justify-center">
-                      <span className="text-xs">⚙️</span>
-                    </div>
-                  </div>
+              </div>
+              
+              {/* Column Headers */}
+              <div className="grid grid-cols-6 gap-2 items-center pb-2 mb-2 border-b border-slate-600/30">
+                <span className="text-xs text-slate-500 uppercase tracking-wide">Type</span>
+                <span className="text-xs text-slate-500 uppercase tracking-wide">Destination</span>
+                <span className="text-xs text-slate-500 uppercase tracking-wide">Duration</span>
+                <div className="flex items-center gap-1 justify-center">
+                  <UtensilsCrossed className="w-3 h-3 text-green-400" />
+                  <Fuel className="w-3 h-3 text-orange-400" />
+                  <Hammer className="w-3 h-3 text-gray-400" />
                 </div>
+                <span className="text-xs text-slate-500 uppercase tracking-wide">Status</span>
+                <span className="text-xs text-slate-500 uppercase tracking-wide">Action</span>
               </div>
               
               {/* Table Content */}
