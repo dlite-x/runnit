@@ -2066,7 +2066,7 @@ const EarthVisualization = () => {
       </div>
 
       {/* Right Side Panels */}
-      <div className="absolute top-20 right-4 z-10 space-y-4 w-64">
+      <div className="absolute top-20 right-4 z-10 space-y-4 w-48">
         {/* Operations Panel */}
         <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
           <div className="flex items-center gap-3 mb-4">
