@@ -47,66 +47,32 @@ const Auth = () => {
 
   const handleDemoLogin = async () => {
     setLoading(true);
+    
+    // Instead of trying to authenticate, go directly to game in guest mode
     try {
-      // Try to sign in with existing demo user first
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: 'demo@expanse.space',
-        password: 'demo123456',
+      // Set a guest mode flag in localStorage
+      localStorage.setItem('guestMode', 'true');
+      localStorage.setItem('guestUser', JSON.stringify({
+        id: 'guest-user',
+        email: 'guest@expanse.space',
+        credits: 5000
+      }));
+      
+      toast({
+        title: "Demo Mode Activated",
+        description: "Welcome to the Expanse Colony demo!",
       });
       
-      if (!signInError) {
-        toast({
-          title: "Demo Login Successful", 
-          description: "Welcome to the Expanse Colony demo!",
-        });
-        return;
-      }
-
-      // If login fails, try to create demo user account
-      if (signInError.message.includes('Invalid login credentials')) {
-        toast({
-          title: "Creating Demo Account",
-          description: "Setting up your demo account, please wait...",
-        });
-        
-        // Create the account but we'll need to handle the email confirmation issue
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email: 'demo@expanse.space',
-          password: 'demo123456',
-          options: {
-            data: {
-              full_name: 'Demo Commander'
-            }
-          }
-        });
-        
-        if (signUpError) {
-          throw signUpError;
-        }
-
-        // If account was created but needs confirmation, inform user
-        if (data.user && !data.session) {
-          toast({
-            title: "Demo Account Setup",
-            description: "Demo account created. Please check Supabase settings to disable email confirmation for easier demo access.",
-            variant: "destructive",
-          });
-        } else if (data.session) {
-          toast({
-            title: "Demo Account Ready",
-            description: "Demo account created and ready to use!",
-          });
-        }
-      } else {
-        throw signInError;
-      }
+      // Navigate directly to game
+      navigate('/game');
     } catch (error: any) {
       toast({
-        title: "Demo Login Error",
+        title: "Demo Error",
         description: error.message,
         variant: "destructive",
       });
     }
+    
     setLoading(false);
   };
 

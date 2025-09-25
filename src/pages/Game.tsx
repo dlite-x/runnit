@@ -42,13 +42,19 @@ const Game = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate('/auth');
-      }
-    });
+    // Check if we're in guest mode first
+    const isGuestMode = localStorage.getItem('guestMode') === 'true';
+    
+    if (!isGuestMode) {
+      // Only check auth if not in guest mode
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (!session) {
+          navigate('/auth');
+        }
+      });
 
-    return () => subscription.unsubscribe();
+      return () => subscription.unsubscribe();
+    }
   }, [navigate]);
 
   useEffect(() => {
@@ -57,6 +63,60 @@ const Game = () => {
 
   const loadGameData = async () => {
     try {
+      // Check if we're in guest mode
+      const isGuestMode = localStorage.getItem('guestMode') === 'true';
+      
+      if (isGuestMode) {
+        // Load demo data for guest mode
+        const guestUser = JSON.parse(localStorage.getItem('guestUser') || '{}');
+        
+        setPlayer({
+          id: 'guest-player',
+          credits: guestUser.credits || 5000
+        });
+
+        // Set demo colonies
+        setColonies([
+          {
+            id: 'demo-earth',
+            planet: { name: 'Earth', base_temperature: 15 },
+            population: 250,
+            food_stockpile: 500,
+            fuel_stockpile: 300,
+            metal_stockpile: 400
+          },
+          {
+            id: 'demo-moon',
+            planet: { name: 'Moon', base_temperature: -20 },
+            population: 75,
+            food_stockpile: 200,
+            fuel_stockpile: 150,
+            metal_stockpile: 180
+          }
+        ]);
+
+        // Set demo missions
+        setMissions([
+          {
+            id: 'demo-mission-1',
+            name: 'Lunar Colony',
+            description: 'Establish a colony on the Moon with 50 people',
+            reward_credits: 5000,
+            status: 'active'
+          },
+          {
+            id: 'demo-mission-2',
+            name: 'Mars Settlement',
+            description: 'Build a colony on Mars with 100 people',
+            reward_credits: 15000,
+            status: 'active'
+          }
+        ]);
+
+        return;
+      }
+
+      // Regular authenticated user flow
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -129,7 +189,16 @@ const Game = () => {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    // Clear guest mode if active
+    localStorage.removeItem('guestMode');
+    localStorage.removeItem('guestUser');
+    
+    // Only sign out from Supabase if not in guest mode
+    const isGuestMode = localStorage.getItem('guestMode') === 'true';
+    if (!isGuestMode) {
+      await supabase.auth.signOut();
+    }
+    
     navigate('/auth');
   };
 
@@ -182,6 +251,11 @@ const Game = () => {
       <nav className="absolute top-0 left-0 right-0 z-50 p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm border-b">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold">Expanse Colony</h1>
+          {localStorage.getItem('guestMode') === 'true' && (
+            <Badge variant="outline" className="text-orange-500 border-orange-500">
+              Demo Mode
+            </Badge>
+          )}
           <Badge variant="secondary">Credits: {player.credits.toLocaleString()}</Badge>
         </div>
         <div className="flex items-center gap-2">
