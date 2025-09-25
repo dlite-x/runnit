@@ -2497,7 +2497,7 @@ const EarthVisualization = () => {
                     <span className="text-sm text-slate-300">Colony</span>
                   </div>
                   <Select defaultValue="moon">
-                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
@@ -2527,7 +2527,7 @@ const EarthVisualization = () => {
                     <span className="text-sm text-slate-300">Cargo</span>
                   </div>
                   <Select defaultValue="moon">
-                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
@@ -2557,7 +2557,7 @@ const EarthVisualization = () => {
                     <span className="text-sm text-slate-300">Cargo</span>
                   </div>
                   <Select defaultValue="select">
-                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
@@ -2588,7 +2588,7 @@ const EarthVisualization = () => {
                     <span className="text-sm text-slate-300">Station</span>
                   </div>
                   <Select defaultValue="moon">
-                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
