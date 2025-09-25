@@ -1509,6 +1509,8 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle }: {
   );
 }
 
+}
+
 // CameraController component - follows ship in fly mode but allows rotation
 const CameraController = ({ flyMode, shipPosition, cameraTarget }: { 
   flyMode: boolean; 
@@ -2496,7 +2498,13 @@ const EarthVisualization = () => {
               initialAngle={index * (Math.PI / 3)}
             />
           );
-        })}
+        }))}
+        
+        {/* Simple trajectory ship */}
+        <mesh position={[6, 1, 2]}>
+          <coneGeometry args={[0.1, 0.5, 8]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
         
         {/* Alien Ship */}
         {alienShipActive && (
