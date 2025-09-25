@@ -2487,7 +2487,7 @@ const EarthVisualization = () => {
         {/* Built Spheres */}
         {builtSpheres.map((sphere, index) => {
           const orbitRadius = 5 + index * 0.5;
-          const orbitSpeed = 1.0 / Math.sqrt(orbitRadius); // Closer objects orbit faster
+          const orbitSpeed = 1.0 / Math.sqrt(orbitRadius);
           return (
             <OrbitingSphere 
               key={index} 
@@ -2497,7 +2497,7 @@ const EarthVisualization = () => {
               initialAngle={index * (Math.PI / 3)}
             />
           );
-        }))}
+        })}
         
         {/* Trajectory Ship with Exhaust */}
         <group>
