@@ -331,7 +331,7 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
   useFrame((state, delta) => {
     if (shipRef.current) {
       const time = state.clock.getElapsedTime();
-      const speed = 0.3; // Slower for elegant trajectory
+      const speed = 0.21; // 30% slower for more elegant trajectory
       
       // Figure-8 trajectory that loops around Earth and Moon
       const t = time * speed;
