@@ -2186,16 +2186,10 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
           {/* Right side - Resources and Settings */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
+              {/* Working credits display */}
               <div className="flex items-center gap-1 text-slate-300 text-sm">
                 <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                   <span className="text-xs font-bold text-slate-900">₵</span>
-                </div>
-                <span className="font-medium">{player?.credits?.toFixed(2) || '5000.00'}</span>
-              </div>
-              {/* Test credits tracker */}
-              <div className="flex items-center gap-1 text-slate-300 text-sm">
-                <div className="w-4 h-4 rounded-full bg-green-400 flex items-center justify-center">
-                  <span className="text-xs font-bold text-slate-900">T</span>
                 </div>
                 <span className="font-medium">{testCredits.toFixed(2)}</span>
               </div>
