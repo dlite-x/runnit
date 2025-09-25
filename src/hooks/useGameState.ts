@@ -102,7 +102,10 @@ export const useGameState = (
           if (player && creditGenerationRate > 0) {
             const creditsGenerated = deltaTime * creditGenerationRate;
             const newCredits = Math.floor(player.credits + creditsGenerated);
-            console.log(`Generating credits: ${creditsGenerated.toFixed(6)} per interval, total: ${newCredits}`);
+            // Only log every 5 seconds to reduce console spam
+            if (Math.floor(newTime) % 5 === 0 && Math.floor(newTime) !== Math.floor(prev)) {
+              console.log(`Generating credits: ${creditsGenerated.toFixed(6)} per interval, total: ${newCredits}`);
+            }
             updatePlayerCredits(newCredits);
           }
           
