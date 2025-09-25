@@ -1623,13 +1623,14 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         meshRef.current.position.set(x, y, z);
         textRef.current.position.set(x, y + 0.5, z);
         
-        // Check if we're in a good position to launch (roughly facing toward the moon)
+        // Check if orbital velocity direction is aligned with moon direction
         const moonDirection = Math.atan2(8, 24); // Moon is at [24, 4, 8]
-        const currentDirection = angle % (Math.PI * 2);
-        const directionDiff = Math.abs(currentDirection - moonDirection);
+        const velocityDirection = (angle + Math.PI / 2) % (Math.PI * 2); // Orbital velocity is perpendicular to radius
+        const directionDiff = Math.abs(velocityDirection - moonDirection);
+        const normalizedDiff = Math.min(directionDiff, 2 * Math.PI - directionDiff);
         
-        // Launch when we're within 30 degrees of facing the moon
-        if (directionDiff < Math.PI / 6 || directionDiff > (2 * Math.PI - Math.PI / 6)) {
+        // Launch when orbital velocity is within 20 degrees of moon direction
+        if (normalizedDiff < Math.PI / 9) { // π/9 = 20 degrees
           setLaunchPosition([x, y, z]);
           onLocationUpdate(name, 'traveling');
         }
