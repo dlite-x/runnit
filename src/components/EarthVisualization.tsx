@@ -4,10 +4,8 @@ import { OrbitControls, Stars, Text } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, LogOut } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -1222,82 +1220,6 @@ function CustomShip({ position, rotation, selected, onShipClick, onShipDoubleCli
   );
 }
 
-// Simple Deployed Alien component
-function DeployedAlien({ position }: { position: [number, number, number] }) {
-  const alienRef = useRef<THREE.Group>(null);
-  const [isShootingTime, setIsShootingTime] = useState(false);
-  
-  useFrame((state, delta) => {
-    if (alienRef.current) {
-      // Position the alien
-      alienRef.current.position.set(...position);
-      
-      // Slight hover animation
-      alienRef.current.position.y += Math.sin(state.clock.getElapsedTime() * 2) * 0.1;
-      
-      // Rotate slowly
-      alienRef.current.rotation.y += delta * 0.5;
-      
-      // Shoot periodically
-      if (Math.floor(state.clock.getElapsedTime()) % 3 === 0 && !isShootingTime) {
-        setIsShootingTime(true);
-        setTimeout(() => setIsShootingTime(false), 100);
-      }
-    }
-  });
-
-  return (
-    <group ref={alienRef}>
-      {/* Main alien body */}
-      <mesh>
-        <sphereGeometry args={[0.3, 16, 16]} />
-        <meshStandardMaterial 
-          color="#ff4444" 
-          metalness={0.8} 
-          roughness={0.2}
-          emissive="#ff2222"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
-      
-      {/* Alien details */}
-      <mesh position={[0, 0.2, 0]}>
-        <coneGeometry args={[0.1, 0.2, 8]} />
-        <meshStandardMaterial 
-          color="#ffff00" 
-          emissive="#ffff00"
-          emissiveIntensity={0.5}
-        />
-      </mesh>
-      
-      {/* Shooting effect */}
-      {isShootingTime && (
-        <mesh position={[0, 0, -0.4]}>
-          <cylinderGeometry args={[0.02, 0.05, 0.3, 8]} />
-          <meshStandardMaterial 
-            color="#00ff00" 
-            emissive="#00ff00"
-            emissiveIntensity={0.8}
-            transparent
-            opacity={0.8}
-          />
-        </mesh>
-      )}
-      
-      {/* Warning glow */}
-      <mesh>
-        <sphereGeometry args={[0.5, 16, 16]} />
-        <meshBasicMaterial 
-          color="#ff4444" 
-          transparent 
-          opacity={0.2}
-          wireframe
-        />
-      </mesh>
-    </group>
-  );
-}
-
 // Alien Ship component
 function AlienShip({ targetPosition, onTargetHit, onAlienHit, onPositionChange, alienShipHits, onAlienShipDoubleClick }: { 
   targetPosition: [number, number, number];
@@ -2007,20 +1929,9 @@ function Atmosphere() {
   );
 }
 
-interface EarthVisualizationProps {
-  onSignOut?: () => Promise<void>;
-  player?: { credits: number };
-  showOperations?: boolean;
-  setShowOperations?: (show: boolean) => void;
-  gameTime?: string;
-  creditGenerationRate?: number;
-  showGrid?: boolean;
-  aliens?: Array<{ id: string; position: [number, number, number]; active: boolean }>;
-  onResetCredits?: () => void;
-}
-
-const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperations, gameTime, creditGenerationRate, showGrid = false, aliens = [], onResetCredits }: EarthVisualizationProps = {}) => {
+const EarthVisualization = () => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
+  const [showGrid, setShowGrid] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(false);
   const [flyMode, setFlyMode] = useState(false);
   const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
@@ -2029,7 +1940,6 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const [modalType, setModalType] = useState('');
-  const [testCredits, setTestCredits] = useState(5000.00); // Test credits tracker
   const [alienShipHits, setAlienShipHits] = useState(0);
   const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'preparing' | 'traveling' }>>([]);
   const [colonyCount, setColonyCount] = useState(0);
@@ -2055,22 +1965,6 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
   
   // Keyboard state
   const keysPressed = useRef<Set<string>>(new Set());
-
-  // Test credits timer - 100 credits per hour
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTestCredits(prev => prev + (100 / 3600)); // 100 credits per hour = 100/3600 per second
-    }, 1000); // Update every second
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  // Reset credits function that can be called from outside
-  useEffect(() => {
-    if (onResetCredits) {
-      (window as any).resetTestCredits = () => setTestCredits(5000);
-    }
-  }, [onResetCredits]);
 
   // Click handlers
   const handleShipClick = () => {
@@ -2177,13 +2071,13 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
           {/* Left side - Game info */}
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-blue-400">Expanse</h1>
+              <h1 className="text-xl font-bold text-blue-400">Expanse v0.1</h1>
               <span className="text-slate-400">|</span>
               <span className="text-emerald-400 font-semibold">Terran Corp</span>
             </div>
             <div className="flex items-center gap-4 text-sm">
               <span className="text-slate-300">Level <span className="text-blue-400 font-bold">1</span></span>
-              <span className="text-slate-300">Game Time <span className="text-emerald-400 font-mono">{gameTime || '0.00'} years</span></span>
+              <span className="text-slate-300">Time <span className="text-emerald-400 font-mono">5:44:03</span></span>
             </div>
           </div>
           
@@ -2191,15 +2085,14 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
           <div className="flex items-center gap-2">
           </div>
           
-          {/* Right side - Resources and Settings */}
+          {/* Right side - Resources and Operations Toggle */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              {/* Real credits display from backend */}
               <div className="flex items-center gap-1 text-slate-300 text-sm">
                 <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                   <span className="text-xs font-bold text-slate-900">₵</span>
                 </div>
-                <span className="font-medium">{player?.credits?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '5000.00'}</span>
+                <span className="font-medium">5,000</span>
               </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
                 <span className="text-cyan-400 text-xs">💎</span>
@@ -2208,47 +2101,17 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
               <div className="flex items-center gap-1 bg-purple-600/20 px-2 py-1 rounded border border-purple-500/30">
                 <span className="text-purple-400 text-xs">⚛️</span>
                 <span className="text-purple-300 font-medium text-sm">1</span>
-        </div>
-      </div>
-
-      {/* Demo Mode indicator - positioned under top nav on far right */}
-      {localStorage.getItem('guestMode') === 'true' && (
-        <div className="absolute top-16 right-6 z-10">
-          <span className="text-blue-400 text-sm">Demo Mode v0.2</span>
-        </div>
-      )}
+              </div>
+            </div>
             
-            {/* Settings Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
-                  aria-label="Settings Menu"
-                >
-                  <Settings className="w-5 h-5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-slate-800 border-slate-600">
-                {setShowOperations && (
-                  <DropdownMenuItem 
-                    onClick={() => setShowOperations(!showOperations)}
-                    className="text-slate-300 hover:text-white hover:bg-slate-700"
-                  >
-                    <Settings className="w-4 h-4 mr-2" />
-                    {showOperations ? 'Hide' : 'Show'} Operations
-                  </DropdownMenuItem>
-                )}
-                {onSignOut && (
-                  <DropdownMenuItem 
-                    onClick={onSignOut}
-                    className="text-slate-300 hover:text-white hover:bg-slate-700"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Operations Panel Toggle */}
+            <button
+              onClick={() => setIsOperationsPanelOpen(!isOperationsPanelOpen)}
+              className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
+              aria-label="Toggle Operations Panel"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -2345,7 +2208,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                     </div>
                     <span className="text-base text-slate-400">Credits</span>
                   </div>
-                  <span className="text-lg font-bold text-green-400">+{((creditGenerationRate || 0) * 365.25 * 24 * 3600).toFixed(0)}</span>
+                  <span className="text-lg font-bold text-green-400">+3</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -2673,7 +2536,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                     <span className="text-slate-400">/</span>
                     <span className="text-gray-300">2</span>
                   </div>
-                  <span className="text-sm text-slate-300">building</span>
+                  <span className="text-sm text-orange-400">building</span>
                   <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
@@ -2703,7 +2566,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                     <span className="text-slate-400">/</span>
                     <span className="text-gray-300">10</span>
                   </div>
-                  <span className="text-sm text-slate-300">ready</span>
+                  <span className="text-sm text-green-400">ready</span>
                   <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
@@ -2734,7 +2597,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                     <span className="text-slate-400">/</span>
                     <span className="text-gray-300">30</span>
                   </div>
-                  <span className="text-sm text-slate-300">ready</span>
+                  <span className="text-sm text-green-400">ready</span>
                   <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
@@ -2758,7 +2621,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                   </Select>
                   <span className="text-sm text-slate-300 italic">10s</span>
                   <span className="text-sm text-slate-300">-</span>
-                  <span className="text-sm text-slate-300">en route</span>
+                  <span className="text-sm text-yellow-400">en route</span>
                   <span className="text-xs text-slate-500">-</span>
                 </div>
               </div>
@@ -2808,11 +2671,11 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled
-                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40 opacity-50"
+                  onClick={() => setShowGrid(!showGrid)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
                 >
                   <Grid3X3 className="w-4 h-4 mr-2" />
-                  {showGrid ? 'Hide Grid' : 'Show Grid'} (Use Operations Panel)
+                  {showGrid ? 'Hide Grid' : 'Show Grid'}
                 </Button>
               </div>
 
@@ -3058,14 +2921,6 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
             onAlienShipDoubleClick={() => setSelectedObject("alienShip")}
           />
         )}
-
-        {/* Deployed Aliens */}
-        {aliens.map(alien => alien.active && (
-          <DeployedAlien 
-            key={alien.id}
-            position={alien.position}
-          />
-        ))}
         
         {/* Additional Selection Rings for other objects */}
         {showTargetCube && (
@@ -3122,19 +2977,13 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
           enableRotate={true}
           minDistance={5}
           maxDistance={flyMode ? 40 : 30}
-          dampingFactor={0.08}
+          dampingFactor={0.05}
           enableDamping={true}
-          panSpeed={0.8}
-          rotateSpeed={0.5}
           target={flyMode ? new Vector3(...shipPosition) : new Vector3(...cameraTarget)}
           mouseButtons={{
             LEFT: THREE.MOUSE.PAN,
             MIDDLE: THREE.MOUSE.DOLLY,
             RIGHT: THREE.MOUSE.ROTATE
-          }}
-          touches={{
-            ONE: THREE.TOUCH.PAN,
-            TWO: THREE.TOUCH.DOLLY_PAN
           }}
           makeDefault
         />
