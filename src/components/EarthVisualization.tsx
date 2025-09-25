@@ -2162,7 +2162,7 @@ const EarthVisualization = () => {
       {/* Bottom Panel - Rebuilt for proper clickability */}
       <div className="fixed bottom-0 left-0 z-[9999] pointer-events-auto bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 rounded-tr-xl" style={{ height: '253px', width: '93.6%' }}>
         <div className="p-2 h-full relative z-[9999]">
-          <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.75fr 0.85fr 0.75fr 0.595fr 1.6fr' }}>
+          <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.89fr 0.75fr 0.595fr 1.6fr' }}>
             {/* Earth Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
@@ -2515,7 +2515,7 @@ const EarthVisualization = () => {
                     <span className="text-gray-300">2</span>
                   </div>
                   <span className="text-sm text-orange-400">building</span>
-                  <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                  <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
                 </div>
@@ -2545,7 +2545,7 @@ const EarthVisualization = () => {
                     <span className="text-gray-300">10</span>
                   </div>
                   <span className="text-sm text-green-400">ready</span>
-                  <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                  <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
                 </div>
@@ -2576,7 +2576,7 @@ const EarthVisualization = () => {
                     <span className="text-gray-300">30</span>
                   </div>
                   <span className="text-sm text-green-400">ready</span>
-                  <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                  <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
                 </div>
