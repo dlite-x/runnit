@@ -2055,11 +2055,11 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
   // Keyboard state
   const keysPressed = useRef<Set<string>>(new Set());
 
-  // Test credits timer - simple direct approach
+  // Test credits timer - 100 credits per hour
   useEffect(() => {
     const interval = setInterval(() => {
-      setTestCredits(prev => prev + 0.1); // Add 0.1 credits every 100ms
-    }, 100);
+      setTestCredits(prev => prev + (100 / 3600)); // 100 credits per hour = 100/3600 per second
+    }, 1000); // Update every second
     
     return () => clearInterval(interval);
   }, []);
