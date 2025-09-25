@@ -261,8 +261,9 @@ const Game = () => {
     });
   };
 
-  const constructFactory = () => {
-    purchaseBuilding('Farm'); // Start with farm as a test
+  const constructFactory = async () => {
+    console.log('Construct Factory clicked');
+    await purchaseBuilding('Farm'); // Start with farm as a test
   };
 
   const buildFighterDrones = () => {
@@ -355,31 +356,40 @@ const Game = () => {
         return;
       }
 
-      // Get building type ID by name (we'll need to fetch this)
+      // Get building type ID by name using real database IDs
       const buildingTypeMap: { [key: string]: string } = {
-        'Farm': 'farm-id', // We'll need actual IDs from the database
-        'Mine': 'mine-id',
-        'Power Plant': 'power-id',
-        'Research Lab': 'lab-id',
-        'Fuel Refinery': 'refinery-id'
+        'Farm': 'fce1558f-8cb7-408e-a9f5-92cbad835d19',
+        'Mine': '9223ad60-9a20-4b6c-91c3-8c2cdd2ac88e',
+        'Power Plant': '378f059b-5517-49ef-9744-c37502c4b190',
+        'Research Lab': '13fdbbd6-b816-441c-941a-ec451fec743a',
+        'Fuel Refinery': 'e62d47a0-8926-4075-aabd-176d08e39086'
       };
+
+      console.log(`Attempting to purchase ${buildingTypeName} for colony ${earthColony.id}`);
 
       const response = await supabase.functions.invoke('purchase-building', {
         body: {
           colony_id: earthColony.id,
-          building_type_id: buildingTypeMap[buildingTypeName] || 'farm-id'
+          building_type_id: buildingTypeMap[buildingTypeName]
         }
       });
 
+      console.log('Purchase response:', response);
+
       if (response.error) {
-        throw new Error(response.error.message);
+        throw new Error(response.error.message || 'Failed to purchase building');
       }
 
       const { data } = response;
+
+      // Update player credits immediately
+      if (data?.remaining_credits !== undefined) {
+        updatePlayerCredits(data.remaining_credits);
+      }
       
       toast({
         title: "Building Constructed",
-        description: data.message,
+        description: `${buildingTypeName} built for ${data?.cost_paid || 0} credits!`,
       });
 
       // Refresh game data to show updates
@@ -474,8 +484,8 @@ const Game = () => {
               <Button size="sm" className="w-full" variant="outline" onClick={toggleGrid}>
                 {showGrid ? 'Hide Grid' : 'Show Grid'}
               </Button>
-              <Button size="sm" className="w-full" variant="outline" onClick={constructFactory}>
-                Construct Factory
+              <Button size="sm" className="w-full" variant="outline" onClick={() => constructFactory()}>
+                Construct Farm
               </Button>
               <Button size="sm" className="w-full" variant="outline" onClick={buildFighterDrones}>
                 Build Fighter Drones
