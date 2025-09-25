@@ -1999,7 +1999,7 @@ const EarthVisualization = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Buildings</h3>
               </div>
-              <div className="space-y-2 relative z-[9999] pointer-events-auto">
+              <div className="grid grid-cols-2 gap-2 relative z-[9999] pointer-events-auto">
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
@@ -2011,11 +2011,11 @@ const EarthVisualization = () => {
                   >
                     <div className="flex items-center gap-2">
                       <FlaskConical className="w-4 h-4 text-purple-400" />
-                      <span className="text-base text-slate-400">Lab</span>
+                      <span className="text-sm text-slate-400">Lab</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-200">2</span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
                         </div>
@@ -2036,11 +2036,11 @@ const EarthVisualization = () => {
                   >
                     <div className="flex items-center gap-2">
                       <Wheat className="w-4 h-4 text-green-400" />
-                      <span className="text-base text-slate-400">Farm</span>
+                      <span className="text-sm text-slate-400">Farm</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-200">5</span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
                         </div>
@@ -2061,11 +2061,11 @@ const EarthVisualization = () => {
                   >
                     <div className="flex items-center gap-2">
                       <Pickaxe className="w-4 h-4 text-gray-400" />
-                      <span className="text-base text-slate-400">Mine</span>
+                      <span className="text-sm text-slate-400">Mine</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-200">3</span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
                         </div>
@@ -2086,11 +2086,11 @@ const EarthVisualization = () => {
                   >
                     <div className="flex items-center gap-2">
                       <Zap className="w-4 h-4 text-yellow-400" />
-                      <span className="text-base text-slate-400">Power</span>
+                      <span className="text-sm text-slate-400">Power</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-200">4</span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
                         </div>
@@ -2111,11 +2111,11 @@ const EarthVisualization = () => {
                   >
                     <div className="flex items-center gap-2">
                       <Factory className="w-4 h-4 text-orange-400" />
-                      <span className="text-base text-slate-400">Refinery</span>
+                      <span className="text-sm text-slate-400">Refinery</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-200">1</span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
                         </div>
