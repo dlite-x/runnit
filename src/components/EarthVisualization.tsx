@@ -2170,7 +2170,6 @@ const EarthVisualization = () => {
                     </div>
                   </div>
                 </div>
-                </div>
                 
                 {/* Test Deploy Alien Button */}
                 <div className="mt-4">
