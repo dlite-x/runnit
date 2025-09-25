@@ -1481,6 +1481,34 @@ function ShipController({
   return null; // This component doesn't render anything
 }
 
+// OrbitingSphere component for ships orbiting Earth
+const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle }: {
+  type: 'colony' | 'cargo';
+  orbitRadius: number;
+  orbitSpeed: number;
+  initialAngle: number;
+}) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      const time = state.clock.getElapsedTime();
+      const angle = initialAngle + time * orbitSpeed;
+      
+      meshRef.current.position.x = Math.cos(angle) * orbitRadius;
+      meshRef.current.position.z = Math.sin(angle) * orbitRadius;
+      meshRef.current.position.y = Math.sin(angle * 0.5) * 0.5; // Slight vertical oscillation
+    }
+  });
+
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[0.21, 16, 16]} />
+      <meshStandardMaterial color={type === 'colony' ? '#3b82f6' : '#f59e0b'} />
+    </mesh>
+  );
+}
+
 // CameraController component - follows ship in fly mode but allows rotation
 const CameraController = ({ flyMode, shipPosition, cameraTarget }: { 
   flyMode: boolean; 
@@ -2457,10 +2485,13 @@ const EarthVisualization = () => {
         
         {/* Built Spheres */}
         {builtSpheres.map((sphere, index) => (
-          <mesh key={index} position={sphere.position}>
-            <sphereGeometry args={[0.3, 16, 16]} />
-            <meshStandardMaterial color={sphere.type === 'colony' ? '#3b82f6' : '#f59e0b'} />
-          </mesh>
+          <OrbitingSphere 
+            key={index} 
+            type={sphere.type} 
+            orbitRadius={5 + index * 0.5} 
+            orbitSpeed={0.5 + index * 0.1}
+            initialAngle={index * (Math.PI / 3)}
+          />
         ))}
         
         {/* Alien Ship */}
