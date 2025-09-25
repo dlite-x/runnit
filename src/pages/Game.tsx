@@ -295,10 +295,34 @@ const Game = () => {
         <div className="absolute top-16 right-4 w-80 bg-background/95 backdrop-blur-sm border rounded-lg p-4 z-40 max-h-[calc(100vh-5rem)] overflow-y-auto">
           <h2 className="text-lg font-semibold mb-4">Operations</h2>
           
-          {/* Colonies */}
+          {/* Game Controls */}
           <Card className="mb-4">
             <CardHeader>
-              <CardTitle className="text-sm">Colonies ({colonies.length})</CardTitle>
+              <CardTitle className="text-sm">Game Controls</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button size="sm" className="w-full" variant="outline">
+                Deploy Alien
+              </Button>
+              <Button size="sm" className="w-full" variant="outline">
+                Show Grid
+              </Button>
+              <Button size="sm" className="w-full" variant="outline">
+                Construct Factory
+              </Button>
+              <Button size="sm" className="w-full" variant="outline">
+                Build Fighter Drones
+              </Button>
+              <Button size="sm" className="w-full" variant="outline">
+                Launch Mining Operation
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Colony Status */}
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle className="text-sm">Colony Status</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {colonies.length === 0 ? (
@@ -328,10 +352,10 @@ const Game = () => {
             </CardContent>
           </Card>
 
-          {/* Missions */}
-          <Card className="mb-4">
+          {/* Mission Status */}
+          <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Active Missions</CardTitle>
+              <CardTitle className="text-sm">Mission Status</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {missions.length === 0 ? (
@@ -347,24 +371,6 @@ const Game = () => {
                   </div>
                 ))
               )}
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button size="sm" className="w-full" variant="outline">
-                Research
-              </Button>
-              <Button size="sm" className="w-full" variant="outline">
-                Build Ships
-              </Button>
-              <Button size="sm" className="w-full" variant="outline">
-                Construct Buildings
-              </Button>
             </CardContent>
           </Card>
         </div>
