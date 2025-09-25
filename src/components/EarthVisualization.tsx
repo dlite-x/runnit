@@ -2285,17 +2285,6 @@ const EarthVisualization = () => {
             {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
           </Button>
           
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              console.log('Right panel Deploy Alien #2 clicked!');
-              setAlienShipActive(!alienShipActive);
-            }}
-            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
-          >
-            {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien 2
-          </Button>
           
           <Button
             variant="outline"
