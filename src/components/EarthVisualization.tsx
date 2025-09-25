@@ -1597,9 +1597,9 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
   orbitSpeed: number;
   initialAngle: number;
   name: string;
-  location: 'earth' | 'moon' | 'traveling';
-  sphereData: { type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'traveling' };
-  onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'traveling') => void;
+  location: 'earth' | 'moon' | 'preparing' | 'traveling';
+  sphereData: { type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'preparing' | 'traveling' };
+  onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'preparing' | 'traveling') => void;
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const textRef = useRef<THREE.Group>(null);
@@ -1607,30 +1607,44 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
   const [travelProgress, setTravelProgress] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
+  const [launchPosition, setLaunchPosition] = useState<[number, number, number] | null>(null);
   
   useFrame((state) => {
     if (meshRef.current && textRef.current) {
       const time = state.clock.getElapsedTime();
+      const angle = initialAngle + time * orbitSpeed;
       
-      if (location === 'traveling') {
-        // Travel animation from Earth to Moon
-        const earthCenter = [0, 0, 0];
-        const moonCenter = [24, 4, 8];
-        const travelSpeed = 0.5; // Adjust travel speed
+      if (location === 'preparing') {
+        // Continue orbiting until we reach a good launch position (facing the moon)
+        const x = Math.cos(angle) * orbitRadius;
+        const z = Math.sin(angle) * orbitRadius;
+        const y = Math.sin(angle * 0.5) * 0.5;
         
-        if (travelProgress < 1) {
+        meshRef.current.position.set(x, y, z);
+        textRef.current.position.set(x, y + 0.5, z);
+        
+        // Check if we're in a good position to launch (roughly facing toward the moon)
+        const moonDirection = Math.atan2(8, 24); // Moon is at [24, 4, 8]
+        const currentDirection = angle % (Math.PI * 2);
+        const directionDiff = Math.abs(currentDirection - moonDirection);
+        
+        // Launch when we're within 30 degrees of facing the moon
+        if (directionDiff < Math.PI / 6 || directionDiff > (2 * Math.PI - Math.PI / 6)) {
+          setLaunchPosition([x, y, z]);
+          onLocationUpdate(name, 'traveling');
+        }
+      } else if (location === 'traveling') {
+        // Travel animation from launch position to Moon
+        const moonCenter = [24, 4, 8];
+        const travelSpeed = 0.15; // Much slower, similar to figure-8 ship speed
+        
+        if (travelProgress < 1 && launchPosition) {
           const newProgress = Math.min(1, travelProgress + travelSpeed * 0.016); // ~60fps
           setTravelProgress(newProgress);
           
-          // Interpolate position between current Earth orbit and Moon
-          const currentAngle = initialAngle + time * orbitSpeed;
-          const earthX = Math.cos(currentAngle) * orbitRadius;
-          const earthZ = Math.sin(currentAngle) * orbitRadius;
-          const earthY = Math.sin(currentAngle * 0.5) * 0.5;
-          
-          const x = earthX + (moonCenter[0] - earthX) * newProgress;
-          const y = earthY + (moonCenter[1] - earthY) * newProgress;
-          const z = earthZ + (moonCenter[2] - earthZ) * newProgress;
+          const x = launchPosition[0] + (moonCenter[0] - launchPosition[0]) * newProgress;
+          const y = launchPosition[1] + (moonCenter[1] - launchPosition[1]) * newProgress;
+          const z = launchPosition[2] + (moonCenter[2] - launchPosition[2]) * newProgress;
           
           meshRef.current.position.set(x, y, z);
           textRef.current.position.set(x, y + 0.5, z);
@@ -1642,10 +1656,11 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
             // Keep trail for the journey
             return newPoints.slice(-25);
           });
-        } else {
+        } else if (travelProgress >= 1) {
           // Travel complete, switch to moon orbit
           onLocationUpdate(name, 'moon');
           setTravelProgress(0);
+          setLaunchPosition(null);
           // Clear trail when travel is complete
           setTrailPoints([]);
         }
@@ -1655,7 +1670,6 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           setTrailPoints([]);
         }
         
-        const angle = initialAngle + time * orbitSpeed;
         let centerX = 0, centerY = 0, centerZ = 0;
         
         if (location === 'moon') {
@@ -1923,7 +1937,7 @@ const EarthVisualization = () => {
   const [modalContent, setModalContent] = useState('');
   const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
-  const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'traveling' }>>([]);
+  const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'preparing' | 'traveling' }>>([]);
   const [colonyCount, setColonyCount] = useState(0);
   const [cargoCount, setCargoCount] = useState(0);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
@@ -2463,7 +2477,7 @@ const EarthVisualization = () => {
                         console.log(`Sending ${sphere.name} to moon!`);
                         setBuiltSpheres(prev => {
                           const updated = prev.map(s => 
-                            s.name === sphere.name ? { ...s, location: 'traveling' as const } : s
+                            s.name === sphere.name ? { ...s, location: 'preparing' as const } : s
                           );
                           console.log('Updated spheres:', updated);
                           return updated;
@@ -2483,10 +2497,12 @@ const EarthVisualization = () => {
                     </div>
                     <span className={`text-xs ${
                       sphere.location === 'earth' ? 'text-green-400' : 
+                      sphere.location === 'preparing' ? 'text-orange-400' :
                       sphere.location === 'traveling' ? 'text-yellow-400' : 
                       'text-blue-400'
                     }`}>
                       {sphere.location === 'earth' ? 'Earth' : 
+                       sphere.location === 'preparing' ? 'Preparing' :
                        sphere.location === 'traveling' ? 'En Route' : 
                        'Moon'}
                     </span>
