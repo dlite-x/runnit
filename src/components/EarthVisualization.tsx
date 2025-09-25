@@ -1682,6 +1682,8 @@ const EarthVisualization = () => {
   const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
   const [alienShipActive, setAlienShipActive] = useState(false);
   const [targetCubeHits, setTargetCubeHits] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [showTargetCube, setShowTargetCube] = useState(false);
@@ -1999,8 +2001,11 @@ const EarthVisualization = () => {
               </div>
               <div className="space-y-3">
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
-                  onClick={() => console.log("Lab clicked")}
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                  onClick={() => {
+                    setModalContent('Lab Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <FlaskConical className="w-4 h-4 text-purple-400" />
@@ -2017,8 +2022,11 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
-                  onClick={() => console.log("Farm clicked")}
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                  onClick={() => {
+                    setModalContent('Farm Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <Wheat className="w-4 h-4 text-green-400" />
@@ -2035,8 +2043,11 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
-                  onClick={() => console.log("Mine clicked")}
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                  onClick={() => {
+                    setModalContent('Mine Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <Pickaxe className="w-4 h-4 text-gray-400" />
@@ -2053,8 +2064,11 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
-                  onClick={() => console.log("Power clicked")}
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                  onClick={() => {
+                    setModalContent('Power Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-yellow-400" />
@@ -2071,8 +2085,11 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
-                  onClick={() => console.log("Refinery clicked")}
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                  onClick={() => {
+                    setModalContent('Refinery Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <Factory className="w-4 h-4 text-orange-400" />
@@ -2101,8 +2118,11 @@ const EarthVisualization = () => {
               </div>
               <div className="space-y-3">
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
-                  onClick={() => console.log("Colony clicked")}
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                  onClick={() => {
+                    setModalContent('Colony Ship - Purchase Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <Home className="w-4 h-4 text-blue-400" />
@@ -2119,8 +2139,11 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
-                  onClick={() => console.log("Cargo clicked")}
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                  onClick={() => {
+                    setModalContent('Cargo Ship - Purchase Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <Package className="w-4 h-4 text-amber-400" />
@@ -2473,6 +2496,28 @@ const EarthVisualization = () => {
         />
         </Canvas>
       </div>
+
+      {/* Modal Popup */}
+      {showModal && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShowModal(false)}
+        >
+          <div 
+            className="bg-slate-800 border border-slate-600 rounded-lg p-6 max-w-sm mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-slate-200 mb-4">Building/Ship Info</h3>
+            <p className="text-slate-300 mb-4">{modalContent}</p>
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
