@@ -1927,7 +1927,7 @@ const EarthVisualization = () => {
                     </div>
                     <span className="text-sm text-slate-400">Credits</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">27,071</span>
+                  <span className="text-sm font-bold text-green-400">+3</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
