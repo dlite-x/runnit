@@ -1953,7 +1953,7 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-200">500</span>
-                    <span className="text-xs text-green-400">+7</span>
+                    <span className="text-sm text-green-400">+7</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -1963,7 +1963,7 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-200">200</span>
-                    <span className="text-xs text-green-400">+3</span>
+                    <span className="text-sm text-green-400">+3</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -1973,7 +1973,7 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-200">800</span>
-                    <span className="text-xs text-green-400">+9</span>
+                    <span className="text-sm text-green-400">+9</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -1983,7 +1983,7 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-200">100</span>
-                    <span className="text-xs text-green-400">+5</span>
+                    <span className="text-sm text-green-400">+5</span>
                   </div>
                 </div>
               </div>
@@ -1999,7 +1999,7 @@ const EarthVisualization = () => {
               </div>
               <div className="space-y-3">
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 rounded transition-colors group"
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
                   onClick={() => console.log("Lab clicked")}
                 >
                   <div className="flex items-center gap-2">
@@ -2017,7 +2017,7 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 rounded transition-colors group"
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
                   onClick={() => console.log("Farm clicked")}
                 >
                   <div className="flex items-center gap-2">
@@ -2035,7 +2035,7 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 rounded transition-colors group"
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
                   onClick={() => console.log("Mine clicked")}
                 >
                   <div className="flex items-center gap-2">
@@ -2053,7 +2053,7 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 rounded transition-colors group"
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
                   onClick={() => console.log("Power clicked")}
                 >
                   <div className="flex items-center gap-2">
@@ -2071,7 +2071,7 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 rounded transition-colors group"
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
                   onClick={() => console.log("Refinery clicked")}
                 >
                   <div className="flex items-center gap-2">
@@ -2101,7 +2101,7 @@ const EarthVisualization = () => {
               </div>
               <div className="space-y-3">
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 rounded transition-colors group"
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
                   onClick={() => console.log("Colony clicked")}
                 >
                   <div className="flex items-center gap-2">
@@ -2119,7 +2119,7 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 rounded transition-colors group"
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group"
                   onClick={() => console.log("Cargo clicked")}
                 >
                   <div className="flex items-center gap-2">
