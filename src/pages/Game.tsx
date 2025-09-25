@@ -286,10 +286,18 @@ const Game = () => {
     // Reset game timer
     gameState.resetTimer();
     
+    // Reset the working credits display to 5000
+    if ((window as any).resetTestCredits) {
+      (window as any).resetTestCredits();
+    }
+    
     // Reset player credits
     if (player) {
       updatePlayerCredits(5000);
     }
+    
+    // Clear all deployed aliens
+    setAliens([]);
     
     // Reset colonies to initial demo state
     setColonies([
@@ -391,6 +399,7 @@ const Game = () => {
           creditGenerationRate={gameState.creditGenerationRate}
           showGrid={showGrid}
           aliens={aliens}
+          onResetCredits={() => {}} // We'll need to expose the testCredits reset
         />
       </div>
 

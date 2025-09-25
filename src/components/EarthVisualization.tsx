@@ -2016,9 +2016,10 @@ interface EarthVisualizationProps {
   creditGenerationRate?: number;
   showGrid?: boolean;
   aliens?: Array<{ id: string; position: [number, number, number]; active: boolean }>;
+  onResetCredits?: () => void;
 }
 
-const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperations, gameTime, creditGenerationRate, showGrid = false, aliens = [] }: EarthVisualizationProps = {}) => {
+const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperations, gameTime, creditGenerationRate, showGrid = false, aliens = [], onResetCredits }: EarthVisualizationProps = {}) => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showCoordinates, setShowCoordinates] = useState(false);
   const [flyMode, setFlyMode] = useState(false);
@@ -2063,6 +2064,13 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
     
     return () => clearInterval(interval);
   }, []);
+
+  // Reset credits function that can be called from outside
+  useEffect(() => {
+    if (onResetCredits) {
+      (window as any).resetTestCredits = () => setTestCredits(5000);
+    }
+  }, [onResetCredits]);
 
   // Click handlers
   const handleShipClick = () => {
