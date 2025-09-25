@@ -1684,7 +1684,9 @@ const EarthVisualization = () => {
   const [targetCubeHits, setTargetCubeHits] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
+  const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
+  const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number] }>>([]);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [showTargetCube, setShowTargetCube] = useState(false);
   const [showBaseCube, setShowBaseCube] = useState(false);
@@ -2142,6 +2144,7 @@ const EarthVisualization = () => {
                     onClick={() => {
                       console.log('Colony clicked!');
                       setModalContent('Colony Ship - Purchase Cost: ₵ 200');
+                      setModalType('colony');
                       setShowModal(true);
                     }}
                   >
@@ -2166,6 +2169,7 @@ const EarthVisualization = () => {
                     onClick={() => {
                       console.log('Cargo clicked!');
                       setModalContent('Cargo Ship - Purchase Cost: ₵ 200');
+                      setModalType('cargo');
                       setShowModal(true);
                     }}
                   >
@@ -2445,6 +2449,14 @@ const EarthVisualization = () => {
         {/* Ship Panel Drones */}
         {shipFactoryBuilt && <ShipPanelDrones count={shipPanelDrones} />}
         
+        {/* Built Spheres */}
+        {builtSpheres.map((sphere, index) => (
+          <mesh key={index} position={sphere.position}>
+            <sphereGeometry args={[0.3, 16, 16]} />
+            <meshStandardMaterial color={sphere.type === 'colony' ? '#3b82f6' : '#f59e0b'} />
+          </mesh>
+        ))}
+        
         {/* Alien Ship */}
         {alienShipActive && (
           <AlienShip 
@@ -2537,12 +2549,30 @@ const EarthVisualization = () => {
           >
             <h3 className="text-lg font-semibold text-slate-200 mb-4">Building/Ship Info</h3>
             <p className="text-slate-300 mb-4">{modalContent}</p>
-            <button
-              onClick={() => setShowModal(false)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
-            >
-              Close
-            </button>
+            <div className="flex gap-2">
+              {(modalType === 'colony' || modalType === 'cargo') && (
+                <button
+                  onClick={() => {
+                    const spherePosition: [number, number, number] = [
+                      4 + Math.random() * 2 - 1, // Random position near Earth
+                      Math.random() * 2 - 1,
+                      Math.random() * 2 - 1
+                    ];
+                    setBuiltSpheres(prev => [...prev, { type: modalType as 'colony' | 'cargo', position: spherePosition }]);
+                    setShowModal(false);
+                  }}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors"
+                >
+                  Buy
+                </button>
+              )}
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
