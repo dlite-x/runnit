@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
+import { OrbitControls, Stars, Text } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
@@ -1591,11 +1591,12 @@ function ShipController({
 }
 
 // OrbitingSphere component for ships orbiting Earth
-const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle }: {
+const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name }: {
   type: 'colony' | 'cargo';
   orbitRadius: number;
   orbitSpeed: number;
   initialAngle: number;
+  name: string;
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   
@@ -1611,10 +1612,23 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle }: {
   });
 
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[0.21, 16, 16]} />
-      <meshStandardMaterial color={type === 'colony' ? '#3b82f6' : '#f59e0b'} />
-    </mesh>
+    <group>
+      <mesh ref={meshRef}>
+        <sphereGeometry args={[0.21, 16, 16]} />
+        <meshStandardMaterial color={type === 'colony' ? '#3b82f6' : '#f59e0b'} />
+      </mesh>
+      {/* Text label for the sphere */}
+      <Text
+        ref={meshRef}
+        position={[0, 0.5, 0]}
+        fontSize={0.15}
+        color="white"
+        anchorX="center"
+        anchorY="middle"
+      >
+        {name}
+      </Text>
+    </group>
   );
 }
 
@@ -1824,7 +1838,9 @@ const EarthVisualization = () => {
   const [modalContent, setModalContent] = useState('');
   const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
-  const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number] }>>([]);
+  const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number], name: string }>>([]);
+  const [colonyCount, setColonyCount] = useState(0);
+  const [cargoCount, setCargoCount] = useState(0);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [showTargetCube, setShowTargetCube] = useState(false);
   const [showBaseCube, setShowBaseCube] = useState(false);
@@ -2279,15 +2295,17 @@ const EarthVisualization = () => {
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
-                    onClick={() => {
-                      console.log('Colony clicked!');
-                      const spherePosition: [number, number, number] = [
-                        4 + Math.random() * 2 - 1, // Random position near Earth
-                        Math.random() * 2 - 1,
-                        Math.random() * 2 - 1
-                      ];
-                      setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition }]);
-                    }}
+                     onClick={() => {
+                       console.log('Colony clicked!');
+                       const newColonyCount = colonyCount + 1;
+                       setColonyCount(newColonyCount);
+                       const spherePosition: [number, number, number] = [
+                         4 + Math.random() * 2 - 1, // Random position near Earth
+                         Math.random() * 2 - 1,
+                         Math.random() * 2 - 1
+                       ];
+                       setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition, name: `Colony${newColonyCount}` }]);
+                     }}
                   >
                     <div className="flex items-center gap-2">
                       <Home className="w-4 h-4 text-blue-400" />
@@ -2307,15 +2325,17 @@ const EarthVisualization = () => {
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
-                    onClick={() => {
-                      console.log('Cargo clicked!');
-                      const spherePosition: [number, number, number] = [
-                        4 + Math.random() * 2 - 1, // Random position near Earth
-                        Math.random() * 2 - 1,
-                        Math.random() * 2 - 1
-                      ];
-                      setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition }]);
-                    }}
+                     onClick={() => {
+                       console.log('Cargo clicked!');
+                       const newCargoCount = cargoCount + 1;
+                       setCargoCount(newCargoCount);
+                       const spherePosition: [number, number, number] = [
+                         4 + Math.random() * 2 - 1, // Random position near Earth
+                         Math.random() * 2 - 1,
+                         Math.random() * 2 - 1
+                       ];
+                       setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition, name: `Cargo${newCargoCount}` }]);
+                     }}
                   >
                     <div className="flex items-center gap-2">
                       <Package className="w-4 h-4 text-amber-400" />
@@ -2345,7 +2365,30 @@ const EarthVisualization = () => {
                 <h3 className="text-lg font-semibold text-slate-200">Missions</h3>
               </div>
               <div className="space-y-3">
-                {/* Missions content will be added here later */}
+                {/* Show up to 4 built objects */}
+                {builtSpheres.slice(0, 4).map((sphere, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {sphere.type === 'colony' ? (
+                        <Home className="w-4 h-4 text-blue-400" />
+                      ) : (
+                        <Package className="w-4 h-4 text-amber-400" />
+                      )}
+                      <span className="text-sm text-slate-300">{sphere.name}</span>
+                    </div>
+                    <span className="text-xs text-slate-500">Active</span>
+                  </div>
+                ))}
+                {builtSpheres.length === 0 && (
+                  <div className="text-center py-4">
+                    <span className="text-sm text-slate-500">No active missions</span>
+                  </div>
+                )}
+                {builtSpheres.length > 4 && (
+                  <div className="text-center pt-2">
+                    <span className="text-xs text-slate-500">+{builtSpheres.length - 4} more</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -2617,6 +2660,7 @@ const EarthVisualization = () => {
               orbitRadius={orbitRadius} 
               orbitSpeed={orbitSpeed}
               initialAngle={index * (Math.PI / 3)}
+              name={sphere.name}
             />
           );
         })}
