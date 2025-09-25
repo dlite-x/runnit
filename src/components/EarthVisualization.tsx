@@ -2391,7 +2391,7 @@ const EarthVisualization = () => {
                 <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
                   <Rocket className="w-4 h-4 text-cyan-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-200">Ships</h3>
+                <h3 className="text-xl font-semibold text-slate-200">Space</h3>
               </div>
               <div className="space-y-2 relative z-[9999] pointer-events-auto">
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
@@ -2413,8 +2413,7 @@ const EarthVisualization = () => {
                       <Home className="w-4 h-4 text-blue-400" />
                       <span className="text-base text-slate-400">Colony</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-200">1</span>
+                     <div className="flex items-center gap-2">
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
@@ -2443,13 +2442,34 @@ const EarthVisualization = () => {
                       <Package className="w-4 h-4 text-amber-400" />
                       <span className="text-base text-slate-400">Cargo</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-200">3</span>
+                     <div className="flex items-center gap-2">
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
                         </div>
                         <span className="text-xs text-yellow-400">200</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                  <div 
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                     onClick={() => {
+                       console.log('Station clicked!');
+                       // Add station functionality here later
+                     }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Satellite className="w-4 h-4 text-green-400" />
+                      <span className="text-base text-slate-400">Station</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                          <span className="text-xs font-bold text-slate-900">₵</span>
+                        </div>
+                        <span className="text-xs text-yellow-400">500</span>
                       </div>
                     </div>
                   </div>
@@ -2464,7 +2484,7 @@ const EarthVisualization = () => {
                 <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
                   <Satellite className="w-4 h-4 text-purple-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-200">Missions</h3>
+                <h3 className="text-xl font-semibold text-slate-200">Flight Control</h3>
               </div>
               <div className="space-y-3">
                 {/* Show up to 4 built objects */}
