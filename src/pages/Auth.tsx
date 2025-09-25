@@ -48,38 +48,57 @@ const Auth = () => {
   const handleDemoLogin = async () => {
     setLoading(true);
     try {
-      // Try to sign in with existing demo user
+      // Try to sign in with existing demo user first
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: 'demo@expanse.space',
         password: 'demo123456',
       });
       
-      // If user doesn't exist, create the demo account
-      if (signInError && signInError.message.includes('Invalid login credentials')) {
-        const { error: signUpError } = await supabase.auth.signUp({
+      if (!signInError) {
+        toast({
+          title: "Demo Login Successful", 
+          description: "Welcome to the Expanse Colony demo!",
+        });
+        return;
+      }
+
+      // If login fails, try to create demo user account
+      if (signInError.message.includes('Invalid login credentials')) {
+        toast({
+          title: "Creating Demo Account",
+          description: "Setting up your demo account, please wait...",
+        });
+        
+        // Create the account but we'll need to handle the email confirmation issue
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email: 'demo@expanse.space',
           password: 'demo123456',
           options: {
-            emailRedirectTo: `${window.location.origin}/game`,
             data: {
               full_name: 'Demo Commander'
             }
           }
         });
         
-        if (signUpError) throw signUpError;
-        
-        toast({
-          title: "Demo Account Created",
-          description: "Demo account created and signed in successfully!",
-        });
-      } else if (signInError) {
-        throw signInError;
+        if (signUpError) {
+          throw signUpError;
+        }
+
+        // If account was created but needs confirmation, inform user
+        if (data.user && !data.session) {
+          toast({
+            title: "Demo Account Setup",
+            description: "Demo account created. Please check Supabase settings to disable email confirmation for easier demo access.",
+            variant: "destructive",
+          });
+        } else if (data.session) {
+          toast({
+            title: "Demo Account Ready",
+            description: "Demo account created and ready to use!",
+          });
+        }
       } else {
-        toast({
-          title: "Demo Login Successful", 
-          description: "Welcome to the Expanse Colony demo!",
-        });
+        throw signInError;
       }
     } catch (error: any) {
       toast({
@@ -191,7 +210,8 @@ const Auth = () => {
               {loading ? "Loading..." : "🎮 Try Demo (No Account Needed)"}
             </Button>
             <p className="text-xs text-muted-foreground text-center">
-              Quick demo with pre-configured colony data
+              Quick demo with pre-configured colony data<br/>
+              <span className="text-yellow-600">Note: If you see "Email not confirmed", disable email confirmation in Supabase Auth settings</span>
             </p>
           </div>
 
