@@ -2117,45 +2117,49 @@ const EarthVisualization = () => {
                 <h3 className="text-lg font-semibold text-slate-200">Ships</h3>
               </div>
               <div className="space-y-3">
-                <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                  onClick={() => {
-                    setModalContent('Colony Ship - Purchase Cost: ₵ 200');
-                    setShowModal(true);
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Home className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm text-slate-400">Colony</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-200">1</span>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
-                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
-                        <span className="text-xs font-bold text-slate-900">₵</span>
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors">
+                  <div 
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                    onClick={() => {
+                      setModalContent('Colony Ship - Purchase Cost: ₵ 200');
+                      setShowModal(true);
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Home className="w-4 h-4 text-blue-400" />
+                      <span className="text-sm text-slate-400">Colony</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-200">1</span>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                          <span className="text-xs font-bold text-slate-900">₵</span>
+                        </div>
+                        <span className="text-xs text-yellow-400">200</span>
                       </div>
-                      <span className="text-xs text-yellow-400">200</span>
                     </div>
                   </div>
                 </div>
-                <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                  onClick={() => {
-                    setModalContent('Cargo Ship - Purchase Cost: ₵ 200');
-                    setShowModal(true);
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm text-slate-400">Cargo</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-200">3</span>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
-                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
-                        <span className="text-xs font-bold text-slate-900">₵</span>
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors">
+                  <div 
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
+                    onClick={() => {
+                      setModalContent('Cargo Ship - Purchase Cost: ₵ 200');
+                      setShowModal(true);
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4 text-amber-400" />
+                      <span className="text-sm text-slate-400">Cargo</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-200">3</span>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                          <span className="text-xs font-bold text-slate-900">₵</span>
+                        </div>
+                        <span className="text-xs text-yellow-400">200</span>
                       </div>
-                      <span className="text-xs text-yellow-400">200</span>
                     </div>
                   </div>
                 </div>
