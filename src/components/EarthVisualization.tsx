@@ -2124,7 +2124,7 @@ const EarthVisualization = () => {
               <div className="space-y-3 relative z-[9999] pointer-events-auto">
                 <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999]"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                     onClick={() => {
                       console.log('Colony clicked!');
                       setModalContent('Colony Ship - Purchase Cost: ₵ 200');
@@ -2148,7 +2148,7 @@ const EarthVisualization = () => {
             </div>
                 <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999]"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                     onClick={() => {
                       console.log('Cargo clicked!');
                       setModalContent('Cargo Ship - Purchase Cost: ₵ 200');
