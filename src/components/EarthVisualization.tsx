@@ -2181,26 +2181,6 @@ const EarthVisualization = () => {
                       </div>
                 </div>
               </div>
-              
-              {/* Test Button */}
-              <div className="mt-4">
-                <button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors cursor-pointer"
-                  style={{ pointerEvents: 'auto' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setModalContent('Test Button Clicked - Modal System Working!');
-                    setShowModal(true);
-                  }}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    setModalContent('Test Button Clicked - Modal System Working!');
-                    setShowModal(true);
-                  }}
-                >
-                  Test
-                </button>
-              </div>
             </div>
                 <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors">
                   <div 
@@ -2235,6 +2215,28 @@ const EarthVisualization = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Test Button - Separate Section to the Right */}
+      <div className="absolute bottom-0 left-72 bg-slate-900/95 backdrop-blur-sm border-t border-l border-slate-700 rounded-tl-xl p-4" style={{ height: '253px', width: '200px' }}>
+        <div className="flex flex-col justify-center h-full">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded transition-colors cursor-pointer font-semibold"
+            style={{ pointerEvents: 'auto' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setModalContent('Test Button Clicked - Modal System Working!');
+              setShowModal(true);
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              setModalContent('Test Button Clicked - Modal System Working!');
+              setShowModal(true);
+            }}
+          >
+            Test
+          </button>
         </div>
       </div>
 
