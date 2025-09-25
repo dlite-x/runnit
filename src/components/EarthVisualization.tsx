@@ -2069,9 +2069,8 @@ const EarthVisualization = () => {
         </div>
       </div>
 
-      {/* 3D Canvas - positioned to account for header and bottom panel */}
-      <div className="absolute top-16 left-80 right-0" style={{
-        bottom: '230px',
+      {/* 3D Canvas - Full Screen */}
+      <div className="absolute inset-0" style={{
         background: 'radial-gradient(circle at center, rgba(74, 144, 226, 0.05) 0%, transparent 70%)',
         boxShadow: 'inset 0 0 100px rgba(135, 206, 235, 0.1)'
       }}>
