@@ -2193,9 +2193,22 @@ const EarthVisualization = () => {
           </button>
           <div className="mt-2 text-xs text-slate-400">
             Click to test modal
-          </div>
-        </div>
-      </div>
+                </div>
+              </div>
+              
+              {/* Test Deploy Alien Button */}
+              <div className="mt-4">
+                <button
+                  className="w-full bg-blue-800/80 border border-blue-600 text-blue-300 hover:bg-blue-700/80 px-3 py-2 rounded transition-colors"
+                  onClick={() => {
+                    console.log('Ships panel Deploy Alien clicked!');
+                    setAlienShipActive(!alienShipActive);
+                  }}
+                >
+                  {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien (Test)
+                </button>
+              </div>
+            </div>
 
       {/* Right Side Panels */}
       <div className="absolute top-20 right-4 z-10 space-y-4 w-52">
