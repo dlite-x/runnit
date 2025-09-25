@@ -4,7 +4,7 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite } from 'lucide-react';
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -1922,14 +1922,14 @@ const EarthVisualization = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-yellow-400">💰</span>
+                    <Coins className="w-4 h-4 text-yellow-400" />
                     <span className="text-sm text-slate-400">Credits</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">27,071</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-red-400">🌡️</span>
+                    <Zap className="w-4 h-4 text-red-400" />
                     <span className="text-sm text-slate-400">Temperature</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">15.2°C</span>
@@ -1948,28 +1948,28 @@ const EarthVisualization = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-green-400">🍃</span>
+                    <UtensilsCrossed className="w-4 h-4 text-green-400" />
                     <span className="text-sm text-slate-400">Food</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">500</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-red-400">⛽</span>
+                    <Fuel className="w-4 h-4 text-orange-400" />
                     <span className="text-sm text-slate-400">Fuel</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">200</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-400">🔩</span>
+                    <Hammer className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-slate-400">Metal</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">800</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-yellow-400">⚡</span>
+                    <Battery className="w-4 h-4 text-yellow-400" />
                     <span className="text-sm text-slate-400">Power</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">100</span>
@@ -1988,21 +1988,21 @@ const EarthVisualization = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-purple-400">🔬</span>
+                    <FlaskConical className="w-4 h-4 text-purple-400" />
                     <span className="text-sm text-slate-400">Lab</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">2</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-green-400">🚜</span>
+                    <Wheat className="w-4 h-4 text-green-400" />
                     <span className="text-sm text-slate-400">Farm</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">5</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-400">⛏️</span>
+                    <Pickaxe className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-slate-400">Mine</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">3</span>
