@@ -1948,8 +1948,48 @@ const EarthVisualization = () => {
 
       {/* Bottom Panel */}
       <div className="absolute bottom-0 left-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700" style={{ height: '230px', width: '70%' }}>
-        <div className="p-4">
-          {/* Blank for now */}
+        <div className="p-4 h-full">
+          <div className="grid grid-cols-4 gap-4 h-full">
+            {/* Earth Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <span className="text-blue-400">🌍</span>
+                </div>
+                <h3 className="text-lg font-semibold text-slate-200">Earth</h3>
+              </div>
+            </div>
+
+            {/* Resources Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                  <span className="text-amber-400">📦</span>
+                </div>
+                <h3 className="text-lg font-semibold text-slate-200">Resources</h3>
+              </div>
+            </div>
+
+            {/* Buildings Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                  <Building className="w-4 h-4 text-orange-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-200">Buildings</h3>
+              </div>
+            </div>
+
+            {/* Ships Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                  <span className="text-cyan-400">🚀</span>
+                </div>
+                <h3 className="text-lg font-semibold text-slate-200">Ships</h3>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
