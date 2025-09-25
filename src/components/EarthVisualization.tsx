@@ -333,30 +333,37 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
       const time = state.clock.getElapsedTime();
       const speed = 0.3; // Slower for elegant trajectory
       
-      // Figure-8 trajectory between Earth and Moon
+      // Figure-8 trajectory that loops around Earth and Moon
       const t = time * speed;
       
-      // Calculate midpoint between Earth and Moon
-      const midX = (earthPosition[0] + moonPosition[0]) / 2;
-      const midY = (earthPosition[1] + moonPosition[1]) / 2;
-      const midZ = (earthPosition[2] + moonPosition[2]) / 2;
+      // Calculate distance between Earth and Moon
+      const earthToMoon = {
+        x: moonPosition[0] - earthPosition[0],
+        y: moonPosition[1] - earthPosition[1],
+        z: moonPosition[2] - earthPosition[2]
+      };
       
-      // Figure-8 parameters
-      const a = 8; // Width of figure-8
-      const b = 4; // Height of figure-8
+      // Center point for the figure-8 (slightly closer to Earth)
+      const centerX = earthPosition[0] + earthToMoon.x * 0.4;
+      const centerY = earthPosition[1] + earthToMoon.y * 0.4;
+      const centerZ = earthPosition[2] + earthToMoon.z * 0.4;
+      
+      // Figure-8 parameters - larger to encompass both bodies
+      const a = 15; // Width to reach around both Earth and Moon
+      const b = 8;  // Height for proper looping
       
       // Parametric equations for figure-8 (lemniscate)
-      const x = midX + (a * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
-      const y = midY + (b * Math.sin(t) * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
-      const z = midZ + Math.sin(t * 0.5) * 2; // Gentle vertical oscillation
+      const x = centerX + (a * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
+      const y = centerY + (b * Math.sin(t) * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
+      const z = centerZ + Math.sin(t * 0.3) * 3; // Gentle vertical oscillation
       
       shipRef.current.position.set(x, y, z);
       
       // Point ship in direction of movement
       const nextT = t + 0.1;
-      const nextX = midX + (a * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
-      const nextY = midY + (b * Math.sin(nextT) * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
-      const nextZ = midZ + Math.sin(nextT * 0.5) * 2;
+      const nextX = centerX + (a * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
+      const nextY = centerY + (b * Math.sin(nextT) * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
+      const nextZ = centerZ + Math.sin(nextT * 0.3) * 3;
       shipRef.current.lookAt(nextX, nextY, nextZ);
       
       // Update trail
