@@ -1900,9 +1900,9 @@ const EarthVisualization = () => {
         </div>
       </div>
 
-      {/* Bottom Panel */}
-      <div className="absolute bottom-0 left-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 rounded-tr-xl" style={{ height: '253px', width: '70%' }}>
-        <div className="p-2 h-full">
+      {/* Bottom Panel - Rebuilt for proper clickability */}
+      <div className="fixed bottom-0 left-0 z-[9999] pointer-events-auto bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 rounded-tr-xl" style={{ height: '253px', width: '70%' }}>
+        <div className="p-2 h-full relative z-[9999]">
           <div className="grid grid-cols-4 gap-4 h-full">
             {/* Earth Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
@@ -2113,16 +2113,16 @@ const EarthVisualization = () => {
               </div>
             </div>
 
-            {/* Ships Section */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
-              <div className="flex items-center gap-3 mb-4">
+            {/* Ships Section - Enhanced for clickability */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[9999] pointer-events-auto">
+              <div className="flex items-center gap-3 mb-4 relative z-[9999]">
                 <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
                   <Rocket className="w-4 h-4 text-cyan-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Ships</h3>
               </div>
-              <div className="space-y-3">
-                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors">
+              <div className="space-y-3 relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999]"
                     onClick={() => {
@@ -2146,7 +2146,7 @@ const EarthVisualization = () => {
                 </div>
               </div>
             </div>
-                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors">
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999]"
                     onClick={() => {
@@ -2172,9 +2172,9 @@ const EarthVisualization = () => {
                 </div>
                 
                 {/* Test Deploy Alien Button */}
-                <div className="mt-4">
+                <div className="mt-4 relative z-[9999] pointer-events-auto">
                   <button
-                    className="w-full bg-blue-800/80 border border-blue-600 text-blue-300 hover:bg-blue-700/80 px-3 py-2 rounded transition-colors"
+                    className="w-full bg-blue-800/80 border border-blue-600 text-blue-300 hover:bg-blue-700/80 px-3 py-2 rounded transition-colors relative z-[9999] pointer-events-auto cursor-pointer"
                     onClick={() => {
                       console.log('Ships panel Deploy Alien clicked!');
                       setAlienShipActive(!alienShipActive);
