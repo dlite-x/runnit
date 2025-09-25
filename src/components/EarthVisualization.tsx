@@ -2487,20 +2487,6 @@ const EarthVisualization = () => {
                 <h3 className="text-xl font-semibold text-slate-200">Flight Control</h3>
               </div>
               
-              {/* Resource Icons Header */}
-              <div className="grid grid-cols-6 gap-2 items-center pb-2 mb-2">
-                <span></span>
-                <span></span>
-                <span></span>
-                <div className="flex items-center gap-1 justify-center">
-                  <UtensilsCrossed className="w-3 h-3 text-green-400" />
-                  <Fuel className="w-3 h-3 text-orange-400" />
-                  <Hammer className="w-3 h-3 text-gray-400" />
-                </div>
-                <span></span>
-                <span></span>
-              </div>
-              
               {/* Table Content */}
               <div className="space-y-2">
                 {/* Colony Row */}
@@ -2511,7 +2497,13 @@ const EarthVisualization = () => {
                   </div>
                   <span className="text-sm text-slate-300">Moon</span>
                   <span className="text-sm text-slate-300 italic">20s</span>
-                  <span className="text-sm text-slate-300">2/2/2</span>
+                  <div className="text-sm flex items-center gap-0.5">
+                    <span className="text-green-400">2</span>
+                    <span className="text-slate-400">/</span>
+                    <span className="text-orange-400">2</span>
+                    <span className="text-slate-400">/</span>
+                    <span className="text-gray-300">2</span>
+                  </div>
                   <span className="text-sm text-orange-400">building</span>
                   <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
@@ -2526,7 +2518,13 @@ const EarthVisualization = () => {
                   </div>
                   <span className="text-sm text-slate-300">Moon</span>
                   <span className="text-sm text-slate-300 italic">20s</span>
-                  <span className="text-sm text-slate-300">10/10/10</span>
+                  <div className="text-sm flex items-center gap-0.5">
+                    <span className="text-green-400">10</span>
+                    <span className="text-slate-400">/</span>
+                    <span className="text-orange-400">10</span>
+                    <span className="text-slate-400">/</span>
+                    <span className="text-gray-300">10</span>
+                  </div>
                   <span className="text-sm text-green-400">ready</span>
                   <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
@@ -2541,7 +2539,13 @@ const EarthVisualization = () => {
                   </div>
                   <span className="text-sm text-slate-300">Select</span>
                   <span className="text-sm text-slate-300 italic">20s</span>
-                  <span className="text-sm text-slate-300">0/0/30</span>
+                  <div className="text-sm flex items-center gap-0.5">
+                    <span className="text-green-400">0</span>
+                    <span className="text-slate-400">/</span>
+                    <span className="text-orange-400">0</span>
+                    <span className="text-slate-400">/</span>
+                    <span className="text-gray-300">30</span>
+                  </div>
                   <span className="text-sm text-green-400">ready</span>
                   <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
