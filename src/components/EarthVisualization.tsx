@@ -2219,7 +2219,7 @@ const EarthVisualization = () => {
       </div>
 
       {/* Test Button - Separate Section to the Right */}
-      <div className="absolute bottom-0 left-72 bg-slate-900/95 backdrop-blur-sm border-t border-l border-slate-700 rounded-tl-xl p-4" style={{ height: '253px', width: '200px' }}>
+      <div className="absolute bottom-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-l border-slate-700 rounded-tl-xl p-4" style={{ height: '253px', width: '200px' }}>
         <div className="flex flex-col justify-center h-full">
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded transition-colors cursor-pointer font-semibold"
