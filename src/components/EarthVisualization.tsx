@@ -1845,6 +1845,74 @@ const EarthVisualization = () => {
       </div>
 
 
+      {/* Empire Panel - Left Overlay */}
+      <div className="absolute top-20 left-4 z-10 bg-slate-900/95 backdrop-blur-sm border border-slate-700 rounded-xl p-4 w-48">
+        <h2 className="text-2xl font-bold text-cyan-400 mb-6 text-center tracking-wide" style={{
+          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+          filter: 'drop-shadow(0 0 8px rgba(34, 211, 238, 0.3))'
+        }}>
+          EMPIRE
+        </h2>
+        
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-all duration-200 cursor-pointer group">
+            <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center" style={{
+              boxShadow: '0 0 12px rgba(59, 130, 246, 0.6)',
+              filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.4))'
+            }}>
+              <span className="text-white text-xs">🌍</span>
+            </div>
+            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors" style={{
+              textShadow: '0 0 8px rgba(147, 197, 253, 0.4)'
+            }}>
+              Earth
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-all duration-200 cursor-pointer group">
+            <div className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center" style={{
+              boxShadow: '0 0 12px rgba(156, 163, 175, 0.6)',
+              filter: 'drop-shadow(0 0 6px rgba(156, 163, 175, 0.4))'
+            }}>
+              <span className="text-white text-xs">🌙</span>
+            </div>
+            <span className="text-gray-300 font-medium group-hover:text-gray-200 transition-colors" style={{
+              textShadow: '0 0 8px rgba(209, 213, 219, 0.4)'
+            }}>
+              Moon
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-all duration-200 cursor-pointer group">
+            <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center" style={{
+              boxShadow: '0 0 12px rgba(168, 85, 247, 0.6)',
+              filter: 'drop-shadow(0 0 6px rgba(168, 85, 247, 0.4))'
+            }}>
+              <span className="text-white text-xs">⚡</span>
+            </div>
+            <span className="text-purple-300 font-medium group-hover:text-purple-200 transition-colors" style={{
+              textShadow: '0 0 8px rgba(196, 181, 253, 0.4)'
+            }}>
+              EML 1
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-all duration-200 cursor-pointer group">
+            <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center" style={{
+              boxShadow: '0 0 12px rgba(239, 68, 68, 0.6)',
+              filter: 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.4))'
+            }}>
+              <span className="text-white text-xs">🔴</span>
+            </div>
+            <span className="text-red-300 font-medium group-hover:text-red-200 transition-colors" style={{
+              textShadow: '0 0 8px rgba(252, 165, 165, 0.4)'
+            }}>
+              Mars
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Bottom Panel */}
       <div className="absolute bottom-0 left-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700" style={{ height: '230px', width: '70%' }}>
         <div className="p-4 h-full">
