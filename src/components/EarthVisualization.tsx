@@ -2165,18 +2165,18 @@ const EarthVisualization = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setAlienShipActive(!alienShipActive)}
-          className="bg-blue-800/80 border-blue-600 text-blue-300 hover:bg-blue-700/80"
+          onClick={() => setShowTargetCube(!showTargetCube)}
+          className="bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
         >
-          {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien
+          {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setShowTargetCube(!showTargetCube)}
-          className="bg-blue-800/80 border-blue-600 text-blue-300 hover:bg-blue-700/80"
+          onClick={() => setAlienShipActive(!alienShipActive)}
+          className="bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
         >
-          {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
+          {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien
         </Button>
         </div>
       </div>
