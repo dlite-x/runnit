@@ -2484,15 +2484,19 @@ const EarthVisualization = () => {
         {shipFactoryBuilt && <ShipPanelDrones count={shipPanelDrones} />}
         
         {/* Built Spheres */}
-        {builtSpheres.map((sphere, index) => (
-          <OrbitingSphere 
-            key={index} 
-            type={sphere.type} 
-            orbitRadius={5 + index * 0.5} 
-            orbitSpeed={0.5 + index * 0.1}
-            initialAngle={index * (Math.PI / 3)}
-          />
-        ))}
+        {builtSpheres.map((sphere, index) => {
+          const orbitRadius = 5 + index * 0.5;
+          const orbitSpeed = 1.0 / Math.sqrt(orbitRadius); // Closer objects orbit faster
+          return (
+            <OrbitingSphere 
+              key={index} 
+              type={sphere.type} 
+              orbitRadius={orbitRadius} 
+              orbitSpeed={orbitSpeed}
+              initialAngle={index * (Math.PI / 3)}
+            />
+          );
+        })}
         
         {/* Alien Ship */}
         {alienShipActive && (
