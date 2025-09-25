@@ -1509,7 +1509,6 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle }: {
   );
 }
 
-}
 
 // CameraController component - follows ship in fly mode but allows rotation
 const CameraController = ({ flyMode, shipPosition, cameraTarget }: { 
@@ -2500,11 +2499,17 @@ const EarthVisualization = () => {
           );
         }))}
         
-        {/* Simple trajectory ship */}
-        <mesh position={[6, 1, 2]}>
-          <coneGeometry args={[0.1, 0.5, 8]} />
-          <meshStandardMaterial color="#ffffff" />
-        </mesh>
+        {/* Trajectory Ship with Exhaust */}
+        <group>
+          <mesh position={[6 + 3 * Math.cos(Date.now() * 0.001), Math.sin(Date.now() * 0.001) * 0.5, 3 * Math.sin(Date.now() * 0.002)]}>
+            <coneGeometry args={[0.1, 0.5, 8]} />
+            <meshStandardMaterial color="#ffffff" />
+          </mesh>
+          <mesh position={[6 + 3 * Math.cos(Date.now() * 0.001), Math.sin(Date.now() * 0.001) * 0.5, 3 * Math.sin(Date.now() * 0.002) - 0.3]}>
+            <cylinderGeometry args={[0.02, 0.05, 1]} />
+            <meshBasicMaterial color="#ff6600" transparent opacity={0.7} />
+          </mesh>
+        </group>
         
         {/* Alien Ship */}
         {alienShipActive && (
