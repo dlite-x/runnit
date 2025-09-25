@@ -2001,8 +2001,15 @@ const EarthVisualization = () => {
               </div>
               <div className="space-y-3">
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                  onClick={() => {
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-50"
+                  style={{ pointerEvents: 'auto' }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    setModalContent('Lab Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setModalContent('Lab Building - Upgrade Cost: ₵ 200');
                     setShowModal(true);
                   }}
@@ -2022,8 +2029,15 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                  onClick={() => {
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-50"
+                  style={{ pointerEvents: 'auto' }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    setModalContent('Farm Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setModalContent('Farm Building - Upgrade Cost: ₵ 200');
                     setShowModal(true);
                   }}
@@ -2043,8 +2057,15 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                  onClick={() => {
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-50"
+                  style={{ pointerEvents: 'auto' }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    setModalContent('Mine Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setModalContent('Mine Building - Upgrade Cost: ₵ 200');
                     setShowModal(true);
                   }}
@@ -2064,8 +2085,15 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                  onClick={() => {
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-50"
+                  style={{ pointerEvents: 'auto' }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    setModalContent('Power Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setModalContent('Power Building - Upgrade Cost: ₵ 200');
                     setShowModal(true);
                   }}
@@ -2085,8 +2113,15 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 <div 
-                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                  onClick={() => {
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-50"
+                  style={{ pointerEvents: 'auto' }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    setModalContent('Refinery Building - Upgrade Cost: ₵ 200');
+                    setShowModal(true);
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setModalContent('Refinery Building - Upgrade Cost: ₵ 200');
                     setShowModal(true);
                   }}
@@ -2119,8 +2154,15 @@ const EarthVisualization = () => {
               <div className="space-y-3">
                 <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                    onClick={() => {
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-50"
+                    style={{ pointerEvents: 'auto' }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      setModalContent('Colony Ship - Purchase Cost: ₵ 200');
+                      setShowModal(true);
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setModalContent('Colony Ship - Purchase Cost: ₵ 200');
                       setShowModal(true);
                     }}
@@ -2142,8 +2184,15 @@ const EarthVisualization = () => {
                 </div>
                 <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-10"
-                    onClick={() => {
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-50"
+                    style={{ pointerEvents: 'auto' }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      setModalContent('Cargo Ship - Purchase Cost: ₵ 200');
+                      setShowModal(true);
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setModalContent('Cargo Ship - Purchase Cost: ₵ 200');
                       setShowModal(true);
                     }}
