@@ -4,7 +4,7 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package } from 'lucide-react';
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -2028,21 +2028,21 @@ const EarthVisualization = () => {
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                  <span className="text-cyan-400">🚀</span>
+                  <Rocket className="w-4 h-4 text-cyan-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Ships</h3>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-400">🏕️</span>
+                    <Home className="w-4 h-4 text-blue-400" />
                     <span className="text-sm text-slate-400">Colony</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">1</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-amber-400">📦</span>
+                    <Package className="w-4 h-4 text-amber-400" />
                     <span className="text-sm text-slate-400">Cargo</span>
                   </div>
                   <span className="text-sm font-bold text-slate-200">3</span>
