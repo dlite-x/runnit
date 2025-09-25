@@ -1845,7 +1845,7 @@ const EarthVisualization = () => {
       </div>
 
       {/* Enhanced Left Sidebar - Shorter */}
-      <div className="absolute top-16 left-0 w-80 bg-slate-900/95 backdrop-blur-sm border-r border-slate-700 overflow-y-auto" style={{ height: 'calc(60vh - 64px)' }}>
+      <div className="absolute top-16 left-0 w-80 bg-slate-900/95 backdrop-blur-sm border-r border-b border-slate-700 overflow-y-auto" style={{ height: 'calc(60vh - 64px)' }}>
         <div className="p-4 space-y-4">
           
           {/* Earth Status Card */}
@@ -1947,7 +1947,7 @@ const EarthVisualization = () => {
       </div>
 
       {/* Bottom Panel */}
-      <div className="absolute bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700" style={{ height: '288px' }}>
+      <div className="absolute bottom-0 left-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700" style={{ height: '230px', width: '70%' }}>
         <div className="p-4">
           {/* Blank for now */}
         </div>
@@ -2071,7 +2071,7 @@ const EarthVisualization = () => {
 
       {/* 3D Canvas - positioned to account for header and bottom panel */}
       <div className="absolute top-16 left-80 right-0" style={{
-        bottom: '288px',
+        bottom: '230px',
         background: 'radial-gradient(circle at center, rgba(74, 144, 226, 0.05) 0%, transparent 70%)',
         boxShadow: 'inset 0 0 100px rgba(135, 206, 235, 0.1)'
       }}>
