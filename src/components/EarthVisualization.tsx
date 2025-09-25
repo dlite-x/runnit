@@ -4,7 +4,7 @@ import { OrbitControls, Stars, Text } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
@@ -1952,6 +1952,7 @@ const EarthVisualization = () => {
   const [spaceStationBuilt, setSpaceStationBuilt] = useState(false);
   const [shipFactoryBuilt, setShipFactoryBuilt] = useState(false);
   const [shipPanelDrones, setShipPanelDrones] = useState(0);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -2160,8 +2161,17 @@ const EarthVisualization = () => {
       </div>
 
       {/* Bottom Panel - Rebuilt for proper clickability */}
-      <div className="fixed bottom-0 left-0 z-[9999] pointer-events-auto bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 rounded-tr-xl" style={{ height: '253px', width: '98.3%' }}>
-        <div className="p-2 h-full relative z-[9999]">
+      <div className={`fixed bottom-0 left-0 z-[9999] pointer-events-auto bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 rounded-tr-xl transition-all duration-300 ease-in-out ${isPanelCollapsed ? 'h-12' : 'h-[253px]'}`} style={{ width: '98.3%' }}>
+        {/* Collapse/Expand Button */}
+        <button
+          onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+          className="absolute top-2 left-2 z-[10000] bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white p-2 rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
+          aria-label={isPanelCollapsed ? "Expand panel" : "Collapse panel"}
+        >
+          {isPanelCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+        
+        <div className={`p-2 h-full relative z-[9999] transition-opacity duration-300 ${isPanelCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.89fr 0.75fr 0.595fr 1.6fr' }}>
             {/* Earth Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
