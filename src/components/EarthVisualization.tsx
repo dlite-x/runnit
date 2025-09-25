@@ -2028,6 +2028,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const [modalType, setModalType] = useState('');
+  const [testCredits, setTestCredits] = useState(5000.00); // Test credits tracker
   const [alienShipHits, setAlienShipHits] = useState(0);
   const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'preparing' | 'traveling' }>>([]);
   const [colonyCount, setColonyCount] = useState(0);
@@ -2053,6 +2054,15 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
   
   // Keyboard state
   const keysPressed = useRef<Set<string>>(new Set());
+
+  // Test credits timer - simple direct approach
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestCredits(prev => prev + 0.1); // Add 0.1 credits every 100ms
+    }, 100);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Click handlers
   const handleShipClick = () => {
@@ -2181,6 +2191,13 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                   <span className="text-xs font-bold text-slate-900">₵</span>
                 </div>
                 <span className="font-medium">{player?.credits?.toFixed(2) || '5000.00'}</span>
+              </div>
+              {/* Test credits tracker */}
+              <div className="flex items-center gap-1 text-slate-300 text-sm">
+                <div className="w-4 h-4 rounded-full bg-green-400 flex items-center justify-center">
+                  <span className="text-xs font-bold text-slate-900">T</span>
+                </div>
+                <span className="font-medium">{testCredits.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
                 <span className="text-cyan-400 text-xs">💎</span>
