@@ -2118,7 +2118,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
       {/* Demo Mode indicator - positioned under top nav on far right */}
       {localStorage.getItem('guestMode') === 'true' && (
         <div className="absolute top-16 right-6 z-10">
-          <span className="text-blue-400 text-sm">Demo Mode</span>
+          <span className="text-blue-400 text-sm">Demo Mode v0.2</span>
         </div>
       )}
             
