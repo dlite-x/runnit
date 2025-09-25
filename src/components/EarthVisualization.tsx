@@ -5,6 +5,7 @@ import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -2495,7 +2496,16 @@ const EarthVisualization = () => {
                     <Home className="w-4 h-4 text-blue-400" />
                     <span className="text-sm text-slate-300">Colony</span>
                   </div>
-                  <span className="text-sm text-slate-300">Moon</span>
+                  <Select defaultValue="moon">
+                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
+                      <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
+                      <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
+                      <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <span className="text-sm text-slate-300 italic">20s</span>
                   <div className="text-sm flex items-center gap-0.5">
                     <span className="text-green-400">2</span>
@@ -2516,7 +2526,16 @@ const EarthVisualization = () => {
                     <Package className="w-4 h-4 text-amber-400" />
                     <span className="text-sm text-slate-300">Cargo</span>
                   </div>
-                  <span className="text-sm text-slate-300">Moon</span>
+                  <Select defaultValue="moon">
+                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
+                      <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
+                      <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
+                      <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <span className="text-sm text-slate-300 italic">20s</span>
                   <div className="text-sm flex items-center gap-0.5">
                     <span className="text-green-400">10</span>
@@ -2537,7 +2556,17 @@ const EarthVisualization = () => {
                     <Package className="w-4 h-4 text-amber-400" />
                     <span className="text-sm text-slate-300">Cargo</span>
                   </div>
-                  <span className="text-sm text-slate-300">Select</span>
+                  <Select defaultValue="select">
+                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
+                      <SelectItem value="select" className="text-slate-500 hover:bg-slate-700">Select</SelectItem>
+                      <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
+                      <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
+                      <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <span className="text-sm text-slate-300 italic">20s</span>
                   <div className="text-sm flex items-center gap-0.5">
                     <span className="text-green-400">0</span>
@@ -2558,7 +2587,16 @@ const EarthVisualization = () => {
                     <Satellite className="w-4 h-4 text-green-400" />
                     <span className="text-sm text-slate-300">Station</span>
                   </div>
-                  <span className="text-sm text-slate-300">Moon</span>
+                  <Select defaultValue="moon">
+                    <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
+                      <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
+                      <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
+                      <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <span className="text-sm text-slate-300 italic">10s</span>
                   <span className="text-sm text-slate-300">-</span>
                   <span className="text-sm text-yellow-400">en route</span>
