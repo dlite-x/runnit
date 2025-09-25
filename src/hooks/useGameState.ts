@@ -29,26 +29,25 @@ export const useGameState = (player: Player | null, colonies: Colony[], updatePl
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastUpdateRef = useRef(Date.now());
 
-  // Calculate credit generation rate based on colonies
+  // Calculate credit generation rate based on colonies (very slow rate)
   const calculateCreditGeneration = () => {
     if (!colonies.length) return 0;
     
-    // Base credit generation: 1 credit per second per 10 population
+    // Earth generates +10 credits per year, other planets generate +5 per year
+    // Convert to credits per second: (credits per year) / (365.25 days * 24 hours * 3600 seconds)
     return colonies.reduce((total, colony) => {
-      const baseRate = colony.population / 10;
-      // Earth generates more credits (more developed economy)
-      const planetMultiplier = colony.planet.name === 'Earth' ? 1.5 : 1.0;
-      return total + (baseRate * planetMultiplier);
+      const creditsPerYear = colony.planet.name === 'Earth' ? 10 : 5;
+      const creditsPerSecond = creditsPerYear / (365.25 * 24 * 3600);
+      return total + creditsPerSecond;
     }, 0);
   };
 
   const creditGenerationRate = calculateCreditGeneration();
 
-  // Format game time as MM:SS
+  // Format game time as years (1 day = 1 year, so 1 second = 1/86400 years)
   const formatGameTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const years = seconds / 86400; // 86400 seconds in a day = 1 year
+    return years.toFixed(2);
   };
 
   useEffect(() => {
@@ -64,7 +63,7 @@ export const useGameState = (player: Player | null, colonies: Colony[], updatePl
           // Generate credits based on time passed and generation rate
           if (player && creditGenerationRate > 0) {
             const creditsGenerated = deltaTime * creditGenerationRate;
-            const newCredits = Math.floor(player.credits + creditsGenerated);
+            const newCredits = Math.floor(player.credits + creditsGenerated); // No decimals
             updatePlayerCredits(newCredits);
           }
           
