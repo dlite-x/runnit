@@ -3122,16 +3122,18 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
           enableRotate={true}
           minDistance={5}
           maxDistance={flyMode ? 40 : 30}
-          dampingFactor={0.1}
+          dampingFactor={0.08}
           enableDamping={true}
+          panSpeed={0.8}
+          rotateSpeed={0.5}
           target={flyMode ? new Vector3(...shipPosition) : new Vector3(...cameraTarget)}
           mouseButtons={{
-            LEFT: THREE.MOUSE.ROTATE,
+            LEFT: THREE.MOUSE.PAN,
             MIDDLE: THREE.MOUSE.DOLLY,
-            RIGHT: THREE.MOUSE.PAN
+            RIGHT: THREE.MOUSE.ROTATE
           }}
           touches={{
-            ONE: THREE.TOUCH.ROTATE,
+            ONE: THREE.TOUCH.PAN,
             TWO: THREE.TOUCH.DOLLY_PAN
           }}
           makeDefault
