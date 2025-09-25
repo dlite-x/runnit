@@ -2487,18 +2487,18 @@ const EarthVisualization = () => {
                 <h3 className="text-xl font-semibold text-slate-200">Flight Control</h3>
               </div>
               
-              {/* Column Headers */}
-              <div className="grid grid-cols-6 gap-2 items-center pb-2 mb-2 border-b border-slate-600/30">
-                <span className="text-xs text-slate-500 uppercase tracking-wide">Type</span>
-                <span className="text-xs text-slate-500 uppercase tracking-wide">Destination</span>
-                <span className="text-xs text-slate-500 uppercase tracking-wide">Duration</span>
+              {/* Resource Icons Header */}
+              <div className="grid grid-cols-6 gap-2 items-center pb-2 mb-2">
+                <span></span>
+                <span></span>
+                <span></span>
                 <div className="flex items-center gap-1 justify-center">
                   <UtensilsCrossed className="w-3 h-3 text-green-400" />
                   <Fuel className="w-3 h-3 text-orange-400" />
                   <Hammer className="w-3 h-3 text-gray-400" />
                 </div>
-                <span className="text-xs text-slate-500 uppercase tracking-wide">Status</span>
-                <span className="text-xs text-slate-500 uppercase tracking-wide">Action</span>
+                <span></span>
+                <span></span>
               </div>
               
               {/* Table Content */}
