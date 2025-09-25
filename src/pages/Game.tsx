@@ -262,10 +262,7 @@ const Game = () => {
   };
 
   const constructFactory = () => {
-    toast({
-      title: "Factory Construction",
-      description: "Factory construction initiated on selected planet",
-    });
+    purchaseBuilding('Farm'); // Start with farm as a test
   };
 
   const buildFighterDrones = () => {
@@ -341,6 +338,60 @@ const Game = () => {
       title: "Game Reset",
       description: "All game state has been reset to initial values",
     });
+  };
+
+  const purchaseBuilding = async (buildingTypeName: string) => {
+    if (!player || !colonies.length) return;
+
+    try {
+      // Find the Earth colony for demo
+      const earthColony = colonies.find(c => c.planet.name === 'Earth');
+      if (!earthColony) {
+        toast({
+          title: "No Colony Found",
+          description: "You need an Earth colony to build on",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get building type ID by name (we'll need to fetch this)
+      const buildingTypeMap: { [key: string]: string } = {
+        'Farm': 'farm-id', // We'll need actual IDs from the database
+        'Mine': 'mine-id',
+        'Power Plant': 'power-id',
+        'Research Lab': 'lab-id',
+        'Fuel Refinery': 'refinery-id'
+      };
+
+      const response = await supabase.functions.invoke('purchase-building', {
+        body: {
+          colony_id: earthColony.id,
+          building_type_id: buildingTypeMap[buildingTypeName] || 'farm-id'
+        }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const { data } = response;
+      
+      toast({
+        title: "Building Constructed",
+        description: data.message,
+      });
+
+      // Refresh game data to show updates
+      await loadGameData();
+
+    } catch (error: any) {
+      toast({
+        title: "Construction Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const initializeColony = async (planetName: string) => {
