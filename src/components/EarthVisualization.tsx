@@ -2258,10 +2258,10 @@ const EarthVisualization = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-slate-200">Buildings</h3>
               </div>
-              <div className="grid grid-cols-2 gap-2 relative z-[9999] pointer-events-auto">
-                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+              <div className="grid grid-cols-2 gap-3 relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Lab clicked!');
                       setModalContent('Lab Building - Upgrade Cost: ₵ 200');
@@ -2284,9 +2284,9 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 
-                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Farm clicked!');
                       setModalContent('Farm Building - Upgrade Cost: ₵ 200');
@@ -2309,9 +2309,9 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 
-                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Mine clicked!');
                       setModalContent('Mine Building - Upgrade Cost: ₵ 200');
@@ -2334,9 +2334,9 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 
-                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Power clicked!');
                       setModalContent('Power Building - Upgrade Cost: ₵ 200');
@@ -2359,9 +2359,9 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 
-                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Refinery clicked!');
                       setModalContent('Refinery Building - Upgrade Cost: ₵ 200');
