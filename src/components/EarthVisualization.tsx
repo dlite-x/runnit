@@ -320,6 +320,108 @@ function OrbitingShip({ moonPosition, index }: { moonPosition: [number, number, 
   );
 }
 
+function TrajectoryShip({ earthPosition, moonPosition }: { 
+  earthPosition: [number, number, number]; 
+  moonPosition: [number, number, number]; 
+}) {
+  const shipRef = useRef<THREE.Group>(null);
+  const trailRef = useRef<THREE.LineSegments>(null);
+  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
+  
+  useFrame((state, delta) => {
+    if (shipRef.current) {
+      const time = state.clock.getElapsedTime();
+      const speed = 0.3; // Slower for elegant trajectory
+      
+      // Figure-8 trajectory between Earth and Moon
+      const t = time * speed;
+      
+      // Calculate midpoint between Earth and Moon
+      const midX = (earthPosition[0] + moonPosition[0]) / 2;
+      const midY = (earthPosition[1] + moonPosition[1]) / 2;
+      const midZ = (earthPosition[2] + moonPosition[2]) / 2;
+      
+      // Figure-8 parameters
+      const a = 8; // Width of figure-8
+      const b = 4; // Height of figure-8
+      
+      // Parametric equations for figure-8 (lemniscate)
+      const x = midX + (a * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
+      const y = midY + (b * Math.sin(t) * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
+      const z = midZ + Math.sin(t * 0.5) * 2; // Gentle vertical oscillation
+      
+      shipRef.current.position.set(x, y, z);
+      
+      // Point ship in direction of movement
+      const nextT = t + 0.1;
+      const nextX = midX + (a * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
+      const nextY = midY + (b * Math.sin(nextT) * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
+      const nextZ = midZ + Math.sin(nextT * 0.5) * 2;
+      shipRef.current.lookAt(nextX, nextY, nextZ);
+      
+      // Update trail
+      const currentPos = new THREE.Vector3(x, y, z);
+      setTrailPoints(prev => {
+        const newPoints = [...prev, currentPos];
+        // Keep longer trail for figure-8 visibility
+        return newPoints.slice(-30);
+      });
+    }
+  });
+
+  // Create trail geometry
+  React.useEffect(() => {
+    if (trailRef.current && trailPoints.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
+      trailRef.current.geometry.dispose();
+      trailRef.current.geometry = geometry;
+    }
+  }, [trailPoints]);
+
+  return (
+    <group>
+      {/* Ship */}
+      <group ref={shipRef}>
+        <mesh>
+          <boxGeometry args={[0.15, 0.08, 0.2]} />
+          <meshStandardMaterial 
+            color="#FFD700" 
+            metalness={0.7} 
+            roughness={0.2}
+            emissive="#FFA500"
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+        
+        {/* Engine glow */}
+        <mesh position={[0, 0, -0.12]}>
+          <cylinderGeometry args={[0.03, 0.05, 0.1, 8]} />
+          <meshStandardMaterial 
+            color="#FF8800" 
+            emissive="#FF6600" 
+            emissiveIntensity={0.8}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      </group>
+      
+      {/* Trail */}
+      {trailPoints.length > 1 && (
+        <lineSegments ref={trailRef}>
+          <bufferGeometry />
+          <lineBasicMaterial 
+            color="#FFD700" 
+            transparent 
+            opacity={0.8}
+            linewidth={3}
+          />
+        </lineSegments>
+      )}
+    </group>
+  );
+}
+
 function MoonBase() {
   const baseRef = useRef<THREE.Group>(null);
   
@@ -2499,31 +2601,9 @@ const EarthVisualization = () => {
           );
         })}
         
-        {/* Trajectory Ship with Exhaust */}
-        <group>
-          <mesh position={[6 + 3 * Math.cos(Date.now() * 0.001), Math.sin(Date.now() * 0.001) * 0.5, 3 * Math.sin(Date.now() * 0.002)]}>
-            <boxGeometry args={[0.1, 0.05, 0.15]} />
-            <meshStandardMaterial 
-              color="#FFD700" 
-              metalness={0.7} 
-              roughness={0.2}
-              emissive="#FFA500"
-              emissiveIntensity={0.3}
-            />
-          </mesh>
-          
-          {/* Engine glow */}
-          <mesh position={[6 + 3 * Math.cos(Date.now() * 0.001), Math.sin(Date.now() * 0.001) * 0.5, 3 * Math.sin(Date.now() * 0.002) - 0.1]}>
-            <cylinderGeometry args={[0.02, 0.04, 0.08, 8]} />
-            <meshStandardMaterial 
-              color="#FF8800" 
-              emissive="#FF6600" 
-              emissiveIntensity={0.8}
-              transparent
-              opacity={0.7}
-            />
-          </mesh>
-        </group>
+        {/* Trajectory Ship with Figure-8 path */}
+        <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
+        
         
         {/* Alien Ship */}
         {alienShipActive && (
