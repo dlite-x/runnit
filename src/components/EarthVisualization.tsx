@@ -1923,7 +1923,7 @@ const EarthVisualization = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
-                      <span className="text-xs font-bold text-slate-900">◊</span>
+                      <span className="text-xs font-bold text-slate-900">₵</span>
                     </div>
                     <span className="text-sm text-slate-400">Credits</span>
                   </div>
