@@ -2002,18 +2002,18 @@ const EarthVisualization = () => {
               <div className="grid grid-cols-2 gap-2 relative z-[9999] pointer-events-auto">
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Lab clicked!');
                       setModalContent('Lab Building - Upgrade Cost: ₵ 200');
                       setShowModal(true);
                     }}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1">
                       <FlaskConical className="w-4 h-4 text-purple-400" />
                       <span className="text-sm text-slate-400">Lab</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-sm font-bold text-slate-200">2</span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -2027,18 +2027,18 @@ const EarthVisualization = () => {
                 
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Farm clicked!');
                       setModalContent('Farm Building - Upgrade Cost: ₵ 200');
                       setShowModal(true);
                     }}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1">
                       <Wheat className="w-4 h-4 text-green-400" />
                       <span className="text-sm text-slate-400">Farm</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-sm font-bold text-slate-200">5</span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -2052,18 +2052,18 @@ const EarthVisualization = () => {
                 
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Mine clicked!');
                       setModalContent('Mine Building - Upgrade Cost: ₵ 200');
                       setShowModal(true);
                     }}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1">
                       <Pickaxe className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-slate-400">Mine</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-sm font-bold text-slate-200">3</span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -2077,18 +2077,18 @@ const EarthVisualization = () => {
                 
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Power clicked!');
                       setModalContent('Power Building - Upgrade Cost: ₵ 200');
                       setShowModal(true);
                     }}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1">
                       <Zap className="w-4 h-4 text-yellow-400" />
                       <span className="text-sm text-slate-400">Power</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-sm font-bold text-slate-200">4</span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -2102,18 +2102,18 @@ const EarthVisualization = () => {
                 
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Refinery clicked!');
                       setModalContent('Refinery Building - Upgrade Cost: ₵ 200');
                       setShowModal(true);
                     }}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1">
                       <Factory className="w-4 h-4 text-orange-400" />
                       <span className="text-sm text-slate-400">Refinery</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-sm font-bold text-slate-200">1</span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
