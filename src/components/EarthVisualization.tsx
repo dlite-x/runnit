@@ -2177,26 +2177,6 @@ const EarthVisualization = () => {
         </div>
       </div>
 
-      {/* Test Button - Separate Section to the Right */}
-      <div className="absolute bottom-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-l border-slate-700 rounded-tl-xl p-4 z-[9999]" style={{ height: '253px', width: '200px' }}>
-        <div className="flex flex-col justify-center h-full">
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded transition-colors cursor-pointer font-semibold"
-            onClick={() => {
-              console.log('Test button clicked!');
-              alert('Test button works!');
-              setModalContent('Test Button Clicked - Modal System Working!');
-              setShowModal(true);
-              console.log('Modal should show:', showModal);
-            }}
-          >
-            Test
-          </button>
-          <div className="mt-2 text-xs text-slate-400">
-            Click to test modal
-          </div>
-        </div>
-      </div>
 
       {/* Right Side Panels */}
       <div className="absolute top-20 right-4 z-10 space-y-4 w-52">
