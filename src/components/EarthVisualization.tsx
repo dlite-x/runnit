@@ -2478,69 +2478,89 @@ const EarthVisualization = () => {
               </div>
             </div>
 
-            {/* Missions Section */}
+            {/* Flight Control Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
                   <Satellite className="w-4 h-4 text-purple-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-200">Flight Control</h3>
-              </div>
-              <div className="space-y-3">
-                {/* Show up to 4 built objects */}
-                {builtSpheres.slice(0, 4).map((sphere, index) => (
-                  <div 
-                    key={index} 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 px-2 py-1 rounded transition-colors relative z-[10000] pointer-events-auto"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log(`Mission item clicked: ${sphere.name}, location: ${sphere.location}`);
-                      if (sphere.location === 'earth') {
-                        console.log(`Sending ${sphere.name} to moon!`);
-                        setBuiltSpheres(prev => {
-                          const updated = prev.map(s => 
-                            s.name === sphere.name ? { ...s, location: 'preparing' as const } : s
-                          );
-                          console.log('Updated spheres:', updated);
-                          return updated;
-                        });
-                      } else {
-                        console.log(`${sphere.name} is not at Earth (location: ${sphere.location})`);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      {sphere.type === 'colony' ? (
-                        <Home className="w-4 h-4 text-blue-400" />
-                      ) : (
-                        <Package className="w-4 h-4 text-amber-400" />
-                      )}
-                      <span className="text-base text-slate-300">{sphere.name}</span>
+                
+                {/* Resource Legend */}
+                <div className="ml-auto flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
+                      <span className="text-xs">🌾</span>
                     </div>
-                    <span className={`text-sm ${
-                      sphere.location === 'earth' ? 'text-green-400' : 
-                      sphere.location === 'preparing' ? 'text-orange-400' :
-                      sphere.location === 'traveling' ? 'text-yellow-400' : 
-                      'text-blue-400'
-                    }`}>
-                      {sphere.location === 'earth' ? 'Earth' : 
-                       sphere.location === 'preparing' ? 'Preparing' :
-                       sphere.location === 'traveling' ? 'En Route' : 
-                       'Moon'}
-                    </span>
+                    <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center">
+                      <span className="text-xs">⛽</span>
+                    </div>
+                    <div className="w-4 h-4 rounded-full bg-gray-500 flex items-center justify-center">
+                      <span className="text-xs">⚙️</span>
+                    </div>
                   </div>
-                ))}
-                {builtSpheres.length === 0 && (
-                  <div className="text-center py-4">
-                    <span className="text-sm text-slate-500">No active missions</span>
+                </div>
+              </div>
+              
+              {/* Table Content */}
+              <div className="space-y-2">
+                {/* Colony Row */}
+                <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
+                  <div className="flex items-center gap-2">
+                    <Home className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm text-slate-300">Colony</span>
                   </div>
-                )}
-                {builtSpheres.length > 4 && (
-                  <div className="text-center pt-2">
-                    <span className="text-xs text-slate-500">+{builtSpheres.length - 4} more</span>
+                  <span className="text-sm text-slate-300">Moon</span>
+                  <span className="text-sm text-slate-300 italic">20s</span>
+                  <span className="text-sm text-slate-300">2/2/2</span>
+                  <span className="text-sm text-orange-400">building</span>
+                  <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                    launch
+                  </button>
+                </div>
+                
+                {/* Cargo Row 1 */}
+                <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
+                  <div className="flex items-center gap-2">
+                    <Package className="w-4 h-4 text-amber-400" />
+                    <span className="text-sm text-slate-300">Cargo</span>
                   </div>
-                )}
+                  <span className="text-sm text-slate-300">Moon</span>
+                  <span className="text-sm text-slate-300 italic">20s</span>
+                  <span className="text-sm text-slate-300">10/10/10</span>
+                  <span className="text-sm text-green-400">ready</span>
+                  <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                    launch
+                  </button>
+                </div>
+                
+                {/* Cargo Row 2 */}
+                <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
+                  <div className="flex items-center gap-2">
+                    <Package className="w-4 h-4 text-amber-400" />
+                    <span className="text-sm text-slate-300">Cargo</span>
+                  </div>
+                  <span className="text-sm text-slate-300">Select</span>
+                  <span className="text-sm text-slate-300 italic">20s</span>
+                  <span className="text-sm text-slate-300">0/0/30</span>
+                  <span className="text-sm text-green-400">ready</span>
+                  <button className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                    launch
+                  </button>
+                </div>
+                
+                {/* Station Row */}
+                <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
+                  <div className="flex items-center gap-2">
+                    <Satellite className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-slate-300">Station</span>
+                  </div>
+                  <span className="text-sm text-slate-300">Moon</span>
+                  <span className="text-sm text-slate-300 italic">10s</span>
+                  <span className="text-sm text-slate-300">-</span>
+                  <span className="text-sm text-yellow-400">en route</span>
+                  <span className="text-xs text-slate-500">-</span>
+                </div>
               </div>
             </div>
           </div>
