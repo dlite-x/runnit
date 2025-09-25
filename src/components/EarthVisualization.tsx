@@ -2577,7 +2577,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                     <span className="text-slate-400">/</span>
                     <span className="text-gray-300">2</span>
                   </div>
-                  <span className="text-sm text-orange-400">building</span>
+                  <span className="text-sm text-slate-300">building</span>
                   <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
@@ -2607,7 +2607,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                     <span className="text-slate-400">/</span>
                     <span className="text-gray-300">10</span>
                   </div>
-                  <span className="text-sm text-green-400">ready</span>
+                  <span className="text-sm text-slate-300">ready</span>
                   <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
@@ -2638,7 +2638,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                     <span className="text-slate-400">/</span>
                     <span className="text-gray-300">30</span>
                   </div>
-                  <span className="text-sm text-green-400">ready</span>
+                  <span className="text-sm text-slate-300">ready</span>
                   <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
                     launch
                   </button>
@@ -2662,7 +2662,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                   </Select>
                   <span className="text-sm text-slate-300 italic">10s</span>
                   <span className="text-sm text-slate-300">-</span>
-                  <span className="text-sm text-yellow-400">en route</span>
+                  <span className="text-sm text-slate-300">en route</span>
                   <span className="text-xs text-slate-500">-</span>
                 </div>
               </div>
