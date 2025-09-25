@@ -2199,7 +2199,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                 <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                   <span className="text-xs font-bold text-slate-900">₵</span>
                 </div>
-                <span className="font-medium">{player?.credits?.toFixed(0) || '5000'}</span>
+                <span className="font-medium">{player?.credits?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '5000.00'}</span>
               </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
                 <span className="text-cyan-400 text-xs">💎</span>

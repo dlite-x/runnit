@@ -262,8 +262,9 @@ const Game = () => {
   };
 
   const constructFactory = async () => {
-    console.log('Construct Factory clicked');
-    await purchaseBuilding('Farm'); // Start with farm as a test
+    console.log('Construct Factory clicked, current credits:', player?.credits);
+    await purchaseBuilding('Farm');
+    console.log('After purchase, credits should be:', player?.credits);
   };
 
   const buildFighterDrones = () => {
