@@ -1820,11 +1820,13 @@ const EarthVisualization = () => {
           
           {/* Center - Action buttons */}
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="bg-blue-600/20 border-blue-500 text-blue-300 hover:bg-blue-600/30">
-              2D Map
+            <Button variant="outline" size="sm" className="bg-orange-600/20 border-orange-500 text-orange-300 hover:bg-orange-600/30">
+              <Factory className="w-4 h-4 mr-1" />
+              Operations
             </Button>
-            <Button variant="outline" size="sm" className="bg-purple-600/20 border-purple-500 text-purple-300 hover:bg-purple-600/30">
-              Mission Control
+            <Button variant="outline" size="sm" className="bg-emerald-600/20 border-emerald-500 text-emerald-300 hover:bg-emerald-600/30">
+              <Building className="w-4 h-4 mr-1" />
+              Construction
             </Button>
             <Button variant="outline" size="sm" className="bg-green-600/20 border-green-500 text-green-300 hover:bg-green-600/30" onClick={() => setShowGrid(!showGrid)}>
               Show Grid
@@ -1887,7 +1889,7 @@ const EarthVisualization = () => {
                   <span>💰</span>
                   <span>Income:</span>
                 </div>
-                <div className="text-lg font-bold text-emerald-400">+11,500 Cr/hr</div>
+                <div className="text-lg font-bold text-emerald-400">11500</div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -1968,49 +1970,6 @@ const EarthVisualization = () => {
             </div>
           </div>
 
-          {/* Space Assets Card */}
-          <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                <span className="text-indigo-400">🚀</span>
-              </div>
-              <h3 className="text-lg font-semibold text-slate-200">Space</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-orange-400">🚀</span>
-                  <span className="text-xs text-slate-400">Launch Pads</span>
-                </div>
-                <div className="text-lg font-bold text-slate-200">4</div>
-              </div>
-              
-              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-red-400">🎯</span>
-                  <span className="text-xs text-slate-400">Missions</span>
-                </div>
-                <div className="text-lg font-bold text-slate-200">5</div>
-              </div>
-              
-              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-cyan-400">🛰️</span>
-                  <span className="text-xs text-slate-400">Satellites</span>
-                </div>
-                <div className="text-lg font-bold text-slate-200">2</div>
-              </div>
-              
-              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <Building className="w-3 h-3 text-slate-400" />
-                  <span className="text-xs text-slate-400">Space Stations</span>
-                </div>
-                <div className="text-lg font-bold text-slate-200">0</div>
-              </div>
-            </div>
-          </div>
 
           {/* Operations Panel */}
           <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
