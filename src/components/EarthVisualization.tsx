@@ -4,8 +4,10 @@ import { OrbitControls, Stars, Text } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, LogOut } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -1929,7 +1931,14 @@ function Atmosphere() {
   );
 }
 
-const EarthVisualization = () => {
+interface EarthVisualizationProps {
+  onSignOut?: () => Promise<void>;
+  player?: { credits: number };
+  showOperations?: boolean;
+  setShowOperations?: (show: boolean) => void;
+}
+
+const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperations }: EarthVisualizationProps = {}) => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(false);
@@ -2085,14 +2094,19 @@ const EarthVisualization = () => {
           <div className="flex items-center gap-2">
           </div>
           
-          {/* Right side - Resources and Operations Toggle */}
+          {/* Right side - Resources and Settings */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
+              {localStorage.getItem('guestMode') === 'true' && (
+                <Badge variant="outline" className="text-orange-500 border-orange-500">
+                  Demo Mode
+                </Badge>
+              )}
               <div className="flex items-center gap-1 text-slate-300 text-sm">
                 <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                   <span className="text-xs font-bold text-slate-900">₵</span>
                 </div>
-                <span className="font-medium">5,000</span>
+                <span className="font-medium">{player?.credits?.toLocaleString() || '5,000'}</span>
               </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
                 <span className="text-cyan-400 text-xs">💎</span>
@@ -2104,14 +2118,37 @@ const EarthVisualization = () => {
               </div>
             </div>
             
-            {/* Operations Panel Toggle */}
-            <button
-              onClick={() => setIsOperationsPanelOpen(!isOperationsPanelOpen)}
-              className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
-              aria-label="Toggle Operations Panel"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
+            {/* Settings Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
+                  aria-label="Settings Menu"
+                >
+                  <Settings className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-slate-800 border-slate-600">
+                {setShowOperations && (
+                  <DropdownMenuItem 
+                    onClick={() => setShowOperations(!showOperations)}
+                    className="text-slate-300 hover:text-white hover:bg-slate-700"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    {showOperations ? 'Hide' : 'Show'} Operations
+                  </DropdownMenuItem>
+                )}
+                {onSignOut && (
+                  <DropdownMenuItem 
+                    onClick={onSignOut}
+                    className="text-slate-300 hover:text-white hover:bg-slate-700"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

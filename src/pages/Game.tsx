@@ -247,34 +247,14 @@ const Game = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Top Navigation */}
-      <nav className="absolute top-0 left-0 right-0 z-50 p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm border-b">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold">Expanse Colony</h1>
-          {localStorage.getItem('guestMode') === 'true' && (
-            <Badge variant="outline" className="text-orange-500 border-orange-500">
-              Demo Mode
-            </Badge>
-          )}
-          <Badge variant="secondary">Credits: {player.credits.toLocaleString()}</Badge>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowOperations(!showOperations)}
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4" />
-          </Button>
-        </div>
-      </nav>
-
       {/* 3D Visualization */}
       <div className="w-full h-screen">
-        <EarthVisualization />
+        <EarthVisualization 
+          onSignOut={handleSignOut}
+          player={player}
+          showOperations={showOperations}
+          setShowOperations={setShowOperations}
+        />
       </div>
 
       {/* Operations Panel */}
