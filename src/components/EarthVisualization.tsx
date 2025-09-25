@@ -1936,9 +1936,11 @@ interface EarthVisualizationProps {
   player?: { credits: number };
   showOperations?: boolean;
   setShowOperations?: (show: boolean) => void;
+  gameTime?: string;
+  creditGenerationRate?: number;
 }
 
-const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperations }: EarthVisualizationProps = {}) => {
+const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperations, gameTime, creditGenerationRate }: EarthVisualizationProps = {}) => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(false);
@@ -2085,6 +2087,11 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
               <span className="text-emerald-400 font-semibold">Terran Corp</span>
             </div>
             <div className="flex items-center gap-4 text-sm">
+              {/* Game Timer */}
+              <div className="flex items-center gap-2 bg-slate-800/50 px-3 py-1 rounded border border-slate-600/30">
+                <span className="text-blue-400 text-xs">⏱️</span>
+                <span className="text-blue-300 font-mono font-medium">{gameTime || '00:00'}</span>
+              </div>
               <span className="text-slate-300">Level <span className="text-blue-400 font-bold">1</span></span>
               <span className="text-slate-300">Time <span className="text-emerald-400 font-mono">5:44:03</span></span>
             </div>
@@ -2106,7 +2113,12 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
                 <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                   <span className="text-xs font-bold text-slate-900">₵</span>
                 </div>
-                <span className="font-medium">{player?.credits?.toLocaleString() || '5,000'}</span>
+                <div className="flex flex-col">
+                  <span className="font-medium">{player?.credits?.toLocaleString() || '5,000'}</span>
+                  {creditGenerationRate && creditGenerationRate > 0 && (
+                    <span className="text-xs text-green-400">+{creditGenerationRate.toFixed(1)}/s</span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
                 <span className="text-cyan-400 text-xs">💎</span>

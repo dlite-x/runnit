@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import EarthVisualization from '@/components/EarthVisualization';
+import { useGameState } from '@/hooks/useGameState';
 import { LogOut, Settings } from 'lucide-react';
 
 interface Player {
@@ -40,6 +41,24 @@ const Game = () => {
   const [showOperations, setShowOperations] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Update player credits function for game state hook
+  const updatePlayerCredits = (newCredits: number) => {
+    if (player) {
+      setPlayer({ ...player, credits: newCredits });
+      
+      // Update localStorage for guest mode
+      const isGuestMode = localStorage.getItem('guestMode') === 'true';
+      if (isGuestMode) {
+        const guestUser = JSON.parse(localStorage.getItem('guestUser') || '{}');
+        guestUser.credits = newCredits;
+        localStorage.setItem('guestUser', JSON.stringify(guestUser));
+      }
+    }
+  };
+
+  // Initialize game state hook
+  const gameState = useGameState(player, colonies, updatePlayerCredits);
 
   useEffect(() => {
     // Check if we're in guest mode first
@@ -254,6 +273,8 @@ const Game = () => {
           player={player}
           showOperations={showOperations}
           setShowOperations={setShowOperations}
+          gameTime={gameState.formattedGameTime}
+          creditGenerationRate={gameState.creditGenerationRate}
         />
       </div>
 
