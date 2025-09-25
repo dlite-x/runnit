@@ -1838,10 +1838,6 @@ const EarthVisualization = () => {
               <span className="text-purple-400 text-xs">⚛️</span>
               <span className="text-purple-300 font-medium text-sm">1</span>
             </div>
-            <div className="flex items-center gap-1 bg-emerald-600/20 px-2 py-1 rounded border border-emerald-500/30">
-              <span className="text-emerald-400 text-xs">🎯</span>
-              <span className="text-emerald-300 font-medium text-sm">24</span>
-            </div>
           </div>
         </div>
       </div>
