@@ -2121,7 +2121,7 @@ const EarthVisualization = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Ships</h3>
               </div>
-              <div className="space-y-3 relative z-[9999] pointer-events-auto">
+              <div className="space-y-2 relative z-[9999] pointer-events-auto">
                 <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
@@ -2133,7 +2133,7 @@ const EarthVisualization = () => {
                   >
                     <div className="flex items-center gap-2">
                       <Home className="w-4 h-4 text-blue-400" />
-                      <span className="text-sm text-slate-400">Colony</span>
+                      <span className="text-base text-slate-400">Colony</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-200">1</span>
@@ -2157,7 +2157,7 @@ const EarthVisualization = () => {
                   >
                     <div className="flex items-center gap-2">
                       <Package className="w-4 h-4 text-amber-400" />
-                      <span className="text-sm text-slate-400">Cargo</span>
+                      <span className="text-base text-slate-400">Cargo</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-200">3</span>
