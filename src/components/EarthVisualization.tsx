@@ -1599,15 +1599,19 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name }: {
   name: string;
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
+  const textRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
-    if (meshRef.current) {
+    if (meshRef.current && textRef.current) {
       const time = state.clock.getElapsedTime();
       const angle = initialAngle + time * orbitSpeed;
       
-      meshRef.current.position.x = Math.cos(angle) * orbitRadius;
-      meshRef.current.position.z = Math.sin(angle) * orbitRadius;
-      meshRef.current.position.y = Math.sin(angle * 0.5) * 0.5; // Slight vertical oscillation
+      const x = Math.cos(angle) * orbitRadius;
+      const z = Math.sin(angle) * orbitRadius;
+      const y = Math.sin(angle * 0.5) * 0.5; // Slight vertical oscillation
+      
+      meshRef.current.position.set(x, y, z);
+      textRef.current.position.set(x, y + 0.5, z);
     }
   });
 
@@ -1618,16 +1622,16 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name }: {
         <meshStandardMaterial color={type === 'colony' ? '#3b82f6' : '#f59e0b'} />
       </mesh>
       {/* Text label for the sphere */}
-      <Text
-        ref={meshRef}
-        position={[0, 0.5, 0]}
-        fontSize={0.15}
-        color="white"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {name}
-      </Text>
+      <group ref={textRef}>
+        <Text
+          fontSize={0.15}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {name}
+        </Text>
+      </group>
     </group>
   );
 }
@@ -2304,7 +2308,7 @@ const EarthVisualization = () => {
                          Math.random() * 2 - 1,
                          Math.random() * 2 - 1
                        ];
-                       setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition, name: `Colony${newColonyCount}` }]);
+                       setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition, name: `Colony ${newColonyCount}` }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2334,7 +2338,7 @@ const EarthVisualization = () => {
                          Math.random() * 2 - 1,
                          Math.random() * 2 - 1
                        ];
-                       setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition, name: `Cargo${newCargoCount}` }]);
+                       setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition, name: `Cargo ${newCargoCount}` }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
