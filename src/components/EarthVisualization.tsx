@@ -2404,7 +2404,7 @@ const EarthVisualization = () => {
             </div>
 
             {/* Missions Section */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
                   <Satellite className="w-4 h-4 text-purple-400" />
@@ -2416,13 +2416,22 @@ const EarthVisualization = () => {
                 {builtSpheres.slice(0, 4).map((sphere, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 px-2 py-1 rounded transition-colors"
-                    onClick={() => {
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 px-2 py-1 rounded transition-colors relative z-[10000] pointer-events-auto"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log(`Mission item clicked: ${sphere.name}, location: ${sphere.location}`);
                       if (sphere.location === 'earth') {
                         console.log(`Sending ${sphere.name} to moon!`);
-                        setBuiltSpheres(prev => prev.map(s => 
-                          s.name === sphere.name ? { ...s, location: 'traveling' } : s
-                        ));
+                        setBuiltSpheres(prev => {
+                          const updated = prev.map(s => 
+                            s.name === sphere.name ? { ...s, location: 'traveling' as const } : s
+                          );
+                          console.log('Updated spheres:', updated);
+                          return updated;
+                        });
+                      } else {
+                        console.log(`${sphere.name} is not at Earth (location: ${sphere.location})`);
                       }
                     }}
                   >
