@@ -2122,7 +2122,7 @@ const EarthVisualization = () => {
                 <h3 className="text-lg font-semibold text-slate-200">Ships</h3>
               </div>
               <div className="space-y-2 relative z-[9999] pointer-events-auto">
-                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                     onClick={() => {
@@ -2146,7 +2146,7 @@ const EarthVisualization = () => {
                 </div>
               </div>
             </div>
-                <div className="border border-slate-600/30 rounded-lg p-2 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                     onClick={() => {
