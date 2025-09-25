@@ -1847,58 +1847,49 @@ const EarthVisualization = () => {
 
       {/* Solar System Panel - Left Overlay */}
       <div className="absolute top-28 left-4 z-10 p-4 w-48">
-        <h2 className="text-lg font-bold text-cyan-400 mb-4 text-center tracking-wide" style={{
-          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
-          filter: 'drop-shadow(0 0 8px rgba(34, 211, 238, 0.3))'
-        }}>
-          SOLAR SYSTEM
+        <h2 className="text-lg font-bold text-blue-400 mb-4 text-center">
+          Solar System
         </h2>
         
         <div className="space-y-2">
           <div className="flex items-center gap-3 p-1 hover:bg-slate-800/30 transition-all duration-200 cursor-pointer group">
             <div className="w-4 h-4 rounded-full" style={{
-              backgroundColor: '#15803d',
-              boxShadow: '0 0 6px rgba(21, 128, 61, 0.3)',
-              filter: 'drop-shadow(0 0 3px rgba(21, 128, 61, 0.2))'
+              backgroundColor: '#86efac',
+              boxShadow: '0 0 4px rgba(134, 239, 172, 0.2)',
+              filter: 'drop-shadow(0 0 2px rgba(134, 239, 172, 0.1))'
             }}></div>
-            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors" style={{
-              textShadow: '0 0 6px rgba(147, 197, 253, 0.3)'
-            }}>
+            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors">
               Earth
             </span>
           </div>
           
           <div className="flex items-center gap-3 p-1 hover:bg-slate-800/30 transition-all duration-200 cursor-pointer group">
             <div className="w-4 h-4 rounded-full" style={{
-              backgroundColor: '#6b7280',
-              boxShadow: '0 0 6px rgba(107, 114, 128, 0.3)',
-              filter: 'drop-shadow(0 0 3px rgba(107, 114, 128, 0.2))'
+              backgroundColor: '#d1d5db',
+              boxShadow: '0 0 4px rgba(209, 213, 219, 0.2)',
+              filter: 'drop-shadow(0 0 2px rgba(209, 213, 219, 0.1))'
             }}></div>
-            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors" style={{
-              textShadow: '0 0 6px rgba(147, 197, 253, 0.3)'
-            }}>
+            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors">
               Moon
             </span>
           </div>
           
           <div className="flex items-center gap-3 p-1 hover:bg-slate-800/30 transition-all duration-200 cursor-pointer group">
             <div className="w-4 h-4 rounded-full" style={{
-              backgroundColor: '#7c3aed',
-              boxShadow: '0 0 6px rgba(124, 58, 237, 0.3)',
-              filter: 'drop-shadow(0 0 3px rgba(124, 58, 237, 0.2))'
+              backgroundColor: '#c4b5fd',
+              boxShadow: '0 0 4px rgba(196, 181, 253, 0.2)',
+              filter: 'drop-shadow(0 0 2px rgba(196, 181, 253, 0.1))'
             }}></div>
-            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors" style={{
-              textShadow: '0 0 6px rgba(147, 197, 253, 0.3)'
-            }}>
+            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors">
               EML 1
             </span>
           </div>
           
           <div className="flex items-center gap-3 p-1 hover:bg-slate-800/30 transition-all duration-200 cursor-pointer group">
             <div className="w-4 h-4 rounded-full" style={{
-              backgroundColor: '#991b1b',
-              boxShadow: '0 0 6px rgba(153, 27, 27, 0.3)',
-              filter: 'drop-shadow(0 0 3px rgba(153, 27, 27, 0.2))'
+              backgroundColor: '#fca5a5',
+              boxShadow: '0 0 4px rgba(252, 165, 165, 0.2)',
+              filter: 'drop-shadow(0 0 2px rgba(252, 165, 165, 0.1))'
             }}></div>
             <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors" style={{
               textShadow: '0 0 6px rgba(147, 197, 253, 0.3)'
