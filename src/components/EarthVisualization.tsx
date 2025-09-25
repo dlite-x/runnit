@@ -1820,17 +1820,6 @@ const EarthVisualization = () => {
           
           {/* Center - Action buttons */}
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="bg-orange-600/20 border-orange-500 text-orange-300 hover:bg-orange-600/30">
-              <Factory className="w-4 h-4 mr-1" />
-              Operations
-            </Button>
-            <Button variant="outline" size="sm" className="bg-emerald-600/20 border-emerald-500 text-emerald-300 hover:bg-emerald-600/30">
-              <Building className="w-4 h-4 mr-1" />
-              Construction
-            </Button>
-            <Button variant="outline" size="sm" className="bg-green-600/20 border-green-500 text-green-300 hover:bg-green-600/30" onClick={() => setShowGrid(!showGrid)}>
-              Show Grid
-            </Button>
           </div>
           
           {/* Right side - Resources */}
@@ -1889,7 +1878,7 @@ const EarthVisualization = () => {
                   <span>💰</span>
                   <span>Income:</span>
                 </div>
-                <div className="text-lg font-bold text-emerald-400">11500</div>
+                <div className="text-lg font-bold text-emerald-400">+2</div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -1920,19 +1909,10 @@ const EarthVisualization = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-blue-400">💧</span>
-                  <span className="text-xs text-slate-400">Water</span>
-                  <span className="text-xs text-emerald-400 ml-auto">+249</span>
+                  <span className="text-green-400">🍃</span>
+                  <span className="text-xs text-slate-400">Food</span>
                 </div>
-                <div className="text-lg font-bold text-slate-200">1,000</div>
-              </div>
-              
-              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <Zap className="w-3 h-3 text-blue-400" />
-                  <span className="text-xs text-slate-400">Oxygen</span>
-                </div>
-                <div className="text-lg font-bold text-slate-200">4</div>
+                <div className="text-lg font-bold text-slate-200">500</div>
               </div>
               
               <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
@@ -1945,19 +1925,10 @@ const EarthVisualization = () => {
               
               <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-green-400">🍃</span>
-                  <span className="text-xs text-slate-400">Food</span>
-                  <span className="text-xs text-emerald-400 ml-auto">+60</span>
+                  <span className="text-gray-400">🔩</span>
+                  <span className="text-xs text-slate-400">Metal</span>
                 </div>
-                <div className="text-lg font-bold text-slate-200">1</div>
-              </div>
-              
-              <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-purple-400">💻</span>
-                  <span className="text-xs text-slate-400">Compute</span>
-                </div>
-                <div className="text-lg font-bold text-slate-200">1</div>
+                <div className="text-lg font-bold text-slate-200">800</div>
               </div>
               
               <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/20">
@@ -1965,7 +1936,7 @@ const EarthVisualization = () => {
                   <span className="text-yellow-400">⚡</span>
                   <span className="text-xs text-slate-400">Power</span>
                 </div>
-                <div className="text-lg font-bold text-slate-200">1</div>
+                <div className="text-lg font-bold text-slate-200">100</div>
               </div>
             </div>
           </div>
@@ -2055,51 +2026,98 @@ const EarthVisualization = () => {
             </div>
           </div>
 
-          {/* Selection Panel */}
-          <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center">
-                <span className="text-violet-400">📍</span>
-              </div>
-              <h3 className="text-lg font-semibold text-slate-200">Selection</h3>
-            </div>
-            
-            {selectedObject ? (
-              <div className="space-y-2">
-                <div className="text-sm font-semibold text-blue-400">
-                  {selectedObject === 'earth' && 'Planet Earth'}
-                  {selectedObject === 'moon' && 'Moon'}
-                  {selectedObject === 'ship' && 'Spacecraft'}
-                  {selectedObject === 'targetCube' && 'Target Cube'}
-                  {selectedObject === 'baseCube' && 'Base Cube'}
-                  {selectedObject === 'spaceStation' && 'Space Station'}
-                  {selectedObject === 'shipFactory' && 'Ship Factory'}
-                  {selectedObject === 'alienShip' && 'Alien Ship'}
-                </div>
-                <div className="text-xs text-slate-400">
-                  {selectedObject === 'ship' && (
-                    <p>Position: ({shipPosition[0].toFixed(1)}, {shipPosition[1].toFixed(1)}, {shipPosition[2].toFixed(1)})</p>
-                  )}
-                  {selectedObject === 'targetCube' && (
-                    <p>Hits: {targetCubeHits}/10</p>
-                  )}
-                  {selectedObject === 'alienShip' && (
-                    <p>Health: {Math.max(0, 100 - alienShipHits)}%</p>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="text-sm text-slate-400">
-                No object selected
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
-      {/* Right Action Buttons */}
-      <div className="absolute top-20 right-4 z-10 space-y-2">
-        <Button
+      {/* Right Side Panels */}
+      <div className="absolute top-20 right-4 z-10 space-y-4 w-64">
+        {/* Operations Panel */}
+        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+              <span className="text-emerald-400">⚙️</span>
+            </div>
+            <h3 className="text-lg font-semibold text-slate-200">Operations</h3>
+          </div>
+          
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAutoRotate(!autoRotate)}
+              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+            >
+              {autoRotate ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+              {autoRotate ? 'Pause Rotation' : 'Resume Rotation'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFlyMode(!flyMode)}
+              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+            >
+              <Plane className="w-4 h-4 mr-2" />
+              {flyMode ? 'Exit Flight Mode' : 'Enter Flight Mode'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowGrid(!showGrid)}
+              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+            >
+              <Grid3X3 className="w-4 h-4 mr-2" />
+              {showGrid ? 'Hide Grid' : 'Show Grid'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Construction Panel */}
+        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
+              <Factory className="w-4 h-4 text-orange-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-200">Construction</h3>
+          </div>
+          
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
+              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+            >
+              <Building className="w-4 h-4 mr-2" />
+              {spaceStationBuilt ? 'Dismantle' : 'Build'} Station
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShipFactoryBuilt(!shipFactoryBuilt)}
+              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+            >
+              <Factory className="w-4 h-4 mr-2" />
+              {shipFactoryBuilt ? 'Dismantle' : 'Build'} Factory
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFighterDronesBuilt(!fighterDronesBuilt)}
+              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+            >
+              <span className="w-4 h-4 mr-2">🤖</span>
+              {fighterDronesBuilt ? 'Recall' : 'Build'} Drones
+            </Button>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="space-y-2">
+          <Button
           variant="outline"
           size="sm"
           onClick={handleReset}
@@ -2124,6 +2142,7 @@ const EarthVisualization = () => {
         >
           {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
         </Button>
+        </div>
       </div>
 
       {/* 3D Canvas - positioned to account for header */}
