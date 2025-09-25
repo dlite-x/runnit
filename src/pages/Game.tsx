@@ -497,38 +497,6 @@ const Game = () => {
             </CardContent>
           </Card>
 
-          {/* Colony Status */}
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle className="text-sm">Colony Status</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {colonies.length === 0 ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">No colonies established</p>
-                  <Button 
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => initializeColony('Earth')}
-                  >
-                    Start on Earth
-                  </Button>
-                </div>
-              ) : (
-                colonies.map((colony) => (
-                  <div key={colony.id} className="p-2 border rounded">
-                    <h4 className="font-medium">{colony.planet.name}</h4>
-                    <p className="text-xs text-muted-foreground">Population: {colony.population}</p>
-                    <div className="text-xs space-x-2">
-                      <span>Food: {colony.food_stockpile}</span>
-                      <span>Fuel: {colony.fuel_stockpile}</span>
-                      <span>Metal: {colony.metal_stockpile}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
 
           {/* Mission Status */}
           <Card>
