@@ -2043,7 +2043,7 @@ const EarthVisualization = () => {
       {/* Bottom Panel - Rebuilt for proper clickability */}
       <div className="fixed bottom-0 left-0 z-[9999] pointer-events-auto bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 rounded-tr-xl" style={{ height: '253px', width: '78%' }}>
         <div className="p-2 h-full relative z-[9999]">
-          <div className="grid grid-cols-4 gap-4 h-full">
+          <div className="grid grid-cols-5 gap-4 h-full">
             {/* Earth Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
@@ -2333,6 +2333,19 @@ const EarthVisualization = () => {
                   </div>
                 </div>
                 
+              </div>
+            </div>
+
+            {/* Missions Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                  <span className="text-purple-400">🎯</span>
+                </div>
+                <h3 className="text-lg font-semibold text-slate-200">Missions</h3>
+              </div>
+              <div className="space-y-3">
+                {/* Missions content will be added here later */}
               </div>
             </div>
           </div>
