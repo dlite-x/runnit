@@ -2143,9 +2143,12 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                     onClick={() => {
                       console.log('Colony clicked!');
-                      setModalContent('Colony Ship - Purchase Cost: ₵ 200');
-                      setModalType('colony');
-                      setShowModal(true);
+                      const spherePosition: [number, number, number] = [
+                        4 + Math.random() * 2 - 1, // Random position near Earth
+                        Math.random() * 2 - 1,
+                        Math.random() * 2 - 1
+                      ];
+                      setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition }]);
                     }}
                   >
                     <div className="flex items-center gap-2">
@@ -2168,9 +2171,12 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                     onClick={() => {
                       console.log('Cargo clicked!');
-                      setModalContent('Cargo Ship - Purchase Cost: ₵ 200');
-                      setModalType('cargo');
-                      setShowModal(true);
+                      const spherePosition: [number, number, number] = [
+                        4 + Math.random() * 2 - 1, // Random position near Earth
+                        Math.random() * 2 - 1,
+                        Math.random() * 2 - 1
+                      ];
+                      setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition }]);
                     }}
                   >
                     <div className="flex items-center gap-2">
@@ -2549,30 +2555,12 @@ const EarthVisualization = () => {
           >
             <h3 className="text-lg font-semibold text-slate-200 mb-4">Building/Ship Info</h3>
             <p className="text-slate-300 mb-4">{modalContent}</p>
-            <div className="flex gap-2">
-              {(modalType === 'colony' || modalType === 'cargo') && (
-                <button
-                  onClick={() => {
-                    const spherePosition: [number, number, number] = [
-                      4 + Math.random() * 2 - 1, // Random position near Earth
-                      Math.random() * 2 - 1,
-                      Math.random() * 2 - 1
-                    ];
-                    setBuiltSpheres(prev => [...prev, { type: modalType as 'colony' | 'cargo', position: spherePosition }]);
-                    setShowModal(false);
-                  }}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors"
-                >
-                  Buy
-                </button>
-              )}
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
-              >
-                Close
-              </button>
-            </div>
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
