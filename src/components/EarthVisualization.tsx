@@ -2651,7 +2651,7 @@ const EarthVisualization = () => {
         boxShadow: 'inset 0 0 100px rgba(135, 206, 235, 0.1)'
       }}>
         <Canvas
-          camera={{ position: [0, 0, 15], fov: 50 }}
+          camera={{ position: [-8, 6, 20], fov: 50 }}
           className="w-full h-full"
           style={{
             background: 'transparent'
