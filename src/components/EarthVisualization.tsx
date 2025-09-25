@@ -1603,8 +1603,10 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const textRef = useRef<THREE.Group>(null);
+  const trailRef = useRef<THREE.LineSegments>(null);
   const [travelProgress, setTravelProgress] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
   
   useFrame((state) => {
     if (meshRef.current && textRef.current) {
@@ -1632,13 +1634,27 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           
           meshRef.current.position.set(x, y, z);
           textRef.current.position.set(x, y + 0.5, z);
+          
+          // Add trail points during travel
+          const currentPos = new THREE.Vector3(x, y, z);
+          setTrailPoints(prev => {
+            const newPoints = [...prev, currentPos];
+            // Keep trail for the journey
+            return newPoints.slice(-25);
+          });
         } else {
           // Travel complete, switch to moon orbit
           onLocationUpdate(name, 'moon');
           setTravelProgress(0);
+          // Clear trail when travel is complete
+          setTrailPoints([]);
         }
       } else {
-        // Normal orbit logic
+        // Normal orbit logic - clear trail when not traveling
+        if (trailPoints.length > 0) {
+          setTrailPoints([]);
+        }
+        
         const angle = initialAngle + time * orbitSpeed;
         let centerX = 0, centerY = 0, centerZ = 0;
         
@@ -1658,6 +1674,15 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
     }
   });
 
+  // Create trail geometry
+  React.useEffect(() => {
+    if (trailRef.current && trailPoints.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
+      trailRef.current.geometry.dispose();
+      trailRef.current.geometry = geometry;
+    }
+  }, [trailPoints]);
+
   return (
     <group>
       <mesh ref={meshRef}>
@@ -1675,6 +1700,19 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           {name}
         </Text>
       </group>
+      
+      {/* Trail - only visible during travel */}
+      {location === 'traveling' && trailPoints.length > 1 && (
+        <lineSegments ref={trailRef}>
+          <bufferGeometry />
+          <lineBasicMaterial 
+            color={type === 'colony' ? '#3b82f6' : '#f59e0b'} 
+            transparent 
+            opacity={0.8}
+            linewidth={2}
+          />
+        </lineSegments>
+      )}
     </group>
   );
 }
