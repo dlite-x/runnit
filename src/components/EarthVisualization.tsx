@@ -1776,6 +1776,8 @@ const CameraController = ({ flyMode, shipPosition, cameraTarget }: {
           cameraDistance = 4; // Closer for moon
         } else if (x === 0 && y === 0 && z === 0) { // Earth position
           cameraDistance = 8; // Standard distance for Earth
+        } else if (x === 12 && y === 2 && z === 4) { // Overview position
+          cameraDistance = 20; // Far enough to see both Earth and Moon
         }
         
         // Position camera at a good angle
@@ -1945,7 +1947,7 @@ const EarthVisualization = () => {
   const [showTargetCube, setShowTargetCube] = useState(false);
   const [showBaseCube, setShowBaseCube] = useState(false);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
-  const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([0, 0, 0]);
+  const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([12, 2, 4]);
   const [spaceStationBuilt, setSpaceStationBuilt] = useState(false);
   const [shipFactoryBuilt, setShipFactoryBuilt] = useState(false);
   const [shipPanelDrones, setShipPanelDrones] = useState(0);
