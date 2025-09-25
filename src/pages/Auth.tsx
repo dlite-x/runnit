@@ -48,18 +48,39 @@ const Auth = () => {
   const handleDemoLogin = async () => {
     setLoading(true);
     try {
-      // Demo user credentials
-      const { error } = await supabase.auth.signInWithPassword({
+      // Try to sign in with existing demo user
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: 'demo@expanse.space',
         password: 'demo123456',
       });
       
-      if (error) throw error;
-      
-      toast({
-        title: "Demo Login Successful",
-        description: "Welcome to the Expanse Colony demo!",
-      });
+      // If user doesn't exist, create the demo account
+      if (signInError && signInError.message.includes('Invalid login credentials')) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: 'demo@expanse.space',
+          password: 'demo123456',
+          options: {
+            emailRedirectTo: `${window.location.origin}/game`,
+            data: {
+              full_name: 'Demo Commander'
+            }
+          }
+        });
+        
+        if (signUpError) throw signUpError;
+        
+        toast({
+          title: "Demo Account Created",
+          description: "Demo account created and signed in successfully!",
+        });
+      } else if (signInError) {
+        throw signInError;
+      } else {
+        toast({
+          title: "Demo Login Successful", 
+          description: "Welcome to the Expanse Colony demo!",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Demo Login Error",
