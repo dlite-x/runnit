@@ -44,10 +44,10 @@ export const useGameState = (
   const calculateCreditGeneration = () => {
     if (!colonies.length) return 0;
     
-    // Earth generates +10 credits per year, other planets generate +5 per year
+    // Earth generates +50 credits per year, other planets generate +50 per year
     // Convert to credits per second: (credits per year) / (365.25 days * 24 hours * 3600 seconds)
     return colonies.reduce((total, colony) => {
-      const creditsPerYear = colony.planet.name === 'Earth' ? 10 : 5;
+      const creditsPerYear = 50; // All planets now generate +50 credits per year
       const creditsPerSecond = creditsPerYear / (365.25 * 24 * 3600);
       return total + creditsPerSecond;
     }, 0);
