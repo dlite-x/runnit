@@ -2502,12 +2502,26 @@ const EarthVisualization = () => {
         {/* Trajectory Ship with Exhaust */}
         <group>
           <mesh position={[6 + 3 * Math.cos(Date.now() * 0.001), Math.sin(Date.now() * 0.001) * 0.5, 3 * Math.sin(Date.now() * 0.002)]}>
-            <coneGeometry args={[0.1, 0.5, 8]} />
-            <meshStandardMaterial color="#ffffff" />
+            <boxGeometry args={[0.1, 0.05, 0.15]} />
+            <meshStandardMaterial 
+              color="#FFD700" 
+              metalness={0.7} 
+              roughness={0.2}
+              emissive="#FFA500"
+              emissiveIntensity={0.3}
+            />
           </mesh>
-          <mesh position={[6 + 3 * Math.cos(Date.now() * 0.001), Math.sin(Date.now() * 0.001) * 0.5, 3 * Math.sin(Date.now() * 0.002) - 0.3]}>
-            <cylinderGeometry args={[0.02, 0.05, 1]} />
-            <meshBasicMaterial color="#ff6600" transparent opacity={0.7} />
+          
+          {/* Engine glow */}
+          <mesh position={[6 + 3 * Math.cos(Date.now() * 0.001), Math.sin(Date.now() * 0.001) * 0.5, 3 * Math.sin(Date.now() * 0.002) - 0.1]}>
+            <cylinderGeometry args={[0.02, 0.04, 0.08, 8]} />
+            <meshStandardMaterial 
+              color="#FF8800" 
+              emissive="#FF6600" 
+              emissiveIntensity={0.8}
+              transparent
+              opacity={0.7}
+            />
           </mesh>
         </group>
         
