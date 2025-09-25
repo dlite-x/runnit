@@ -2373,6 +2373,11 @@ const EarthVisualization = () => {
           dampingFactor={0.05}
           enableDamping={true}
           target={flyMode ? new Vector3(...shipPosition) : new Vector3(...cameraTarget)}
+          mouseButtons={{
+            LEFT: THREE.MOUSE.PAN,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.ROTATE
+          }}
           makeDefault
         />
         </Canvas>
