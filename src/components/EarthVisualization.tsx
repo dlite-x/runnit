@@ -4,7 +4,7 @@ import { OrbitControls, Stars, Text } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
@@ -1953,6 +1953,7 @@ const EarthVisualization = () => {
   const [shipFactoryBuilt, setShipFactoryBuilt] = useState(false);
   const [shipPanelDrones, setShipPanelDrones] = useState(0);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
+  const [isOperationsPanelOpen, setIsOperationsPanelOpen] = useState(false);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -2084,22 +2085,33 @@ const EarthVisualization = () => {
           <div className="flex items-center gap-2">
           </div>
           
-          {/* Right side - Resources */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-slate-300 text-sm">
-              <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
-                <span className="text-xs font-bold text-slate-900">₵</span>
+          {/* Right side - Resources and Operations Toggle */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 text-slate-300 text-sm">
+                <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
+                  <span className="text-xs font-bold text-slate-900">₵</span>
+                </div>
+                <span className="font-medium">5,000</span>
               </div>
-              <span className="font-medium">5,000</span>
+              <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
+                <span className="text-cyan-400 text-xs">💎</span>
+                <span className="text-cyan-300 font-medium text-sm">12</span>
+              </div>
+              <div className="flex items-center gap-1 bg-purple-600/20 px-2 py-1 rounded border border-purple-500/30">
+                <span className="text-purple-400 text-xs">⚛️</span>
+                <span className="text-purple-300 font-medium text-sm">1</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
-              <span className="text-cyan-400 text-xs">💎</span>
-              <span className="text-cyan-300 font-medium text-sm">12</span>
-            </div>
-            <div className="flex items-center gap-1 bg-purple-600/20 px-2 py-1 rounded border border-purple-500/30">
-              <span className="text-purple-400 text-xs">⚛️</span>
-              <span className="text-purple-300 font-medium text-sm">1</span>
-            </div>
+            
+            {/* Operations Panel Toggle */}
+            <button
+              onClick={() => setIsOperationsPanelOpen(!isOperationsPanelOpen)}
+              className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
+              aria-label="Toggle Operations Panel"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -2619,124 +2631,123 @@ const EarthVisualization = () => {
       </div>
 
 
-      {/* Right Side Panels */}
-      <div className="absolute top-20 right-4 z-10 space-y-4 w-52">
-        {/* Operations Panel */}
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-              <span className="text-emerald-400">⚙️</span>
+      {/* Operations Panel - Collapsible */}
+      {isOperationsPanelOpen && (
+        <div className="absolute top-20 right-4 z-10 w-64 animate-fade-in">
+          <div className="bg-slate-800/90 backdrop-blur-sm rounded-xl p-6 border border-slate-600/30 shadow-xl">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                  <Settings className="w-4 h-4 text-emerald-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-200">Operations</h3>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-slate-200">Operations</h3>
-          </div>
-          
-          <div className="space-y-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAutoRotate(!autoRotate)}
-              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
-            >
-              {autoRotate ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
-              {autoRotate ? 'Pause Rotation' : 'Resume Rotation'}
-            </Button>
             
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFlyMode(!flyMode)}
-              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
-            >
-              <Plane className="w-4 h-4 mr-2" />
-              {flyMode ? 'Exit Flight Mode' : 'Enter Flight Mode'}
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowGrid(!showGrid)}
-              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
-            >
-              <Grid3X3 className="w-4 h-4 mr-2" />
-              {showGrid ? 'Hide Grid' : 'Show Grid'}
-            </Button>
-          </div>
-        </div>
+            {/* Operations Section */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-slate-400 uppercase tracking-wide">Controls</h4>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAutoRotate(!autoRotate)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  {autoRotate ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                  {autoRotate ? 'Pause Rotation' : 'Resume Rotation'}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFlyMode(!flyMode)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  <Plane className="w-4 h-4 mr-2" />
+                  {flyMode ? 'Exit Flight Mode' : 'Enter Flight Mode'}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowGrid(!showGrid)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  <Grid3X3 className="w-4 h-4 mr-2" />
+                  {showGrid ? 'Hide Grid' : 'Show Grid'}
+                </Button>
+              </div>
 
-        {/* Construction Panel */}
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
-              <Factory className="w-4 h-4 text-orange-400" />
+              {/* Construction Section */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-slate-400 uppercase tracking-wide">Construction</h4>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  {spaceStationBuilt ? 'Dismantle' : 'Build'} Station
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShipFactoryBuilt(!shipFactoryBuilt)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  <Factory className="w-4 h-4 mr-2" />
+                  {shipFactoryBuilt ? 'Dismantle' : 'Build'} Factory
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFighterDronesBuilt(!fighterDronesBuilt)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  <span className="w-4 h-4 mr-2">🤖</span>
+                  {fighterDronesBuilt ? 'Recall' : 'Build'} Drones
+                </Button>
+              </div>
+
+              {/* Actions Section */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-slate-400 uppercase tracking-wide">Actions</h4>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReset}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTargetCube(!showTargetCube)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAlienShipActive(!alienShipActive)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien
+                </Button>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-slate-200">Construction</h3>
-          </div>
-          
-          <div className="space-y-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
-              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
-            >
-              <Building className="w-4 h-4 mr-2" />
-              {spaceStationBuilt ? 'Dismantle' : 'Build'} Station
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShipFactoryBuilt(!shipFactoryBuilt)}
-              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
-            >
-              <Factory className="w-4 h-4 mr-2" />
-              {shipFactoryBuilt ? 'Dismantle' : 'Build'} Factory
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFighterDronesBuilt(!fighterDronesBuilt)}
-              className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
-            >
-              <span className="w-4 h-4 mr-2">🤖</span>
-              {fighterDronesBuilt ? 'Recall' : 'Build'} Drones
-            </Button>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Reset
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowTargetCube(!showTargetCube)}
-            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
-          >
-            {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
-          </Button>
-          
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAlienShipActive(!alienShipActive)}
-            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
-          >
-            {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien
-          </Button>
-        </div>
-      </div>
+      )}
 
       {/* 3D Canvas - Full Screen */}
       <div className="absolute inset-0" style={{
