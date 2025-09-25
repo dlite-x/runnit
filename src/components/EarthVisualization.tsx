@@ -2183,19 +2183,6 @@ const EarthVisualization = () => {
                     {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien (Test)
                   </button>
                 </div>
-                
-                {/* Second Test Deploy Alien Button */}
-                <div className="mt-2">
-                  <button
-                    className="w-full bg-blue-800/80 border border-blue-600 text-blue-300 hover:bg-blue-700/80 px-3 py-2 rounded transition-colors"
-                    onClick={() => {
-                      console.log('Ships panel Deploy Alien #2 clicked!');
-                      setAlienShipActive(!alienShipActive);
-                    }}
-                  >
-                    {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien (Test 2)
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -2328,6 +2315,18 @@ const EarthVisualization = () => {
             className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
           >
             {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              console.log('Right panel Deploy Alien #2 clicked!');
+              setAlienShipActive(!alienShipActive);
+            }}
+            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
+          >
+            {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien 2
           </Button>
           
           <Button
