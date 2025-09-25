@@ -4,7 +4,7 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive } from 'lucide-react';
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 
@@ -1941,7 +1941,7 @@ const EarthVisualization = () => {
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                  <span className="text-amber-400">📦</span>
+                  <Archive className="w-4 h-4 text-amber-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Resources</h3>
               </div>
