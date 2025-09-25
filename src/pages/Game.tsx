@@ -57,8 +57,20 @@ const Game = () => {
     }
   };
 
+  // Update colonies function for resource generation
+  const updateColonies = (updatedColonies: Colony[]) => {
+    setColonies(updatedColonies);
+    
+    // Update localStorage for guest mode
+    const isGuestMode = localStorage.getItem('guestMode') === 'true';
+    if (isGuestMode) {
+      // Store updated colonies in localStorage if needed
+      localStorage.setItem('guestColonies', JSON.stringify(updatedColonies));
+    }
+  };
+
   // Initialize game state hook
-  const gameState = useGameState(player, colonies, updatePlayerCredits);
+  const gameState = useGameState(player, colonies, updatePlayerCredits, updateColonies);
 
   useEffect(() => {
     // Check if we're in guest mode first

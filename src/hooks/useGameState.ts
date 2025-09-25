@@ -23,7 +23,18 @@ interface GameState {
   creditGenerationRate: number; // credits per second
 }
 
-export const useGameState = (player: Player | null, colonies: Colony[], updatePlayerCredits: (newCredits: number) => void) => {
+interface ResourceGeneration {
+  food: number;
+  fuel: number;
+  metal: number;
+}
+
+export const useGameState = (
+  player: Player | null, 
+  colonies: Colony[], 
+  updatePlayerCredits: (newCredits: number) => void,
+  updateColonies?: (updatedColonies: Colony[]) => void
+) => {
   const [gameTime, setGameTime] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -44,6 +55,31 @@ export const useGameState = (player: Player | null, colonies: Colony[], updatePl
 
   const creditGenerationRate = calculateCreditGeneration();
 
+  // Calculate resource generation rates
+  const calculateResourceGeneration = (): ResourceGeneration => {
+    if (!colonies.length) return { food: 0, fuel: 0, metal: 0 };
+    
+    return colonies.reduce((total, colony) => {
+      // Base resource production per year based on population and planet type
+      const populationFactor = colony.population / 100; // Scale with population
+      const planetMultiplier = colony.planet.name === 'Earth' ? 1.2 : 1.0;
+      
+      // Production rates per year
+      const foodPerYear = (20 + populationFactor * 10) * planetMultiplier;
+      const fuelPerYear = (15 + populationFactor * 5) * planetMultiplier;
+      const metalPerYear = (10 + populationFactor * 8) * planetMultiplier;
+      
+      // Convert to per second (1 year = 86400 seconds)
+      return {
+        food: total.food + (foodPerYear / 86400),
+        fuel: total.fuel + (fuelPerYear / 86400),
+        metal: total.metal + (metalPerYear / 86400)
+      };
+    }, { food: 0, fuel: 0, metal: 0 });
+  };
+
+  const resourceGeneration = calculateResourceGeneration();
+
   // Format game time as years (1 day = 1 year, so 1 second = 1/86400 years)
   const formatGameTime = (seconds: number) => {
     const years = seconds / 86400; // 86400 seconds in a day = 1 year
@@ -60,11 +96,49 @@ export const useGameState = (player: Player | null, colonies: Colony[], updatePl
         setGameTime(prev => {
           const newTime = prev + deltaTime;
           
-          // Generate credits based on time passed and generation rate
+          // Generate credits
           if (player && creditGenerationRate > 0) {
             const creditsGenerated = deltaTime * creditGenerationRate;
-            const newCredits = Math.floor(player.credits + creditsGenerated); // No decimals
+            const newCredits = Math.floor(player.credits + creditsGenerated);
             updatePlayerCredits(newCredits);
+          }
+          
+          // Generate resources and handle population growth
+          if (colonies.length > 0 && updateColonies) {
+            const updatedColonies = colonies.map(colony => {
+              const newColony = { ...colony };
+              
+              // Generate resources
+              newColony.food_stockpile += Math.floor(deltaTime * resourceGeneration.food);
+              newColony.fuel_stockpile += Math.floor(deltaTime * resourceGeneration.fuel);
+              newColony.metal_stockpile += Math.floor(deltaTime * resourceGeneration.metal);
+              
+              // Population growth/decline based on food availability
+              const foodConsumptionPerSecond = (newColony.population * 0.1) / 86400; // 0.1 food per person per year
+              const foodDeficit = foodConsumptionPerSecond * deltaTime;
+              
+              if (newColony.food_stockpile >= foodDeficit) {
+                newColony.food_stockpile -= Math.floor(foodDeficit);
+                // Population growth when well-fed (slow growth)
+                if (newColony.food_stockpile > newColony.population * 2) {
+                  const growthRate = (0.02 / 86400) * deltaTime; // 2% growth per year
+                  if (Math.random() < growthRate) {
+                    newColony.population += 1;
+                  }
+                }
+              } else {
+                // Population decline when starving
+                const starvationRate = (0.05 / 86400) * deltaTime; // 5% decline per year
+                if (Math.random() < starvationRate && newColony.population > 1) {
+                  newColony.population -= 1;
+                }
+                newColony.food_stockpile = 0;
+              }
+              
+              return newColony;
+            });
+            
+            updateColonies(updatedColonies);
           }
           
           return newTime;
@@ -82,7 +156,7 @@ export const useGameState = (player: Player | null, colonies: Colony[], updatePl
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, player, creditGenerationRate, updatePlayerCredits]);
+  }, [isRunning, player, creditGenerationRate, resourceGeneration, updatePlayerCredits, updateColonies, colonies]);
 
   const togglePause = () => {
     setIsRunning(!isRunning);
@@ -99,6 +173,7 @@ export const useGameState = (player: Player | null, colonies: Colony[], updatePl
     formattedGameTime: formatGameTime(gameTime),
     isRunning,
     creditGenerationRate,
+    resourceGeneration,
     togglePause,
     resetTimer
   };
