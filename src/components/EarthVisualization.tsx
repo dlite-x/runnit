@@ -2152,32 +2152,34 @@ const EarthVisualization = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Button
-          variant="outline"
-          size="sm"
-          onClick={handleReset}
-          className="bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
-        >
-          <RotateCcw className="w-4 h-4 mr-2" />
-          Reset
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowTargetCube(!showTargetCube)}
-          className="bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
-        >
-          {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setAlienShipActive(!alienShipActive)}
-          className="bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
-        >
-          {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien
-        </Button>
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Reset
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowTargetCube(!showTargetCube)}
+            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
+          >
+            {showTargetCube ? '🔷 Hide' : '🔷 Show'} Target
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAlienShipActive(!alienShipActive)}
+            className="w-full bg-slate-800/80 border-slate-600 text-slate-300 hover:bg-slate-700/80"
+          >
+            {alienShipActive ? '👽 Recall' : '👽 Deploy'} Alien
+          </Button>
         </div>
       </div>
 
