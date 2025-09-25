@@ -2489,7 +2489,7 @@ const EarthVisualization = () => {
               </div>
               
               {/* Table Content */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {/* Colony Row */}
                 <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
                   <div className="flex items-center gap-2">
