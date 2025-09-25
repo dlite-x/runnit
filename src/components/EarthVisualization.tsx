@@ -2082,7 +2082,7 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
           {/* Left side - Game info */}
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-blue-400">Expanse v0.1</h1>
+              <h1 className="text-xl font-bold text-blue-400">Expanse</h1>
               <span className="text-slate-400">|</span>
               <span className="text-emerald-400 font-semibold">Terran Corp</span>
             </div>
@@ -2099,11 +2099,6 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
           {/* Right side - Resources and Settings */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              {localStorage.getItem('guestMode') === 'true' && (
-                <Badge variant="outline" className="text-orange-500 border-orange-500">
-                  Demo Mode
-                </Badge>
-              )}
               <div className="flex items-center gap-1 text-slate-300 text-sm">
                 <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                   <span className="text-xs font-bold text-slate-900">₵</span>
@@ -2117,8 +2112,15 @@ const EarthVisualization = ({ onSignOut, player, showOperations, setShowOperatio
               <div className="flex items-center gap-1 bg-purple-600/20 px-2 py-1 rounded border border-purple-500/30">
                 <span className="text-purple-400 text-xs">⚛️</span>
                 <span className="text-purple-300 font-medium text-sm">1</span>
-              </div>
-            </div>
+        </div>
+      </div>
+
+      {/* Demo Mode indicator - positioned under top nav on far right */}
+      {localStorage.getItem('guestMode') === 'true' && (
+        <div className="absolute top-16 right-6 z-10">
+          <span className="text-blue-400 text-sm">Demo Mode</span>
+        </div>
+      )}
             
             {/* Settings Dropdown */}
             <DropdownMenu>
