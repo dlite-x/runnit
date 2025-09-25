@@ -1998,40 +1998,95 @@ const EarthVisualization = () => {
                 <h3 className="text-lg font-semibold text-slate-200">Buildings</h3>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div 
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 p-2 rounded transition-colors group"
+                  onClick={() => console.log("Lab clicked")}
+                >
                   <div className="flex items-center gap-2">
                     <FlaskConical className="w-4 h-4 text-purple-400" />
                     <span className="text-sm text-slate-400">Lab</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">2</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">2</span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <span className="text-xs font-bold text-slate-900">₵</span>
+                      </div>
+                      <span className="text-xs text-yellow-400">200</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
+                <div 
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 p-2 rounded transition-colors group"
+                  onClick={() => console.log("Farm clicked")}
+                >
                   <div className="flex items-center gap-2">
                     <Wheat className="w-4 h-4 text-green-400" />
                     <span className="text-sm text-slate-400">Farm</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">5</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">5</span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <span className="text-xs font-bold text-slate-900">₵</span>
+                      </div>
+                      <span className="text-xs text-yellow-400">200</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
+                <div 
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 p-2 rounded transition-colors group"
+                  onClick={() => console.log("Mine clicked")}
+                >
                   <div className="flex items-center gap-2">
                     <Pickaxe className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-slate-400">Mine</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">3</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">3</span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <span className="text-xs font-bold text-slate-900">₵</span>
+                      </div>
+                      <span className="text-xs text-yellow-400">200</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
+                <div 
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 p-2 rounded transition-colors group"
+                  onClick={() => console.log("Power clicked")}
+                >
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-yellow-400" />
                     <span className="text-sm text-slate-400">Power</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">4</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">4</span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <span className="text-xs font-bold text-slate-900">₵</span>
+                      </div>
+                      <span className="text-xs text-yellow-400">200</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
+                <div 
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 p-2 rounded transition-colors group"
+                  onClick={() => console.log("Refinery clicked")}
+                >
                   <div className="flex items-center gap-2">
                     <Factory className="w-4 h-4 text-orange-400" />
                     <span className="text-sm text-slate-400">Refinery</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">1</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">1</span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <span className="text-xs font-bold text-slate-900">₵</span>
+                      </div>
+                      <span className="text-xs text-yellow-400">200</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2045,19 +2100,41 @@ const EarthVisualization = () => {
                 <h3 className="text-lg font-semibold text-slate-200">Ships</h3>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div 
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 p-2 rounded transition-colors group"
+                  onClick={() => console.log("Colony clicked")}
+                >
                   <div className="flex items-center gap-2">
                     <Home className="w-4 h-4 text-blue-400" />
                     <span className="text-sm text-slate-400">Colony</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">1</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">1</span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <span className="text-xs font-bold text-slate-900">₵</span>
+                      </div>
+                      <span className="text-xs text-yellow-400">200</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
+                <div 
+                  className="flex items-center justify-between cursor-pointer hover:bg-slate-700/30 p-2 rounded transition-colors group"
+                  onClick={() => console.log("Cargo clicked")}
+                >
                   <div className="flex items-center gap-2">
                     <Package className="w-4 h-4 text-amber-400" />
                     <span className="text-sm text-slate-400">Cargo</span>
                   </div>
-                  <span className="text-sm font-bold text-slate-200">3</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-200">3</span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <span className="text-xs font-bold text-slate-900">₵</span>
+                      </div>
+                      <span className="text-xs text-yellow-400">200</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
