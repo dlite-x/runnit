@@ -1958,6 +1958,29 @@ const EarthVisualization = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Earth</h3>
               </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-slate-400">Population</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">7.8B</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-400">💰</span>
+                    <span className="text-sm text-slate-400">Credits</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">27,071</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-400">🌡️</span>
+                    <span className="text-sm text-slate-400">Temperature</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">15.2°C</span>
+                </div>
+              </div>
             </div>
 
             {/* Resources Section */}
@@ -1967,6 +1990,36 @@ const EarthVisualization = () => {
                   <span className="text-amber-400">📦</span>
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Resources</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">🍃</span>
+                    <span className="text-sm text-slate-400">Food</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">500</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-400">⛽</span>
+                    <span className="text-sm text-slate-400">Fuel</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">200</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400">🔩</span>
+                    <span className="text-sm text-slate-400">Metal</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">800</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-400">⚡</span>
+                    <span className="text-sm text-slate-400">Power</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">100</span>
+                </div>
               </div>
             </div>
 
@@ -1978,6 +2031,43 @@ const EarthVisualization = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Buildings</h3>
               </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-purple-400">🔬</span>
+                    <span className="text-sm text-slate-400">Lab</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">2</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">🚜</span>
+                    <span className="text-sm text-slate-400">Farm</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">5</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400">⛏️</span>
+                    <span className="text-sm text-slate-400">Mine</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">3</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm text-slate-400">Power</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">4</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Factory className="w-4 h-4 text-orange-400" />
+                    <span className="text-sm text-slate-400">Refinery</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">1</span>
+                </div>
+              </div>
             </div>
 
             {/* Ships Section */}
@@ -1987,6 +2077,22 @@ const EarthVisualization = () => {
                   <span className="text-cyan-400">🚀</span>
                 </div>
                 <h3 className="text-lg font-semibold text-slate-200">Ships</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-400">🏕️</span>
+                    <span className="text-sm text-slate-400">Colony</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">1</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-400">📦</span>
+                    <span className="text-sm text-slate-400">Cargo</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-200">3</span>
+                </div>
               </div>
             </div>
           </div>
