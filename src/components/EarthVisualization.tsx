@@ -1607,7 +1607,8 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
     location: 'earth' | 'moon' | 'preparing' | 'traveling',
     departureTime?: number,
     totalTravelTime?: number,
-    destination?: string
+    destination?: string,
+    cargo?: { metal: number, fuel: number, food: number }
   };
   onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'preparing' | 'traveling') => void;
   onShipClick?: (name: string, type: 'colony' | 'cargo') => void;
@@ -2085,7 +2086,8 @@ const EarthVisualization = () => {
     location: 'earth' | 'moon' | 'preparing' | 'traveling',
     departureTime?: number,
     totalTravelTime?: number,
-    destination?: string
+    destination?: string,
+    cargo?: { metal: number, fuel: number, food: number }
   }>>([]);
   const [colonyCount, setColonyCount] = useState(0);
   const [cargoCount, setCargoCount] = useState(0);
@@ -2578,7 +2580,14 @@ const EarthVisualization = () => {
                          Math.random() * 2 - 1,
                          Math.random() * 2 - 1
                        ];
-                       setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition, name: `Colony ${newColonyCount}`, location: 'earth', destination: 'moon' }]);
+                        setBuiltSpheres(prev => [...prev, { 
+                          type: 'colony', 
+                          position: spherePosition, 
+                          name: `Colony ${newColonyCount}`, 
+                          location: 'earth', 
+                          destination: 'moon',
+                          cargo: { metal: 2, fuel: 2, food: 2 }
+                        }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2607,7 +2616,14 @@ const EarthVisualization = () => {
                          Math.random() * 2 - 1,
                          Math.random() * 2 - 1
                        ];
-                       setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition, name: `Cargo ${newCargoCount}`, location: 'earth', destination: 'moon' }]);
+                        setBuiltSpheres(prev => [...prev, { 
+                          type: 'cargo', 
+                          position: spherePosition, 
+                          name: `Cargo ${newCargoCount}`, 
+                          location: 'earth', 
+                          destination: 'moon',
+                          cargo: { metal: 10, fuel: 10, food: 10 }
+                        }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2714,6 +2730,17 @@ const EarthVisualization = () => {
                             if (ship.type === 'colony' && ship.destination === 'colonize') {
                               setBuiltSpheres(prev => prev.filter(s => s.name !== ship.name));
                               console.log(`${ship.name} has been consumed while colonizing`);
+                            } 
+                            // Special case: Cargo ships with "offload" destination reset cargo to 0/0/0
+                            else if (ship.type === 'cargo' && ship.destination === 'offload') {
+                              setBuiltSpheres(prev => prev.map(s => 
+                                s.name === ship.name ? { 
+                                  ...s, 
+                                  location: ship.destination as any || 'moon',
+                                  cargo: { metal: 0, fuel: 0, food: 0 }
+                                } : s
+                              ));
+                              console.log(`${ship.name} has offloaded all cargo`);
                             } else {
                               // Normal arrival behavior
                               setBuiltSpheres(prev => prev.map(s => 
@@ -2728,11 +2755,11 @@ const EarthVisualization = () => {
                         </span>
                       )}
                       <div className="text-sm flex items-center gap-0.5">
-                        <span className="text-green-400">{ship.type === 'colony' ? '2' : '10'}</span>
+                        <span className="text-green-400">{ship.cargo?.metal || (ship.type === 'colony' ? 2 : 10)}</span>
                         <span className="text-slate-400">/</span>
-                        <span className="text-orange-400">{ship.type === 'colony' ? '2' : '10'}</span>
+                        <span className="text-orange-400">{ship.cargo?.fuel || (ship.type === 'colony' ? 2 : 10)}</span>
                         <span className="text-slate-400">/</span>
-                        <span className="text-gray-300">{ship.type === 'colony' ? '2' : '10'}</span>
+                        <span className="text-gray-300">{ship.cargo?.food || (ship.type === 'colony' ? 2 : 10)}</span>
                       </div>
                       <span className="text-sm text-green-400">
                         {ship.location === 'earth' ? 'Ready' : 
