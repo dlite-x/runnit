@@ -2988,7 +2988,7 @@ const EarthVisualization = () => {
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2">
                           <Wheat className="w-4 h-4 text-green-400 flex-shrink-0" />
-                          <span className="text-base text-slate-400">Hydroponics</span>
+                          <span className="text-base text-slate-400">Farm</span>
                         </div>
                         <span className="text-base font-bold text-slate-200 ml-auto">0</span>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
@@ -3006,7 +3006,7 @@ const EarthVisualization = () => {
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2">
                           <Pickaxe className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                          <span className="text-base text-slate-400">Excavator</span>
+                          <span className="text-sm text-slate-400">Mine</span>
                         </div>
                         <span className="text-base font-bold text-slate-200 ml-auto">0</span>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
@@ -3024,7 +3024,7 @@ const EarthVisualization = () => {
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2">
                           <Zap className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                          <span className="text-base text-slate-400">Solar Array</span>
+                          <span className="text-sm text-slate-400">Power</span>
                         </div>
                         <span className="text-base font-bold text-slate-200 ml-auto">0</span>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
@@ -3032,9 +3032,27 @@ const EarthVisualization = () => {
                             <span className="text-xs font-bold text-slate-900">₵</span>
                           </div>
                           <span className="text-xs text-yellow-400">500</span>
+                  </div>
+                </div>
+                
+                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                  <div className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Factory className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                        <span className="text-sm text-slate-400">Refinery</span>
+                      </div>
+                      <span className="text-sm font-bold text-slate-200 ml-auto">0</span>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
+                        <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                          <span className="text-xs font-bold text-slate-900">₵</span>
                         </div>
+                        <span className="text-xs text-yellow-400">200</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
                   </div>
                 </div>
               </div>
