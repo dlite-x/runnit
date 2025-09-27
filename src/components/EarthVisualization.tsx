@@ -2710,9 +2710,16 @@ const EarthVisualization = () => {
                           departureTime={ship.departureTime}
                           totalTravelTime={ship.totalTravelTime}
                           onArrival={() => {
-                            setBuiltSpheres(prev => prev.map(s => 
-                              s.name === ship.name ? { ...s, location: ship.destination as any || 'moon' } : s
-                            ));
+                            // Special case: Colony ships with "colonize" destination get consumed
+                            if (ship.type === 'colony' && ship.destination === 'colonize') {
+                              setBuiltSpheres(prev => prev.filter(s => s.name !== ship.name));
+                              console.log(`${ship.name} has been consumed while colonizing`);
+                            } else {
+                              // Normal arrival behavior
+                              setBuiltSpheres(prev => prev.map(s => 
+                                s.name === ship.name ? { ...s, location: ship.destination as any || 'moon' } : s
+                              ));
+                            }
                           }}
                         />
                       ) : (
