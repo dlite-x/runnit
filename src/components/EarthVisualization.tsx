@@ -1643,27 +1643,40 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         let targetCenter: [number, number, number];
         let currentPlanet: string;
         
-        // Determine current planet and target destination
-        if (location === 'preparing') {
-          // Check if we're currently orbiting Earth or Moon
-          if (orbitRadius < 10) { // Earth orbit
-            currentPlanet = 'earth';
-            if (destination === 'earth') {
-              // Already at Earth, don't launch
-              return;
-            }
-            targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
-            targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
-          } else { // Moon orbit
-            currentPlanet = 'moon';
-            if (destination === 'moon') {
-              // Already at Moon, don't launch
-              return;
-            }
-            targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
-            targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24); // From moon position to target
-          }
-        }
+         // Determine current planet and target destination
+         if (location === 'preparing') {
+           // Use the sphere's location property to determine current planet
+           const currentLocation = sphereData.location;
+           
+           if (currentLocation === 'earth') {
+             currentPlanet = 'earth';
+             if (destination === 'earth') {
+               // Already at Earth, don't launch
+               return;
+             }
+             targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
+             targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
+           } else if (currentLocation === 'moon') {
+             currentPlanet = 'moon';
+             if (destination === 'moon') {
+               // Already at Moon, don't launch
+               return;
+             }
+             targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
+             targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24); // From moon position to target
+           } else {
+             // Fallback to orbit radius check for safety
+             if (orbitRadius < 10) { // Earth orbit
+               currentPlanet = 'earth';
+               targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8];
+               targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
+             } else { // Moon orbit
+               currentPlanet = 'moon';
+               targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0];
+               targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24);
+             }
+           }
+         }
         
         const velocityDirection = (angle + Math.PI / 2) % (Math.PI * 2); // Orbital velocity is perpendicular to radius
         const directionDiff = Math.abs(velocityDirection - targetDirection);
