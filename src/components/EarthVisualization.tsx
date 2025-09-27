@@ -2430,82 +2430,71 @@ const EarthVisualization = () => {
                 <h3 className="text-xl font-semibold text-slate-200">{activeBuildingTab === 'earth' ? 'Earth' : 'Moon'}</h3>
               </div>
               
-              <Tabs value={activeBuildingTab} onValueChange={(value) => setActiveBuildingTab(value as 'earth' | 'moon')} className="h-[calc(100%-3rem)]">
-                <TabsList className="grid w-full grid-cols-2 bg-slate-700/50 mb-3">
-                  <TabsTrigger value="earth" className="text-slate-300 data-[state=active]:bg-slate-600 data-[state=active]:text-white">
-                    🌍 Earth
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="moon" 
-                    disabled={!isMoonColonized}
-                    className={`data-[state=active]:bg-slate-600 data-[state=active]:text-white ${
-                      isMoonColonized ? 'text-slate-300' : 'text-slate-500 cursor-not-allowed'
-                    }`}
-                  >
-                    🌙 Moon
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="earth" className="space-y-3 mt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-green-400" />
-                      <span className="text-base text-slate-400">Population</span>
-                    </div>
-                    <span className="text-base font-bold text-slate-200">7.8B</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
-                        <span className="text-sm font-bold text-slate-900">₵</span>
+              
+              {/* Show content based on active planet directly without internal tabs */}
+              <div className="space-y-3 mt-0">
+                {activeBuildingTab === 'earth' ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-green-400" />
+                        <span className="text-base text-slate-400">Population</span>
                       </div>
-                      <span className="text-base text-slate-400">Credits</span>
+                      <span className="text-base font-bold text-slate-200">7.8B</span>
                     </div>
-                    <span className="text-lg font-bold text-green-400">+3</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-red-400" />
-                      <span className="text-base text-slate-400">Temperature</span>
-                    </div>
-                    <span className="text-base font-bold text-slate-200">15.2°C</span>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="moon" className="space-y-3 mt-0">
-                  {isMoonColonized ? (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-green-400" />
-                          <span className="text-base text-slate-400">Population</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
+                          <span className="text-sm font-bold text-slate-900">₵</span>
                         </div>
-                        <span className="text-base font-bold text-slate-200">50</span>
+                        <span className="text-base text-slate-400">Credits</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
-                            <span className="text-sm font-bold text-slate-900">₵</span>
+                      <span className="text-lg font-bold text-green-400">+3</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-red-400" />
+                        <span className="text-base text-slate-400">Temperature</span>
+                      </div>
+                      <span className="text-base font-bold text-slate-200">15.2°C</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {isMoonColonized ? (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-green-400" />
+                            <span className="text-base text-slate-400">Population</span>
                           </div>
-                          <span className="text-base text-slate-400">Credits</span>
+                          <span className="text-base font-bold text-slate-200">50</span>
                         </div>
-                        <span className="text-lg font-bold text-green-400">+0</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-red-400" />
-                          <span className="text-base text-slate-400">Temperature</span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
+                              <span className="text-sm font-bold text-slate-900">₵</span>
+                            </div>
+                            <span className="text-base text-slate-400">Credits</span>
+                          </div>
+                          <span className="text-lg font-bold text-green-400">+0</span>
                         </div>
-                        <span className="text-base font-bold text-slate-200">+0°C</span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-red-400" />
+                            <span className="text-base text-slate-400">Temperature</span>
+                          </div>
+                          <span className="text-base font-bold text-slate-200">+0°C</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-6 text-slate-400 text-sm">
+                        Moon not yet colonized
                       </div>
-                    </>
-                  ) : (
-                    <div className="text-center py-6 text-slate-400 text-sm">
-                      Moon not yet colonized
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Resources Section */}
