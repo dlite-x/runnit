@@ -1643,40 +1643,27 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         let targetCenter: [number, number, number];
         let currentPlanet: string;
         
-         // Determine current planet and target destination
-         if (location === 'preparing') {
-           // Use the sphere's location property to determine current planet
-           const currentLocation = sphereData.location;
-           
-           if (currentLocation === 'earth') {
-             currentPlanet = 'earth';
-             if (destination === 'earth') {
-               // Already at Earth, don't launch
-               return;
-             }
-             targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
-             targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
-           } else if (currentLocation === 'moon') {
-             currentPlanet = 'moon';
-             if (destination === 'moon') {
-               // Already at Moon, don't launch
-               return;
-             }
-             targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
-             targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24); // From moon position to target
-           } else {
-             // Fallback to orbit radius check for safety
-             if (orbitRadius < 10) { // Earth orbit
-               currentPlanet = 'earth';
-               targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8];
-               targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
-             } else { // Moon orbit
-               currentPlanet = 'moon';
-               targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0];
-               targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24);
-             }
-           }
-         }
+        // Determine current planet and target destination
+        if (location === 'preparing') {
+          // Check if we're currently orbiting Earth or Moon
+          if (orbitRadius < 10) { // Earth orbit
+            currentPlanet = 'earth';
+            if (destination === 'earth') {
+              // Already at Earth, don't launch
+              return;
+            }
+            targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
+            targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
+          } else { // Moon orbit
+            currentPlanet = 'moon';
+            if (destination === 'moon') {
+              // Already at Moon, don't launch
+              return;
+            }
+            targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
+            targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24); // From moon position to target
+          }
+        }
         
         const velocityDirection = (angle + Math.PI / 2) % (Math.PI * 2); // Orbital velocity is perpendicular to radius
         const directionDiff = Math.abs(velocityDirection - targetDirection);
@@ -1712,13 +1699,11 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           targetCenter = [24, 4, 8];
         }
         
-        const travelSpeed = 0.005; // Much slower for debugging Moon to Earth travel
+        const travelSpeed = 0.15; // Much slower, similar to figure-8 ship speed
         
         if (travelProgress < 1 && launchPosition) {
           const newProgress = Math.min(1, travelProgress + travelSpeed * 0.016); // ~60fps
           setTravelProgress(newProgress);
-          
-          console.log(`${name} traveling: progress ${newProgress.toFixed(3)}, from [${launchPosition.map(n => n.toFixed(1)).join(',')}] to [${targetCenter.map(n => n.toFixed(1)).join(',')}]`);
           
           const x = launchPosition[0] + (targetCenter[0] - launchPosition[0]) * newProgress;
           const y = launchPosition[1] + (targetCenter[1] - launchPosition[1]) * newProgress;
@@ -1736,7 +1721,6 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           });
         } else if (travelProgress >= 1) {
           // Travel complete, update location to destination
-          console.log(`${name} travel complete! Arriving at ${destination}`);
           const finalLocation = destination === 'earth' ? 'earth' : 'moon';
           onLocationUpdate(name, finalLocation as any);
           setTravelProgress(0);
@@ -1745,10 +1729,8 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           setTrailPoints([]);
         }
       } else {
-        // Normal orbit logic - always update trail for Moon Test ships
-        const isMoonTest = name.includes('Moon Test');
-        
-        if (!isMoonTest && trailPoints.length > 0) {
+        // Normal orbit logic - clear trail when not traveling
+        if (trailPoints.length > 0) {
           setTrailPoints([]);
         }
         
@@ -1766,15 +1748,6 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         
         meshRef.current.position.set(x, y, z);
         textRef.current.position.set(x, y + 0.5, z);
-        
-        // Always add trail points for Moon Test ships
-        if (isMoonTest) {
-          const currentPos = new THREE.Vector3(x, y, z);
-          setTrailPoints(prev => {
-            const newPoints = [...prev, currentPos];
-            return newPoints.slice(-15); // Shorter trail for orbit
-          });
-        }
       }
     }
   });
@@ -1812,12 +1785,12 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         </Text>
       </group>
       
-      {/* Trail - visible during travel or always for Moon Test ships */}
-      {((location === 'traveling') || name.includes('Moon Test')) && trailPoints.length > 1 && (
+      {/* Trail - only visible during travel */}
+      {location === 'traveling' && trailPoints.length > 1 && (
         <lineSegments ref={trailRef}>
           <bufferGeometry />
           <lineBasicMaterial 
-            color={name.includes('Moon Test') ? '#FF0080' : (type === 'colony' ? '#3b82f6' : '#f59e0b')} 
+            color={type === 'colony' ? '#3b82f6' : '#f59e0b'} 
             transparent 
             opacity={0.8}
             linewidth={2}
