@@ -3008,7 +3008,7 @@ const EarthVisualization = () => {
                           <Pickaxe className="w-4 h-4 text-gray-400 flex-shrink-0" />
                           <span className="text-sm text-slate-400">Mine</span>
                         </div>
-                        <span className="text-base font-bold text-slate-200 ml-auto">0</span>
+                        <span className="text-sm font-bold text-slate-200 ml-auto">0</span>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                           <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                             <span className="text-xs font-bold text-slate-900">₵</span>
@@ -3026,12 +3026,15 @@ const EarthVisualization = () => {
                           <Zap className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                           <span className="text-sm text-slate-400">Power</span>
                         </div>
-                        <span className="text-base font-bold text-slate-200 ml-auto">0</span>
+                        <span className="text-sm font-bold text-slate-200 ml-auto">0</span>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                           <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                             <span className="text-xs font-bold text-slate-900">₵</span>
                           </div>
                           <span className="text-xs text-yellow-400">500</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
@@ -3051,11 +3054,8 @@ const EarthVisualization = () => {
                       </div>
                     </div>
                   </div>
-                </div>
               </div>
-                  </div>
-                </div>
-              </div>
+            </div>
 
             {/* Space Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[9999] pointer-events-auto">
