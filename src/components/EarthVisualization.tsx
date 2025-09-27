@@ -2376,20 +2376,34 @@ const EarthVisualization = () => {
 
       {/* Planet Switcher - Above Bottom Panel */}
       <div className="fixed bottom-64 left-4 z-30">
-        <div className="bg-slate-900/90 backdrop-blur-md rounded-lg border border-slate-700 p-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-400">Planet:</span>
-            <Select value={activeBuildingTab} onValueChange={(value) => setActiveBuildingTab(value as 'earth' | 'moon')}>
-              <SelectTrigger className="w-28 h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="earth">Earth</SelectItem>
-                <SelectItem value="moon" disabled={!isMoonColonized}>
-                  {isMoonColonized ? 'Moon' : 'Moon (Not Colonized)'}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="bg-slate-900/90 backdrop-blur-md rounded-lg border border-slate-700 p-2">
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-slate-400 mr-2">Planet:</span>
+            <div className="flex bg-slate-800/50 rounded-md p-1">
+              <button
+                onClick={() => setActiveBuildingTab('earth')}
+                className={`px-3 py-1 text-xs rounded transition-all duration-200 ${
+                  activeBuildingTab === 'earth'
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                }`}
+              >
+                🌍 Earth
+              </button>
+              <button
+                onClick={() => setActiveBuildingTab('moon')}
+                disabled={!isMoonColonized}
+                className={`px-3 py-1 text-xs rounded transition-all duration-200 ${
+                  activeBuildingTab === 'moon' && isMoonColonized
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : isMoonColonized
+                    ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                    : 'text-slate-500 cursor-not-allowed opacity-50'
+                }`}
+              >
+                🌙 {isMoonColonized ? 'Moon' : 'Moon'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
