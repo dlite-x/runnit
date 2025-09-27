@@ -2524,118 +2524,62 @@ const EarthVisualization = () => {
               
               {/* Table Content */}
               <div className="space-y-1">
-                {/* Colony Row */}
-                <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
-                  <div className="flex items-center gap-2">
-                    <Home className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm text-slate-300">Colony</span>
+                {builtSpheres.length === 0 ? (
+                  <div className="text-center py-4 text-slate-400 text-sm">
+                    No ships built yet
                   </div>
-                  <Select defaultValue="moon">
-                    <SelectTrigger className="w-14 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
-                      <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
-                      <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
-                      <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-sm text-slate-300 italic">20s</span>
-                  <div className="text-sm flex items-center gap-0.5">
-                    <span className="text-green-400">2</span>
-                    <span className="text-slate-400">/</span>
-                    <span className="text-orange-400">2</span>
-                    <span className="text-slate-400">/</span>
-                    <span className="text-gray-300">2</span>
-                  </div>
-                  <span className="text-sm text-orange-400">building</span>
-                  <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
-                    launch
-                  </button>
-                </div>
-                
-                {/* Cargo Row 1 */}
-                <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm text-slate-300">Cargo</span>
-                  </div>
-                  <Select defaultValue="moon">
-                    <SelectTrigger className="w-14 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
-                      <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
-                      <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
-                      <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-sm text-slate-300 italic">20s</span>
-                  <div className="text-sm flex items-center gap-0.5">
-                    <span className="text-green-400">10</span>
-                    <span className="text-slate-400">/</span>
-                    <span className="text-orange-400">10</span>
-                    <span className="text-slate-400">/</span>
-                    <span className="text-gray-300">10</span>
-                  </div>
-                  <span className="text-sm text-green-400">ready</span>
-                  <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
-                    launch
-                  </button>
-                </div>
-                
-                {/* Cargo Row 2 */}
-                <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm text-slate-300">Cargo</span>
-                  </div>
-                  <Select defaultValue="select">
-                    <SelectTrigger className="w-16 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
-                      <SelectItem value="select" className="text-slate-500 hover:bg-slate-700">Select</SelectItem>
-                      <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
-                      <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
-                      <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-sm text-slate-300 italic">20s</span>
-                  <div className="text-sm flex items-center gap-0.5">
-                    <span className="text-green-400">0</span>
-                    <span className="text-slate-400">/</span>
-                    <span className="text-orange-400">0</span>
-                    <span className="text-slate-400">/</span>
-                    <span className="text-gray-300">30</span>
-                  </div>
-                  <span className="text-sm text-green-400">ready</span>
-                  <button className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
-                    launch
-                  </button>
-                </div>
-                
-                {/* Station Row */}
-                <div className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
-                  <div className="flex items-center gap-2">
-                    <Satellite className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-slate-300">Station</span>
-                  </div>
-                  <Select defaultValue="moon">
-                    <SelectTrigger className="w-14 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
-                      <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
-                      <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
-                      <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-sm text-slate-300 italic">10s</span>
-                  <span className="text-sm text-slate-300">-</span>
-                  <span className="text-sm text-yellow-400">en route</span>
-                  <span className="text-xs text-slate-500">-</span>
-                </div>
+                ) : (
+                  builtSpheres.map((ship, index) => (
+                    <div key={index} className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
+                      <div className="flex items-center gap-2">
+                        {ship.type === 'colony' ? (
+                          <Home className="w-4 h-4 text-blue-400" />
+                        ) : (
+                          <Package className="w-4 h-4 text-amber-400" />
+                        )}
+                        <span className="text-sm text-slate-300">{ship.name}</span>
+                      </div>
+                      <Select defaultValue="moon">
+                        <SelectTrigger className="w-14 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
+                          <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
+                          <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
+                          <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <span className="text-sm text-slate-300 italic">
+                        {ship.location === 'traveling' ? 'En route' : '20s'}
+                      </span>
+                      <div className="text-sm flex items-center gap-0.5">
+                        <span className="text-green-400">{ship.type === 'colony' ? '2' : '10'}</span>
+                        <span className="text-slate-400">/</span>
+                        <span className="text-orange-400">{ship.type === 'colony' ? '2' : '10'}</span>
+                        <span className="text-slate-400">/</span>
+                        <span className="text-gray-300">{ship.type === 'colony' ? '2' : '10'}</span>
+                      </div>
+                      <span className="text-sm text-green-400">
+                        {ship.location === 'earth' ? 'Ready' : 
+                         ship.location === 'preparing' ? 'Preparing' :
+                         ship.location === 'traveling' ? 'En route' : 
+                         ship.location === 'moon' ? 'At Moon' : 'Ready'}
+                      </span>
+                      <button 
+                        className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                        disabled={ship.location !== 'earth'}
+                        onClick={() => {
+                          setSelectedShip({ name: ship.name, type: ship.type });
+                          setShowShipLaunchModal(true);
+                        }}
+                      >
+                        {ship.location === 'earth' ? 'launch' : 
+                         ship.location === 'preparing' ? 'prep' :
+                         ship.location === 'traveling' ? 'flying' : 'arrived'}
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
