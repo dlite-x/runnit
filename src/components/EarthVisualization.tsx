@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 import ShipLaunchModal from './ShipLaunchModal';
@@ -2105,6 +2106,10 @@ const EarthVisualization = () => {
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   
+  // Moon colonization state
+  const [isMoonColonized, setIsMoonColonized] = useState(false);
+  const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon'>('earth');
+  
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
   const [shipRotation, setShipRotation] = useState<[number, number, number]>([0, 0, 0]);
@@ -2167,6 +2172,13 @@ const EarthVisualization = () => {
         if (ship.type === 'colony' && ship.destination === 'colonize' && 
             ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling') {
           console.log(`${ship.name} consumed after colonizing at ${ship.location}`);
+          
+          // Check if colonizing the Moon
+          if (ship.location === 'moon') {
+            setIsMoonColonized(true);
+            console.log('Moon has been colonized!');
+          }
+          
           hasChanges = true;
           return false; // Remove from array
         }
@@ -2327,12 +2339,12 @@ const EarthVisualization = () => {
           
           <div className="flex items-center gap-3 p-1 hover:bg-slate-800/30 transition-all duration-200 cursor-pointer group">
             <div className="w-4 h-4 rounded-full" style={{
-              backgroundColor: '#9ca3af',
-              boxShadow: '0 0 4px rgba(156, 163, 175, 0.2)',
-              filter: 'drop-shadow(0 0 2px rgba(156, 163, 175, 0.1))'
+              backgroundColor: isMoonColonized ? '#9ca3af' : '#555',
+              boxShadow: isMoonColonized ? '0 0 4px rgba(156, 163, 175, 0.2)' : 'none',
+              filter: isMoonColonized ? 'drop-shadow(0 0 2px rgba(156, 163, 175, 0.1))' : 'none'
             }}></div>
-            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors">
-              Moon
+            <span className={`font-medium group-hover:text-blue-200 transition-colors ${isMoonColonized ? 'text-blue-300' : 'text-gray-500'}`}>
+              Moon {!isMoonColonized && '(Uncolonized)'}
             </span>
           </div>
           
@@ -2375,39 +2387,91 @@ const EarthVisualization = () => {
         
         <div className={`p-2 h-full relative z-[9999] transition-opacity duration-300 ${isPanelCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.89fr 0.75fr 0.595fr 1.6fr' }}>
-            {/* Earth Section */}
+            {/* Planets Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <span className="text-blue-400">🌍</span>
+                  <Globe className="w-4 h-4 text-blue-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-200">Earth</h3>
+                <h3 className="text-xl font-semibold text-slate-200">Planets</h3>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-green-400" />
-                    <span className="text-base text-slate-400">Population</span>
-                  </div>
-                  <span className="text-base font-bold text-slate-200">7.8B</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
-                      <span className="text-sm font-bold text-slate-900">₵</span>
+              
+              <Tabs value={activeBuildingTab} onValueChange={(value) => setActiveBuildingTab(value as 'earth' | 'moon')} className="h-[calc(100%-3rem)]">
+                <TabsList className="grid w-full grid-cols-2 bg-slate-700/50 mb-3">
+                  <TabsTrigger value="earth" className="text-slate-300 data-[state=active]:bg-slate-600 data-[state=active]:text-white">
+                    🌍 Earth
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="moon" 
+                    disabled={!isMoonColonized}
+                    className={`data-[state=active]:bg-slate-600 data-[state=active]:text-white ${
+                      isMoonColonized ? 'text-slate-300' : 'text-slate-500 cursor-not-allowed'
+                    }`}
+                  >
+                    🌙 Moon
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="earth" className="space-y-3 mt-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-green-400" />
+                      <span className="text-base text-slate-400">Population</span>
                     </div>
-                    <span className="text-base text-slate-400">Credits</span>
+                    <span className="text-base font-bold text-slate-200">7.8B</span>
                   </div>
-                  <span className="text-lg font-bold text-green-400">+3</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-red-400" />
-                    <span className="text-base text-slate-400">Temperature</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <span className="text-sm font-bold text-slate-900">₵</span>
+                      </div>
+                      <span className="text-base text-slate-400">Credits</span>
+                    </div>
+                    <span className="text-lg font-bold text-green-400">+3</span>
                   </div>
-                  <span className="text-base font-bold text-slate-200">15.2°C</span>
-                </div>
-              </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-red-400" />
+                      <span className="text-base text-slate-400">Temperature</span>
+                    </div>
+                    <span className="text-base font-bold text-slate-200">15.2°C</span>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="moon" className="space-y-3 mt-0">
+                  {isMoonColonized ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-green-400" />
+                          <span className="text-base text-slate-400">Population</span>
+                        </div>
+                        <span className="text-base font-bold text-slate-200">50</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
+                            <span className="text-sm font-bold text-slate-900">₵</span>
+                          </div>
+                          <span className="text-base text-slate-400">Credits</span>
+                        </div>
+                        <span className="text-lg font-bold text-green-400">+0</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-red-400" />
+                          <span className="text-base text-slate-400">Temperature</span>
+                        </div>
+                        <span className="text-base font-bold text-slate-200">+0°C</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-6 text-slate-400 text-sm">
+                      Moon not yet colonized
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
 
             {/* Resources Section */}
@@ -2425,8 +2489,12 @@ const EarthVisualization = () => {
                     <span className="text-base text-slate-400">Food</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-slate-200">500</span>
-                    <span className="text-base text-green-400">+7</span>
+                    <span className="text-base font-bold text-slate-200">
+                      {activeBuildingTab === 'earth' ? '500' : (isMoonColonized ? '50' : '0')}
+                    </span>
+                    <span className="text-base text-green-400">
+                      {activeBuildingTab === 'earth' ? '+7' : (isMoonColonized ? '+1' : '+0')}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -2435,8 +2503,12 @@ const EarthVisualization = () => {
                     <span className="text-base text-slate-400">Fuel</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-slate-200">200</span>
-                    <span className="text-base text-green-400">+3</span>
+                    <span className="text-base font-bold text-slate-200">
+                      {activeBuildingTab === 'earth' ? '200' : (isMoonColonized ? '30' : '0')}
+                    </span>
+                    <span className="text-base text-green-400">
+                      {activeBuildingTab === 'earth' ? '+3' : (isMoonColonized ? '+1' : '+0')}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -2445,8 +2517,12 @@ const EarthVisualization = () => {
                     <span className="text-base text-slate-400">Metal</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-slate-200">800</span>
-                    <span className="text-base text-green-400">+9</span>
+                    <span className="text-base font-bold text-slate-200">
+                      {activeBuildingTab === 'earth' ? '800' : (isMoonColonized ? '100' : '0')}
+                    </span>
+                    <span className="text-base text-green-400">
+                      {activeBuildingTab === 'earth' ? '+9' : (isMoonColonized ? '+2' : '+0')}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -2455,8 +2531,12 @@ const EarthVisualization = () => {
                     <span className="text-base text-slate-400">Power</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-slate-200">100</span>
-                    <span className="text-base text-green-400">+5</span>
+                    <span className="text-base font-bold text-slate-200">
+                      {activeBuildingTab === 'earth' ? '100' : (isMoonColonized ? '20' : '0')}
+                    </span>
+                    <span className="text-base text-green-400">
+                      {activeBuildingTab === 'earth' ? '+5' : (isMoonColonized ? '+1' : '+0')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -2485,7 +2565,9 @@ const EarthVisualization = () => {
                         <FlaskConical className="w-4 h-4 text-purple-400 flex-shrink-0" />
                         <span className="text-base text-slate-400">Lab</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200 ml-auto">2</span>
+                      <span className="text-base font-bold text-slate-200 ml-auto">
+                        {activeBuildingTab === 'earth' ? '2' : (isMoonColonized ? '0' : '0')}
+                      </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
@@ -2510,7 +2592,9 @@ const EarthVisualization = () => {
                         <Wheat className="w-4 h-4 text-green-400 flex-shrink-0" />
                         <span className="text-base text-slate-400">Farm</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200 ml-auto">5</span>
+                      <span className="text-base font-bold text-slate-200 ml-auto">
+                        {activeBuildingTab === 'earth' ? '5' : (isMoonColonized ? '0' : '0')}
+                      </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
@@ -2535,7 +2619,9 @@ const EarthVisualization = () => {
                         <Pickaxe className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         <span className="text-sm text-slate-400">Mine</span>
                       </div>
-                      <span className="text-sm font-bold text-slate-200 ml-auto">3</span>
+                      <span className="text-sm font-bold text-slate-200 ml-auto">
+                        {activeBuildingTab === 'earth' ? '3' : (isMoonColonized ? '0' : '0')}
+                      </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
@@ -2560,7 +2646,9 @@ const EarthVisualization = () => {
                         <Zap className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                         <span className="text-sm text-slate-400">Power</span>
                       </div>
-                      <span className="text-sm font-bold text-slate-200 ml-auto">4</span>
+                      <span className="text-sm font-bold text-slate-200 ml-auto">
+                        {activeBuildingTab === 'earth' ? '4' : (isMoonColonized ? '1' : '0')}
+                      </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
@@ -2585,7 +2673,9 @@ const EarthVisualization = () => {
                         <Factory className="w-4 h-4 text-orange-400 flex-shrink-0" />
                         <span className="text-sm text-slate-400">Refinery</span>
                       </div>
-                      <span className="text-sm font-bold text-slate-200 ml-auto">1</span>
+                      <span className="text-sm font-bold text-slate-200 ml-auto">
+                        {activeBuildingTab === 'earth' ? '1' : (isMoonColonized ? '0' : '0')}
+                      </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
                           <span className="text-xs font-bold text-slate-900">₵</span>
