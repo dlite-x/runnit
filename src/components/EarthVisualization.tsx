@@ -2001,7 +2001,6 @@ const calculateTravelTimeSeconds = (origin: string, destination: string): number
   if (predefinedTime !== undefined) {
     return predefinedTime;
   }
-
   // Fallback to distance-based calculation for unknown routes
   const positions = {
     earth: [0, 0, 0],
@@ -2150,6 +2149,38 @@ const EarthVisualization = () => {
     setIsMovingToTarget(false);
     setShipTarget(null);
   };
+
+  // Process ships that have arrived with special destinations
+  useEffect(() => {
+    setBuiltSpheres(prev => {
+      let hasChanges = false;
+      const updatedSpheres = prev.filter(ship => {
+        // Remove colony ships that have arrived and selected "colonize"
+        if (ship.type === 'colony' && ship.destination === 'colonize' && 
+            ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling') {
+          console.log(`${ship.name} consumed after colonizing at ${ship.location}`);
+          hasChanges = true;
+          return false; // Remove from array
+        }
+        return true; // Keep in array
+      }).map(ship => {
+        // Reset cargo for cargo ships that have arrived and selected "offload"
+        if (ship.type === 'cargo' && ship.destination === 'offload' && 
+            ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling' &&
+            ship.cargo && (ship.cargo.metal > 0 || ship.cargo.fuel > 0 || ship.cargo.food > 0)) {
+          console.log(`${ship.name} offloading cargo at ${ship.location}`);
+          hasChanges = true;
+          return {
+            ...ship,
+            cargo: { metal: 0, fuel: 0, food: 0 }
+          };
+        }
+        return ship;
+      });
+      
+      return hasChanges ? updatedSpheres : prev;
+    });
+  }, [builtSpheres]);
 
   // Flight controls
   useEffect(() => {
