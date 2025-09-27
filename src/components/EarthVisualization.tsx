@@ -2569,8 +2569,13 @@ const EarthVisualization = () => {
                         className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
                         disabled={ship.location !== 'earth'}
                         onClick={() => {
-                          setSelectedShip({ name: ship.name, type: ship.type });
-                          setShowShipLaunchModal(true);
+                          if (ship.location === 'earth') {
+                            // Launch directly from flight control
+                            setBuiltSpheres(prev => prev.map(s => 
+                              s.name === ship.name ? { ...s, location: 'preparing' } : s
+                            ));
+                            console.log(`Launching ${ship.name} from flight control`);
+                          }
                         }}
                       >
                         {ship.location === 'earth' ? 'launch' : 
