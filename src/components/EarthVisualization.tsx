@@ -1712,11 +1712,13 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           targetCenter = [24, 4, 8];
         }
         
-        const travelSpeed = 0.15; // Much slower, similar to figure-8 ship speed
+        const travelSpeed = 0.005; // Much slower for debugging Moon to Earth travel
         
         if (travelProgress < 1 && launchPosition) {
           const newProgress = Math.min(1, travelProgress + travelSpeed * 0.016); // ~60fps
           setTravelProgress(newProgress);
+          
+          console.log(`${name} traveling: progress ${newProgress.toFixed(3)}, from [${launchPosition.map(n => n.toFixed(1)).join(',')}] to [${targetCenter.map(n => n.toFixed(1)).join(',')}]`);
           
           const x = launchPosition[0] + (targetCenter[0] - launchPosition[0]) * newProgress;
           const y = launchPosition[1] + (targetCenter[1] - launchPosition[1]) * newProgress;
@@ -1734,6 +1736,7 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           });
         } else if (travelProgress >= 1) {
           // Travel complete, update location to destination
+          console.log(`${name} travel complete! Arriving at ${destination}`);
           const finalLocation = destination === 'earth' ? 'earth' : 'moon';
           onLocationUpdate(name, finalLocation as any);
           setTravelProgress(0);
