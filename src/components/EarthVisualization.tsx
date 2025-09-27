@@ -2530,7 +2530,7 @@ const EarthVisualization = () => {
                   </div>
                 ) : (
                   builtSpheres.map((ship, index) => (
-                    <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto] gap-3 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20 relative">
+                    <div key={index} className="grid grid-cols-[1fr_auto_1fr_auto_auto_auto] gap-0 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20 relative">
                       {/* Development column lines */}
                       <div className="absolute inset-y-0 left-[25%] w-px bg-red-400/30"></div>
                       <div className="absolute inset-y-0 left-[40%] w-px bg-red-400/30"></div>
@@ -2545,6 +2545,7 @@ const EarthVisualization = () => {
                         )}
                         <span className="text-sm text-slate-300 whitespace-nowrap">{ship.name}</span>
                       </div>
+                      <div></div> {/* Spacer to align with first column line */}
                       <Select defaultValue="moon">
                         <SelectTrigger className="w-16 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
                           <SelectValue />
@@ -2555,6 +2556,7 @@ const EarthVisualization = () => {
                           <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
                         </SelectContent>
                       </Select>
+                      <div></div> {/* Spacer to align time with third column line */}
                       <span className="text-sm text-slate-300 italic">
                         {ship.location === 'traveling' ? 'En route' : '20s'}
                       </span>
