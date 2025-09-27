@@ -1745,8 +1745,10 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           setTrailPoints([]);
         }
       } else {
-        // Normal orbit logic - clear trail when not traveling
-        if (trailPoints.length > 0) {
+        // Normal orbit logic - always update trail for Moon Test ships
+        const isMoonTest = name.includes('Moon Test');
+        
+        if (!isMoonTest && trailPoints.length > 0) {
           setTrailPoints([]);
         }
         
@@ -1764,6 +1766,15 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         
         meshRef.current.position.set(x, y, z);
         textRef.current.position.set(x, y + 0.5, z);
+        
+        // Always add trail points for Moon Test ships
+        if (isMoonTest) {
+          const currentPos = new THREE.Vector3(x, y, z);
+          setTrailPoints(prev => {
+            const newPoints = [...prev, currentPos];
+            return newPoints.slice(-15); // Shorter trail for orbit
+          });
+        }
       }
     }
   });
@@ -1801,12 +1812,12 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         </Text>
       </group>
       
-      {/* Trail - only visible during travel */}
-      {location === 'traveling' && trailPoints.length > 1 && (
+      {/* Trail - visible during travel or always for Moon Test ships */}
+      {((location === 'traveling') || name.includes('Moon Test')) && trailPoints.length > 1 && (
         <lineSegments ref={trailRef}>
           <bufferGeometry />
           <lineBasicMaterial 
-            color={type === 'colony' ? '#3b82f6' : '#f59e0b'} 
+            color={name.includes('Moon Test') ? '#FF0080' : (type === 'colony' ? '#3b82f6' : '#f59e0b')} 
             transparent 
             opacity={0.8}
             linewidth={2}
