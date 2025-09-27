@@ -2382,9 +2382,9 @@ const EarthVisualization = () => {
           {isPanelCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
         
-        {/* Tab Navigation */}
+        {/* Tab Navigation - moved to far right */}
         {!isPanelCollapsed && moonColonized && (
-          <div className="absolute top-2 left-16 z-[10000] flex bg-slate-800/80 rounded-lg border border-slate-600/50">
+          <div className="absolute top-2 right-2 z-[10000] flex bg-slate-800/80 rounded-lg border border-slate-600/50">
             <button
               onClick={() => setActiveTab('earth')}
               className={`px-3 py-1 text-sm rounded-l-lg transition-colors ${
