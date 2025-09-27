@@ -2530,7 +2530,7 @@ const EarthVisualization = () => {
                   </div>
                 ) : (
                   builtSpheres.map((ship, index) => (
-                    <div key={index} className="grid grid-cols-6 gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
+                    <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto] gap-3 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20">
                       <div className="flex items-center gap-2 min-w-0">
                         {ship.type === 'colony' ? (
                           <Home className="w-4 h-4 text-blue-400 flex-shrink-0" />
@@ -2540,7 +2540,7 @@ const EarthVisualization = () => {
                         <span className="text-sm text-slate-300 whitespace-nowrap">{ship.name}</span>
                       </div>
                       <Select defaultValue="moon">
-                        <SelectTrigger className="w-14 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
+                        <SelectTrigger className="w-14 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden ml-2">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
