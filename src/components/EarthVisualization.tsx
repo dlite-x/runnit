@@ -2818,7 +2818,7 @@ const EarthVisualization = () => {
               </div>
             </div>
 
-            {/* Flight Control Section - Only show for colonized planets */}
+            {/* Flight Control Section - Always show for Earth, Moon only when colonized */}
             {(activeBuildingTab === 'earth' || (activeBuildingTab === 'moon' && isMoonColonized)) && (
               <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
                 <div className="flex items-center gap-3 mb-4">
@@ -2831,16 +2831,29 @@ const EarthVisualization = () => {
                 {/* Table Content */}
                 <div className="space-y-1">
                   {(() => {
-                    // Filter ships based on current planet
-                    const currentPlanetShips = builtSpheres.filter(ship => 
-                      ship.location === activeBuildingTab || 
-                      (activeBuildingTab === 'earth' && ship.location === 'earth') ||
-                      (activeBuildingTab === 'moon' && ship.location === 'moon')
-                    );
+                    // Filter ships based on rules:
+                    // - If Moon not colonized: Earth shows ALL ships
+                    // - If Moon colonized: Earth shows Ready/Preparing/En route, Moon shows only "At Moon"
+                    const currentPlanetShips = builtSpheres.filter(ship => {
+                      if (!isMoonColonized) {
+                        // Until moon is colonized, all ships appear in Earth's flight control
+                        return activeBuildingTab === 'earth';
+                      } else {
+                        // After moon is colonized: transfer only ships "At Moon" to Moon flight control
+                        if (activeBuildingTab === 'earth') {
+                          // Earth shows: Ready, Preparing, En route (not "At Moon")
+                          return ship.location === 'earth' || ship.location === 'preparing' || ship.location === 'traveling';
+                        } else if (activeBuildingTab === 'moon') {
+                          // Moon shows: only "At Moon" status
+                          return ship.location === 'moon';
+                        }
+                      }
+                      return false;
+                    });
                     
                     return currentPlanetShips.length === 0 ? (
                       <div className="text-center py-4 text-slate-400 text-sm">
-                        No ships at {activeBuildingTab === 'earth' ? 'Earth' : 'Moon'}
+                        No ships in {activeBuildingTab === 'earth' ? 'Earth' : 'Moon'} flight control
                       </div>
                     ) : (
                       currentPlanetShips.map((ship, index) => (
@@ -2930,18 +2943,18 @@ const EarthVisualization = () => {
                       </span>
                       <button 
                         className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-                        disabled={ship.location !== activeBuildingTab}
+                        disabled={ship.location !== 'earth'}
                         onClick={() => {
-                          if (ship.location === activeBuildingTab) {
-                            // Launch directly from flight control
+                          if (ship.location === 'earth') {
+                            // Launch directly from flight control - only for ships in "Ready" status
                             setBuiltSpheres(prev => prev.map(s => 
                               s.name === ship.name ? { ...s, location: 'preparing' } : s
                             ));
-                            console.log(`Launching ${ship.name} from ${activeBuildingTab} flight control`);
+                            console.log(`Launching ${ship.name} from flight control`);
                           }
                         }}
                       >
-                        {ship.location === activeBuildingTab ? 'launch' : 
+                        {ship.location === 'earth' ? 'launch' : 
                          ship.location === 'preparing' ? 'prep' :
                          ship.location === 'traveling' ? 'flying' : 'arrived'}
                       </button>
