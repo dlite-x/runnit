@@ -8,6 +8,7 @@ import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Fa
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
+import ShipLaunchModal from './ShipLaunchModal';
 
 interface EarthProps {
   autoRotate: boolean;
@@ -1592,7 +1593,7 @@ function ShipController({
 }
 
 // OrbitingSphere component for ships orbiting Earth
-const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, location, sphereData, onLocationUpdate }: {
+const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, location, sphereData, onLocationUpdate, onShipClick }: {
   type: 'colony' | 'cargo';
   orbitRadius: number;
   orbitSpeed: number;
@@ -1601,6 +1602,7 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
   location: 'earth' | 'moon' | 'preparing' | 'traveling';
   sphereData: { type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'preparing' | 'traveling' };
   onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'preparing' | 'traveling') => void;
+  onShipClick?: (name: string, type: 'colony' | 'cargo') => void;
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const textRef = useRef<THREE.Group>(null);
@@ -1701,7 +1703,13 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
 
   return (
     <group>
-      <mesh ref={meshRef}>
+      <mesh 
+        ref={meshRef}
+        onClick={(e) => {
+          e.stopPropagation();
+          onShipClick?.(name, type);
+        }}
+      >
         <sphereGeometry args={[0.21, 16, 16]} />
         <meshStandardMaterial color={type === 'colony' ? '#3b82f6' : '#f59e0b'} />
       </mesh>
@@ -1954,6 +1962,10 @@ const EarthVisualization = () => {
   const [shipPanelDrones, setShipPanelDrones] = useState(0);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [isOperationsPanelOpen, setIsOperationsPanelOpen] = useState(false);
+  
+  // Ship launch modal state
+  const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
+  const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -2902,6 +2914,10 @@ const EarthVisualization = () => {
                   s.name === name ? { ...s, location: newLocation } : s
                 ));
               }}
+              onShipClick={(name, type) => {
+                setSelectedShip({ name, type });
+                setShowShipLaunchModal(true);
+              }}
             />
           );
         })}
@@ -3011,6 +3027,23 @@ const EarthVisualization = () => {
           </div>
         </div>
       )}
+
+      {/* Ship Launch Modal */}
+      <ShipLaunchModal
+        shipName={selectedShip?.name || ''}
+        shipType={selectedShip?.type || 'colony'}
+        isVisible={showShipLaunchModal}
+        onClose={() => {
+          setShowShipLaunchModal(false);
+          setSelectedShip(null);
+        }}
+        onLaunch={() => {
+          console.log(`Launching ${selectedShip?.name}`);
+          // Launch functionality will be implemented in next step
+          setShowShipLaunchModal(false);
+          setSelectedShip(null);
+        }}
+      />
     </div>
   );
 };
