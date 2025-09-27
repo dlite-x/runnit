@@ -2943,18 +2943,18 @@ const EarthVisualization = () => {
                       </span>
                       <button 
                         className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-                        disabled={ship.location !== 'earth'}
+                        disabled={ship.location !== activeBuildingTab}
                         onClick={() => {
-                          if (ship.location === 'earth') {
-                            // Launch directly from flight control - only for ships in "Ready" status
+                          if (ship.location === activeBuildingTab) {
+                            // Launch from current planet's flight control
                             setBuiltSpheres(prev => prev.map(s => 
                               s.name === ship.name ? { ...s, location: 'preparing' } : s
                             ));
-                            console.log(`Launching ${ship.name} from flight control`);
+                            console.log(`Launching ${ship.name} from ${activeBuildingTab} flight control`);
                           }
                         }}
                       >
-                        {ship.location === 'earth' ? 'launch' : 
+                        {ship.location === activeBuildingTab ? 'launch' : 
                          ship.location === 'preparing' ? 'prep' :
                          ship.location === 'traveling' ? 'flying' : 'arrived'}
                       </button>
