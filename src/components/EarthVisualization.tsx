@@ -2964,7 +2964,7 @@ const EarthVisualization = () => {
                   </div>
                   <h3 className="text-xl font-semibold text-slate-200">Buildings</h3>
                 </div>
-                <div className="grid grid-cols-2 gap-2 relative z-[9999] pointer-events-auto">
+              <div className="grid grid-cols-2 gap-2 relative z-[9999] pointer-events-auto">
                   <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                     <div className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0">
                       <div className="flex items-center gap-3">
@@ -3054,6 +3054,7 @@ const EarthVisualization = () => {
                       </div>
                     </div>
                   </div>
+                </div>
               </div>
             </div>
 
@@ -3130,7 +3131,7 @@ const EarthVisualization = () => {
                 No ships built yet
               </div>
             </div>
-            </div>
+          </div>
           )}
         </div>
       </div>
