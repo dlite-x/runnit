@@ -2100,6 +2100,8 @@ const EarthVisualization = () => {
   const [shipPanelDrones, setShipPanelDrones] = useState(0);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [isOperationsPanelOpen, setIsOperationsPanelOpen] = useState(false);
+  const [moonColonized, setMoonColonized] = useState(false);
+  const [activeTab, setActiveTab] = useState<'earth' | 'moon'>('earth');
   
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
@@ -2167,6 +2169,13 @@ const EarthVisualization = () => {
         if (ship.type === 'colony' && ship.destination === 'colonize' && 
             ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling') {
           console.log(`${ship.name} consumed after colonizing at ${ship.location}`);
+          
+          // Track moon colonization
+          if (ship.location === 'moon') {
+            setMoonColonized(true);
+            console.log('Moon has been colonized!');
+          }
+          
           hasChanges = true;
           return false; // Remove from array
         }
@@ -2373,8 +2382,36 @@ const EarthVisualization = () => {
           {isPanelCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
         
+        {/* Tab Navigation */}
+        {!isPanelCollapsed && moonColonized && (
+          <div className="absolute top-2 left-16 z-[10000] flex bg-slate-800/80 rounded-lg border border-slate-600/50">
+            <button
+              onClick={() => setActiveTab('earth')}
+              className={`px-3 py-1 text-sm rounded-l-lg transition-colors ${
+                activeTab === 'earth' 
+                  ? 'bg-blue-500/20 text-blue-400 border-r border-slate-600/50' 
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              🌍 Earth
+            </button>
+            <button
+              onClick={() => setActiveTab('moon')}
+              className={`px-3 py-1 text-sm rounded-r-lg transition-colors ${
+                activeTab === 'moon' 
+                  ? 'bg-slate-500/20 text-slate-300' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              🌙 Moon
+            </button>
+          </div>
+        )}
+        
         <div className={`p-2 h-full relative z-[9999] transition-opacity duration-300 ${isPanelCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.89fr 0.75fr 0.595fr 1.6fr' }}>
+          {activeTab === 'earth' ? (
+            // Earth Panel
+            <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.89fr 0.75fr 0.595fr 1.6fr' }}>
             {/* Earth Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
@@ -2829,6 +2866,22 @@ const EarthVisualization = () => {
               </div>
             </div>
           </div>
+          ) : (
+            // Moon Panel - appears after colonization
+            <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.89fr 0.75fr 0.595fr 1.6fr' }}>
+              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-slate-500/20 flex items-center justify-center">
+                    <span className="text-slate-300">🌙</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-200">Moon Colony</h3>
+                </div>
+                <div className="text-center py-4 text-slate-400 text-sm">
+                  Moon operations active
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
