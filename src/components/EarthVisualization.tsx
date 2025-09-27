@@ -2152,6 +2152,14 @@ const EarthVisualization = () => {
 
   // Process ships that have arrived with special destinations
   useEffect(() => {
+    console.log('Processing builtSpheres:', builtSpheres.map(ship => ({
+      name: ship.name,
+      type: ship.type,
+      location: ship.location,
+      destination: ship.destination,
+      cargo: ship.cargo
+    })));
+    
     setBuiltSpheres(prev => {
       let hasChanges = false;
       const updatedSpheres = prev.filter(ship => {
@@ -2168,7 +2176,7 @@ const EarthVisualization = () => {
         if (ship.type === 'cargo' && ship.destination === 'offload' && 
             ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling' &&
             ship.cargo && (ship.cargo.metal > 0 || ship.cargo.fuel > 0 || ship.cargo.food > 0)) {
-          console.log(`${ship.name} offloading cargo at ${ship.location}`);
+          console.log(`${ship.name} offloading cargo at ${ship.location}, current cargo:`, ship.cargo);
           hasChanges = true;
           return {
             ...ship,
@@ -2786,11 +2794,11 @@ const EarthVisualization = () => {
                         </span>
                       )}
                       <div className="text-sm flex items-center gap-0.5">
-                        <span className="text-green-400">{ship.cargo?.metal || (ship.type === 'colony' ? 2 : 10)}</span>
+                        <span className="text-green-400">{ship.cargo?.metal !== undefined ? ship.cargo.metal : (ship.type === 'colony' ? 2 : 10)}</span>
                         <span className="text-slate-400">/</span>
-                        <span className="text-orange-400">{ship.cargo?.fuel || (ship.type === 'colony' ? 2 : 10)}</span>
+                        <span className="text-orange-400">{ship.cargo?.fuel !== undefined ? ship.cargo.fuel : (ship.type === 'colony' ? 2 : 10)}</span>
                         <span className="text-slate-400">/</span>
-                        <span className="text-gray-300">{ship.cargo?.food || (ship.type === 'colony' ? 2 : 10)}</span>
+                        <span className="text-gray-300">{ship.cargo?.food !== undefined ? ship.cargo.food : (ship.type === 'colony' ? 2 : 10)}</span>
                       </div>
                       <span className="text-sm text-green-400">
                         {ship.location === 'earth' ? 'Ready' : 
