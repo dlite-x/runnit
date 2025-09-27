@@ -1593,16 +1593,25 @@ function ShipController({
 }
 
 // OrbitingSphere component for ships orbiting Earth
-const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, location, sphereData, onLocationUpdate, onShipClick }: {
+const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, location, sphereData, onLocationUpdate, onShipClick, onSphereUpdate }: {
   type: 'colony' | 'cargo';
   orbitRadius: number;
   orbitSpeed: number;
   initialAngle: number;
   name: string;
   location: 'earth' | 'moon' | 'preparing' | 'traveling';
-  sphereData: { type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'preparing' | 'traveling' };
+  sphereData: { 
+    type: 'colony' | 'cargo', 
+    position: [number, number, number], 
+    name: string, 
+    location: 'earth' | 'moon' | 'preparing' | 'traveling',
+    departureTime?: number,
+    totalTravelTime?: number,
+    destination?: string
+  };
   onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'preparing' | 'traveling') => void;
   onShipClick?: (name: string, type: 'colony' | 'cargo') => void;
+  onSphereUpdate?: (name: string, updates: any) => void;
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const textRef = useRef<THREE.Group>(null);
@@ -1632,10 +1641,21 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         const directionDiff = Math.abs(velocityDirection - moonDirection);
         const normalizedDiff = Math.min(directionDiff, 2 * Math.PI - directionDiff);
         
-        // Launch when orbital velocity is within 20 degrees of moon direction
         if (normalizedDiff < Math.PI / 9) { // π/9 = 20 degrees
           setLaunchPosition([x, y, z]);
+          const destination = sphereData.destination || 'moon';
+          const travelTimeSeconds = calculateTravelTimeSeconds('earth', destination);
+          
+          // Update with departure time and travel details
           onLocationUpdate(name, 'traveling');
+          
+          // Also update the sphere data with timing info
+          onSphereUpdate?.(name, {
+            location: 'traveling',
+            departureTime: Date.now(),
+            totalTravelTime: travelTimeSeconds,
+            destination
+          });
         }
       } else if (location === 'traveling') {
         // Travel animation from launch position to Moon
@@ -1937,8 +1957,8 @@ function Atmosphere() {
   );
 }
 
-// Calculate travel time based on distance and ship speed
-const calculateTravelTime = (origin: string, destination: string): string => {
+// Calculate travel time in seconds based on distance and ship speed
+const calculateTravelTimeSeconds = (origin: string, destination: string): number => {
   // Define positions for each location
   const positions = {
     earth: [0, 0, 0],
@@ -1958,9 +1978,11 @@ const calculateTravelTime = (origin: string, destination: string): string => {
 
   // Assume ship speed of 1 unit per second (simple speed)
   const speed = 1;
-  const timeInSeconds = Math.round(distance / speed);
+  return Math.round(distance / speed);
+};
 
-  // Format time display
+// Format time display
+const formatTime = (timeInSeconds: number): string => {
   if (timeInSeconds < 60) {
     return `${timeInSeconds}s`;
   } else {
@@ -1968,6 +1990,38 @@ const calculateTravelTime = (origin: string, destination: string): string => {
     const seconds = timeInSeconds % 60;
     return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
   }
+};
+
+// Countdown timer component for traveling ships
+const CountdownTimer = ({ 
+  departureTime, 
+  totalTravelTime, 
+  onArrival 
+}: { 
+  departureTime: number; 
+  totalTravelTime: number; 
+  onArrival: () => void; 
+}) => {
+  const [remainingTime, setRemainingTime] = useState(0);
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const elapsed = (Date.now() - departureTime) / 1000;
+      const remaining = Math.max(0, totalTravelTime - elapsed);
+      
+      setRemainingTime(remaining);
+      
+      if (remaining <= 0) {
+        onArrival();
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [departureTime, totalTravelTime, onArrival]);
+
+  return <span className="text-sm text-slate-300 italic">{formatTime(Math.ceil(remainingTime))}</span>;
 };
 
 const EarthVisualization = () => {
@@ -1982,7 +2036,15 @@ const EarthVisualization = () => {
   const [modalContent, setModalContent] = useState('');
   const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
-  const [builtSpheres, setBuiltSpheres] = useState<Array<{ type: 'colony' | 'cargo', position: [number, number, number], name: string, location: 'earth' | 'moon' | 'preparing' | 'traveling' }>>([]);
+  const [builtSpheres, setBuiltSpheres] = useState<Array<{ 
+    type: 'colony' | 'cargo', 
+    position: [number, number, number], 
+    name: string, 
+    location: 'earth' | 'moon' | 'preparing' | 'traveling',
+    departureTime?: number,
+    totalTravelTime?: number,
+    destination?: string
+  }>>([]);
   const [colonyCount, setColonyCount] = useState(0);
   const [cargoCount, setCargoCount] = useState(0);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
@@ -2474,7 +2536,7 @@ const EarthVisualization = () => {
                          Math.random() * 2 - 1,
                          Math.random() * 2 - 1
                        ];
-                       setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition, name: `Colony ${newColonyCount}`, location: 'earth' }]);
+                       setBuiltSpheres(prev => [...prev, { type: 'colony', position: spherePosition, name: `Colony ${newColonyCount}`, location: 'earth', destination: 'moon' }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2503,7 +2565,7 @@ const EarthVisualization = () => {
                          Math.random() * 2 - 1,
                          Math.random() * 2 - 1
                        ];
-                       setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition, name: `Cargo ${newCargoCount}`, location: 'earth' }]);
+                       setBuiltSpheres(prev => [...prev, { type: 'cargo', position: spherePosition, name: `Cargo ${newCargoCount}`, location: 'earth', destination: 'moon' }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2572,7 +2634,14 @@ const EarthVisualization = () => {
                         )}
                         <span className="text-sm text-slate-300 whitespace-nowrap">{ship.name}</span>
                       </div>
-                      <Select defaultValue="moon">
+                      <Select 
+                        defaultValue="moon"
+                        onValueChange={(destination) => {
+                          setBuiltSpheres(prev => prev.map(s => 
+                            s.name === ship.name ? { ...s, destination } : s
+                          ));
+                        }}
+                      >
                         <SelectTrigger className="w-16 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
                           <SelectValue />
                         </SelectTrigger>
@@ -2582,9 +2651,21 @@ const EarthVisualization = () => {
                           <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
                         </SelectContent>
                       </Select>
-                      <span className="text-sm text-slate-300 italic">
-                        {ship.location === 'traveling' ? 'En route' : calculateTravelTime('earth', 'moon')}
-                      </span>
+                      {ship.location === 'traveling' && ship.departureTime && ship.totalTravelTime ? (
+                        <CountdownTimer
+                          departureTime={ship.departureTime}
+                          totalTravelTime={ship.totalTravelTime}
+                          onArrival={() => {
+                            setBuiltSpheres(prev => prev.map(s => 
+                              s.name === ship.name ? { ...s, location: ship.destination as any || 'moon' } : s
+                            ));
+                          }}
+                        />
+                      ) : (
+                        <span className="text-sm text-slate-300 italic">
+                          {formatTime(calculateTravelTimeSeconds('earth', ship.destination || 'moon'))}
+                        </span>
+                      )}
                       <div className="text-sm flex items-center gap-0.5">
                         <span className="text-green-400">{ship.type === 'colony' ? '2' : '10'}</span>
                         <span className="text-slate-400">/</span>
@@ -2894,6 +2975,11 @@ const EarthVisualization = () => {
               onLocationUpdate={(name, newLocation) => {
                 setBuiltSpheres(prev => prev.map(s => 
                   s.name === name ? { ...s, location: newLocation } : s
+                ));
+              }}
+              onSphereUpdate={(name, updates) => {
+                setBuiltSpheres(prev => prev.map(s => 
+                  s.name === name ? { ...s, ...updates } : s
                 ));
               }}
               onShipClick={(name, type) => {
