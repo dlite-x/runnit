@@ -1957,9 +1957,39 @@ function Atmosphere() {
   );
 }
 
-// Calculate travel time in seconds based on distance and ship speed
+// Travel time matrix in seconds for predefined routes
+const TRAVEL_TIMES: Record<string, Record<string, number>> = {
+  earth: {
+    moon: 6,
+    mars: 45,
+    eml1: 12
+  },
+  moon: {
+    earth: 6,
+    mars: 50,
+    eml1: 8
+  },
+  mars: {
+    earth: 45,
+    moon: 50,
+    eml1: 35
+  },
+  eml1: {
+    earth: 12,
+    moon: 8,
+    mars: 35
+  }
+};
+
+// Calculate travel time in seconds based on predefined matrix or distance fallback
 const calculateTravelTimeSeconds = (origin: string, destination: string): number => {
-  // Define positions for each location
+  // Check predefined travel times first
+  const predefinedTime = TRAVEL_TIMES[origin]?.[destination];
+  if (predefinedTime !== undefined) {
+    return predefinedTime;
+  }
+
+  // Fallback to distance-based calculation for unknown routes
   const positions = {
     earth: [0, 0, 0],
     moon: [24, 4, 8],
@@ -1976,8 +2006,8 @@ const calculateTravelTimeSeconds = (origin: string, destination: string): number
   const dz = destPos[2] - originPos[2];
   const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-  // Assume ship speed of 1 unit per second (simple speed)
-  const speed = 1;
+  // Use higher speed for fallback routes to keep times reasonable
+  const speed = 4;
   return Math.round(distance / speed);
 };
 
