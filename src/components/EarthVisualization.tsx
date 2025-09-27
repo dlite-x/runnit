@@ -1637,16 +1637,41 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         meshRef.current.position.set(x, y, z);
         textRef.current.position.set(x, y + 0.5, z);
         
-        // Check if orbital velocity direction is aligned with moon direction
-        const moonDirection = Math.atan2(8, 24); // Moon is at [24, 4, 8]
+        // Determine target direction based on current location and destination
+        const destination = sphereData.destination || 'moon';
+        let targetDirection: number;
+        let targetCenter: [number, number, number];
+        let currentPlanet: string;
+        
+        // Determine current planet and target destination
+        if (location === 'preparing') {
+          // Check if we're currently orbiting Earth or Moon
+          if (orbitRadius < 10) { // Earth orbit
+            currentPlanet = 'earth';
+            if (destination === 'earth') {
+              // Already at Earth, don't launch
+              return;
+            }
+            targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
+            targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
+          } else { // Moon orbit
+            currentPlanet = 'moon';
+            if (destination === 'moon') {
+              // Already at Moon, don't launch
+              return;
+            }
+            targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
+            targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24); // From moon position to target
+          }
+        }
+        
         const velocityDirection = (angle + Math.PI / 2) % (Math.PI * 2); // Orbital velocity is perpendicular to radius
-        const directionDiff = Math.abs(velocityDirection - moonDirection);
+        const directionDiff = Math.abs(velocityDirection - targetDirection);
         const normalizedDiff = Math.min(directionDiff, 2 * Math.PI - directionDiff);
         
         if (normalizedDiff < Math.PI / 9) { // π/9 = 20 degrees
           setLaunchPosition([x, y, z]);
-          const destination = sphereData.destination || 'moon';
-          const travelTimeSeconds = calculateTravelTimeSeconds('earth', destination);
+          const travelTimeSeconds = calculateTravelTimeSeconds(currentPlanet, destination);
           
           // Update with departure time and travel details
           onLocationUpdate(name, 'traveling');
@@ -1660,17 +1685,29 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           });
         }
       } else if (location === 'traveling') {
-        // Travel animation from launch position to Moon
-        const moonCenter = [24, 4, 8];
+        // Dynamic travel animation based on destination
+        const destination = sphereData.destination || 'moon';
+        let targetCenter: [number, number, number];
+        
+        // Determine target coordinates based on destination
+        if (destination === 'earth') {
+          targetCenter = [0, 0, 0];
+        } else if (destination === 'moon') {
+          targetCenter = [24, 4, 8];
+        } else {
+          // Default to moon for other destinations
+          targetCenter = [24, 4, 8];
+        }
+        
         const travelSpeed = 0.15; // Much slower, similar to figure-8 ship speed
         
         if (travelProgress < 1 && launchPosition) {
           const newProgress = Math.min(1, travelProgress + travelSpeed * 0.016); // ~60fps
           setTravelProgress(newProgress);
           
-          const x = launchPosition[0] + (moonCenter[0] - launchPosition[0]) * newProgress;
-          const y = launchPosition[1] + (moonCenter[1] - launchPosition[1]) * newProgress;
-          const z = launchPosition[2] + (moonCenter[2] - launchPosition[2]) * newProgress;
+          const x = launchPosition[0] + (targetCenter[0] - launchPosition[0]) * newProgress;
+          const y = launchPosition[1] + (targetCenter[1] - launchPosition[1]) * newProgress;
+          const z = launchPosition[2] + (targetCenter[2] - launchPosition[2]) * newProgress;
           
           meshRef.current.position.set(x, y, z);
           textRef.current.position.set(x, y + 0.5, z);
@@ -1683,8 +1720,9 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
             return newPoints.slice(-25);
           });
         } else if (travelProgress >= 1) {
-          // Travel complete, switch to moon orbit
-          onLocationUpdate(name, 'moon');
+          // Travel complete, update location to destination
+          const finalLocation = destination === 'earth' ? 'earth' : 'moon';
+          onLocationUpdate(name, finalLocation as any);
           setTravelProgress(0);
           setLaunchPosition(null);
           // Clear trail when travel is complete
@@ -2925,7 +2963,7 @@ const EarthVisualization = () => {
                         />
                       ) : (
                         <span className="text-sm text-slate-300 italic">
-                          {formatTime(calculateTravelTimeSeconds('earth', ship.destination || 'moon'))}
+                          {formatTime(calculateTravelTimeSeconds(ship.location === 'moon' ? 'moon' : 'earth', ship.destination || 'moon'))}
                         </span>
                       )}
                       <div className="text-sm flex items-center gap-0.5">
