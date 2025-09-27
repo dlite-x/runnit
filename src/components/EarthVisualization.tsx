@@ -3038,8 +3038,13 @@ const EarthVisualization = () => {
           setSelectedShip(null);
         }}
         onLaunch={() => {
-          console.log(`Launching ${selectedShip?.name}`);
-          // Launch functionality will be implemented in next step
+          if (selectedShip) {
+            // Update the ship's location to 'preparing' which triggers the launch sequence
+            setBuiltSpheres(prev => prev.map(s => 
+              s.name === selectedShip.name ? { ...s, location: 'preparing' } : s
+            ));
+            console.log(`Initiating launch sequence for ${selectedShip.name}`);
+          }
           setShowShipLaunchModal(false);
           setSelectedShip(null);
         }}
