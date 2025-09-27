@@ -2798,22 +2798,59 @@ const EarthVisualization = () => {
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                      onClick={() => {
-                       console.log('Cargo clicked!');
-                       const newCargoCount = cargoCount + 1;
-                       setCargoCount(newCargoCount);
-                       const spherePosition: [number, number, number] = [
-                         4 + Math.random() * 2 - 1, // Random position near Earth
-                         Math.random() * 2 - 1,
-                         Math.random() * 2 - 1
-                       ];
-                        setBuiltSpheres(prev => [...prev, { 
-                          type: 'cargo', 
-                          position: spherePosition, 
-                          name: `Cargo ${newCargoCount}`, 
-                          location: 'earth', 
-                          destination: 'moon',
-                          cargo: { metal: 10, fuel: 10, food: 10 }
-                        }]);
+                        console.log('Cargo clicked!');
+                        const newCargoCount = cargoCount + 1;
+                        setCargoCount(newCargoCount);
+                        const spherePosition: [number, number, number] = [
+                          4 + Math.random() * 2 - 1, // Random position near Earth
+                          Math.random() * 2 - 1,
+                          Math.random() * 2 - 1
+                        ];
+                         setBuiltSpheres(prev => [...prev, { 
+                           type: 'cargo', 
+                           position: spherePosition, 
+                           name: `Cargo ${newCargoCount}`, 
+                           location: 'earth', 
+                           destination: 'moon',
+                           cargo: { metal: 10, fuel: 10, food: 10 }
+                         }]);
+                      }}
+                   >
+                     <div className="flex items-center gap-2">
+                       <Package className="w-4 h-4 text-amber-400" />
+                       <span className="text-base text-slate-400">Cargo</span>
+                     </div>
+                      <div className="flex items-center gap-2">
+                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                           <span className="text-xs font-bold text-slate-900">₵</span>
+                         </div>
+                         <span className="text-xs text-yellow-400">200</span>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+                 
+                 {/* Test Moon Ship Button */}
+                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                   <div 
+                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                      onClick={() => {
+                        console.log('Moon Test clicked!');
+                        const newTestCount = builtSpheres.filter(s => s.name.includes('Moon Test')).length + 1;
+                        const spherePosition: [number, number, number] = [
+                          24 + Math.random() * 2 - 1, // Random position near Moon
+                          4 + Math.random() * 2 - 1,
+                          8 + Math.random() * 2 - 1
+                        ];
+                         setBuiltSpheres(prev => [...prev, { 
+                           type: 'cargo', 
+                           position: spherePosition, 
+                           name: `Moon Test ${newTestCount}`, 
+                           location: 'moon', 
+                           destination: 'earth',
+                           cargo: { metal: 5, fuel: 5, food: 5 }
+                         }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2828,30 +2865,68 @@ const EarthVisualization = () => {
                         <span className="text-xs text-yellow-400">200</span>
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
-                  <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
-                     onClick={() => {
-                       console.log('Station clicked!');
-                       // Add station functionality here later
-                     }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Satellite className="w-4 h-4 text-green-400" />
-                      <span className="text-base text-slate-400">Station</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
-                        <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
-                          <span className="text-xs font-bold text-slate-900">₵</span>
-                        </div>
-                        <span className="text-xs text-yellow-400">500</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                   </div>
+                 </div>
+                 
+                 {/* Test Moon Ship Button */}
+                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                   <div 
+                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                      onClick={() => {
+                        console.log('Moon Test clicked!');
+                        const newTestCount = builtSpheres.filter(s => s.name.includes('Moon Test')).length + 1;
+                        const spherePosition: [number, number, number] = [
+                          24 + Math.random() * 2 - 1, // Random position near Moon
+                          4 + Math.random() * 2 - 1,
+                          8 + Math.random() * 2 - 1
+                        ];
+                         setBuiltSpheres(prev => [...prev, { 
+                           type: 'cargo', 
+                           position: spherePosition, 
+                           name: `Moon Test ${newTestCount}`, 
+                           location: 'moon', 
+                           destination: 'earth',
+                           cargo: { metal: 5, fuel: 5, food: 5 }
+                         }]);
+                      }}
+                   >
+                     <div className="flex items-center gap-2">
+                       <Rocket className="w-4 h-4 text-red-400" />
+                       <span className="text-base text-slate-400">Moon Test</span>
+                     </div>
+                      <div className="flex items-center gap-2">
+                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                           <span className="text-xs font-bold text-slate-900">₵</span>
+                         </div>
+                         <span className="text-xs text-yellow-400">100</span>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+                 
+                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                   <div 
+                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                      onClick={() => {
+                        console.log('Station clicked!');
+                        // Add station functionality here later
+                      }}
+                   >
+                     <div className="flex items-center gap-2">
+                       <Satellite className="w-4 h-4 text-green-400" />
+                       <span className="text-base text-slate-400">Station</span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                           <span className="text-xs font-bold text-slate-900">₵</span>
+                         </div>
+                         <span className="text-xs text-yellow-400">500</span>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
                 
               </div>
             </div>
