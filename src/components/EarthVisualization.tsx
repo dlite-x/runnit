@@ -1937,6 +1937,39 @@ function Atmosphere() {
   );
 }
 
+// Calculate travel time based on distance and ship speed
+const calculateTravelTime = (origin: string, destination: string): string => {
+  // Define positions for each location
+  const positions = {
+    earth: [0, 0, 0],
+    moon: [24, 4, 8],
+    mars: [50, 0, 20],
+    eml1: [36, 6, 12]
+  };
+
+  const originPos = positions[origin as keyof typeof positions] || positions.earth;
+  const destPos = positions[destination as keyof typeof positions] || positions.moon;
+
+  // Calculate 3D distance
+  const dx = destPos[0] - originPos[0];
+  const dy = destPos[1] - originPos[1]; 
+  const dz = destPos[2] - originPos[2];
+  const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+  // Assume ship speed of 1 unit per second (simple speed)
+  const speed = 1;
+  const timeInSeconds = Math.round(distance / speed);
+
+  // Format time display
+  if (timeInSeconds < 60) {
+    return `${timeInSeconds}s`;
+  } else {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+  }
+};
+
 const EarthVisualization = () => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
@@ -2556,7 +2589,7 @@ const EarthVisualization = () => {
                         </SelectContent>
                       </Select>
                       <span className="text-sm text-slate-300 italic">
-                        {ship.location === 'traveling' ? 'En route' : '20s'}
+                        {ship.location === 'traveling' ? 'En route' : calculateTravelTime('earth', 'moon')}
                       </span>
                       <div className="text-sm flex items-center gap-0.5">
                         <span className="text-green-400">{ship.type === 'colony' ? '2' : '10'}</span>
