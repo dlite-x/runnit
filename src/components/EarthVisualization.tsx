@@ -1962,22 +1962,34 @@ const TRAVEL_TIMES: Record<string, Record<string, number>> = {
   earth: {
     moon: 6,
     mars: 45,
-    eml1: 12
+    eml1: 12,
+    offload: 4,   // Cargo operation
+    land: 3,      // Landing operation
+    colonize: 8   // Colony setup
   },
   moon: {
     earth: 6,
     mars: 50,
-    eml1: 8
+    eml1: 8,
+    offload: 3,
+    land: 2,
+    colonize: 6
   },
   mars: {
     earth: 45,
     moon: 50,
-    eml1: 35
+    eml1: 35,
+    offload: 5,
+    land: 4,
+    colonize: 12
   },
   eml1: {
     earth: 12,
     moon: 8,
-    mars: 35
+    mars: 35,
+    offload: 3,
+    land: 2,
+    colonize: 7
   }
 };
 
@@ -2672,13 +2684,22 @@ const EarthVisualization = () => {
                           ));
                         }}
                       >
-                        <SelectTrigger className="w-16 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
+                        <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
                           <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
                           <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
                           <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
+                          {ship.type === 'cargo' && (
+                            <>
+                              <SelectItem value="offload" className="text-slate-300 hover:bg-slate-700">Offload</SelectItem>
+                              <SelectItem value="land" className="text-slate-300 hover:bg-slate-700">Land</SelectItem>
+                            </>
+                          )}
+                          {ship.type === 'colony' && (
+                            <SelectItem value="colonize" className="text-slate-300 hover:bg-slate-700">Colonize</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                       {ship.location === 'traveling' && ship.departureTime && ship.totalTravelTime ? (
