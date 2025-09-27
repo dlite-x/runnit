@@ -2374,6 +2374,26 @@ const EarthVisualization = () => {
         </div>
       </div>
 
+      {/* Planet Switcher - Above Bottom Panel */}
+      <div className="fixed bottom-64 left-4 z-30">
+        <div className="bg-slate-900/90 backdrop-blur-md rounded-lg border border-slate-700 p-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-400">Planet:</span>
+            <Select value={activeBuildingTab} onValueChange={(value) => setActiveBuildingTab(value as 'earth' | 'moon')}>
+              <SelectTrigger className="w-28 h-8 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="earth">Earth</SelectItem>
+                <SelectItem value="moon" disabled={!isMoonColonized}>
+                  {isMoonColonized ? 'Moon' : 'Moon (Not Colonized)'}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
       {/* Bottom Panel - Rebuilt for proper clickability */}
       <div className={`fixed bottom-0 left-0 z-[9999] pointer-events-auto bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 rounded-tr-xl transition-all duration-300 ease-in-out ${isPanelCollapsed ? 'h-12' : 'h-[253px]'}`} style={{ width: '98.3%' }}>
         {/* Collapse/Expand Button */}
@@ -2393,7 +2413,7 @@ const EarthVisualization = () => {
                 <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
                   <Globe className="w-4 h-4 text-blue-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-200">Planets</h3>
+                <h3 className="text-xl font-semibold text-slate-200">{activeBuildingTab === 'earth' ? 'Earth' : 'Moon'}</h3>
               </div>
               
               <Tabs value={activeBuildingTab} onValueChange={(value) => setActiveBuildingTab(value as 'earth' | 'moon')} className="h-[calc(100%-3rem)]">
