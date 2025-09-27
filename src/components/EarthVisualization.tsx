@@ -2946,19 +2946,22 @@ const EarthVisualization = () => {
                   {(() => {
                     // Filter ships based on rules:
                     // - If Moon not colonized: Earth shows ALL ships
-                    // - If Moon colonized: Earth shows Ready/Preparing/En route, Moon shows only "At Moon"
+                    // - If Moon colonized: Ships appear in flight control of their origin planet during transit
                     const currentPlanetShips = builtSpheres.filter(ship => {
                       if (!isMoonColonized) {
                         // Until moon is colonized, all ships appear in Earth's flight control
                         return activeBuildingTab === 'earth';
                       } else {
-                        // After moon is colonized: transfer only ships "At Moon" to Moon flight control
+                        // After moon is colonized: ships show in their origin planet's flight control
                         if (activeBuildingTab === 'earth') {
-                          // Earth shows: Ready, Preparing, En route (not "At Moon")
-                          return ship.location === 'earth' || ship.location === 'preparing' || ship.location === 'traveling';
+                          // Earth shows: ships that started from Earth (destination moon/mars/etc)
+                          return ship.location === 'earth' || 
+                                 ship.location === 'preparing' || 
+                                 (ship.location === 'traveling' && ship.destination !== 'earth');
                         } else if (activeBuildingTab === 'moon') {
-                          // Moon shows: only "At Moon" status
-                          return ship.location === 'moon';
+                          // Moon shows: ships at moon + ships traveling FROM moon to elsewhere
+                          return ship.location === 'moon' || 
+                                 (ship.location === 'traveling' && ship.destination === 'earth');
                         }
                       }
                       return false;
