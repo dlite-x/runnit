@@ -2688,6 +2688,9 @@ const EarthVisualization = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
+                          {ship.location !== 'earth' && (
+                            <SelectItem value="earth" className="text-slate-300 hover:bg-slate-700">Earth</SelectItem>
+                          )}
                           <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
                           <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
                           <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
