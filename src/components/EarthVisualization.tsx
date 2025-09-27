@@ -2869,95 +2869,100 @@ const EarthVisualization = () => {
           ) : (
             // Moon Panel - appears after colonization
             <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.89fr 0.75fr 0.595fr 1.6fr' }}>
-              {/* Moon Resources Section */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-slate-500/20 flex items-center justify-center">
-                    <span className="text-slate-300">🌙</span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-slate-200">Moon Colony</h3>
+            {/* Moon Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-slate-500/20 flex items-center justify-center">
+                  <span className="text-slate-300">🌙</span>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-green-400" />
-                      <span className="text-base text-slate-400">Population</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-slate-200">150</span>
-                      <span className="text-base text-green-400">+1</span>
-                    </div>
+                <h3 className="text-xl font-semibold text-slate-200">Moon</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-green-400" />
+                    <span className="text-base text-slate-400">Population</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Coins className="w-4 h-4 text-yellow-400" />
-                      <span className="text-base text-slate-400">Credits</span>
+                  <span className="text-base font-bold text-slate-200">150</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
+                      <span className="text-sm font-bold text-slate-900">₵</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-slate-200">0</span>
-                      <span className="text-base text-red-400">+0</span>
-                    </div>
+                    <span className="text-base text-slate-400">Credits</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-4 h-4 flex items-center justify-center text-cyan-400">🌡️</span>
-                      <span className="text-base text-slate-400">Temperature</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-slate-200">-50°C</span>
-                      <span className="text-base text-slate-400">+0</span>
-                    </div>
+                  <span className="text-lg font-bold text-slate-200">0</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-red-400" />
+                    <span className="text-base text-slate-400">Temperature</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <UtensilsCrossed className="w-4 h-4 text-amber-400" />
-                      <span className="text-base text-slate-400">Food</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-slate-200">0</span>
-                      <span className="text-base text-red-400">+0</span>
-                    </div>
+                  <span className="text-base font-bold text-slate-200">-50°C</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Resources Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                  <Archive className="w-4 h-4 text-amber-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-200">Resources</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <UtensilsCrossed className="w-4 h-4 text-green-400" />
+                    <span className="text-base text-slate-400">Food</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Fuel className="w-4 h-4 text-orange-400" />
-                      <span className="text-base text-slate-400">Fuel</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-slate-200">0</span>
-                      <span className="text-base text-red-400">+0</span>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-slate-200">0</span>
+                    <span className="text-base text-slate-400">+0</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Hammer className="w-4 h-4 text-gray-400" />
-                      <span className="text-base text-slate-400">Metal</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-slate-200">0</span>
-                      <span className="text-base text-red-400">+0</span>
-                    </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Fuel className="w-4 h-4 text-orange-400" />
+                    <span className="text-base text-slate-400">Fuel</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Battery className="w-4 h-4 text-yellow-400" />
-                      <span className="text-base text-slate-400">Power</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold text-slate-200">0</span>
-                      <span className="text-base text-red-400">+0</span>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-slate-200">0</span>
+                    <span className="text-base text-slate-400">+0</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Hammer className="w-4 h-4 text-gray-400" />
+                    <span className="text-base text-slate-400">Metal</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-slate-200">0</span>
+                    <span className="text-base text-slate-400">+0</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Battery className="w-4 h-4 text-yellow-400" />
+                    <span className="text-base text-slate-400">Power</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-slate-200">0</span>
+                    <span className="text-base text-slate-400">+0</span>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Moon Buildings Section */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            {/* Buildings Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
                     <Building className="w-4 h-4 text-orange-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-200">Moon Buildings</h3>
+                  <h3 className="text-xl font-semibold text-slate-200">Buildings</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-2 relative z-[9999] pointer-events-auto">
                   <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
@@ -3034,93 +3039,79 @@ const EarthVisualization = () => {
                 </div>
               </div>
 
-              {/* Moon Ships Section */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                    <Rocket className="w-4 h-4 text-amber-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-slate-200">Moon Vehicles</h3>
+            {/* Space Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[9999] pointer-events-auto">
+              <div className="flex items-center gap-3 mb-4 relative z-[9999]">
+                <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                  <Rocket className="w-4 h-4 text-cyan-400" />
                 </div>
-                <div className="grid grid-cols-2 gap-3 relative z-[9999] pointer-events-auto">
-                  <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
-                    <div className="flex flex-col cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999] pointer-events-auto">
-                      <div className="flex items-center gap-2">
-                        <span className="w-4 h-4 flex items-center justify-center text-slate-400">🚀</span>
-                        <span className="text-base text-slate-400">Shuttle</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
-                          <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
-                            <span className="text-xs font-bold text-slate-900">₵</span>
-                          </div>
-                          <span className="text-xs text-yellow-400">800</span>
-                        </div>
-                      </div>
+                <h3 className="text-xl font-semibold text-slate-200">Space</h3>
+              </div>
+              <div className="space-y-2 relative z-[9999] pointer-events-auto">
+                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                  <div className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]">
+                    <div className="flex items-center gap-2">
+                      <Home className="w-4 h-4 text-blue-400" />
+                      <span className="text-base text-slate-400">Colony</span>
                     </div>
-                  </div>
-                  
-                  <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
-                    <div className="flex flex-col cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999] pointer-events-auto">
-                      <div className="flex items-center gap-2">
-                        <span className="w-4 h-4 flex items-center justify-center text-slate-400">🌌</span>
-                        <span className="text-base text-slate-400">Rover</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
-                          <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
-                            <span className="text-xs font-bold text-slate-900">₵</span>
-                          </div>
-                          <span className="text-xs text-yellow-400">300</span>
+                     <div className="flex items-center gap-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                          <span className="text-xs font-bold text-slate-900">₵</span>
                         </div>
+                        <span className="text-xs text-yellow-400">200</span>
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
-                    <div className="flex flex-col cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded transition-colors group relative z-[9999] pointer-events-auto">
-                      <div className="flex items-center gap-2">
-                        <Archive className="w-4 h-4 text-gray-400" />
-                        <span className="text-base text-slate-400">Habitat</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
-                          <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
-                            <span className="text-xs font-bold text-slate-900">₵</span>
-                          </div>
-                          <span className="text-xs text-yellow-400">1200</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
+            </div>
+                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                  <div className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4 text-amber-400" />
+                      <span className="text-base text-slate-400">Cargo</span>
+                    </div>
+                     <div className="flex items-center gap-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                          <span className="text-xs font-bold text-slate-900">₵</span>
+                        </div>
+                        <span className="text-xs text-yellow-400">200</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                  <div className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]">
+                    <div className="flex items-center gap-2">
+                      <Satellite className="w-4 h-4 text-green-400" />
+                      <span className="text-base text-slate-400">Station</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                          <span className="text-xs font-bold text-slate-900">₵</span>
+                        </div>
+                        <span className="text-xs text-yellow-400">500</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
 
-              {/* Moon Operations Section */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-                    <Globe className="w-4 h-4 text-green-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-slate-200">Moon Operations</h3>
+            {/* Flight Control Section */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                  <Satellite className="w-4 h-4 text-purple-400" />
                 </div>
-                <div className="text-center py-4 text-slate-400 text-sm">
-                  Colony establishing infrastructure
-                </div>
+                <h3 className="text-xl font-semibold text-slate-200">Flight Control</h3>
               </div>
-              
-              {/* Moon Flight Control Section */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                    <Satellite className="w-4 h-4 text-purple-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-slate-200">Moon Control</h3>
-                </div>
-                <div className="text-center py-4 text-slate-400 text-sm">
-                  No lunar vehicles deployed
-                </div>
+              <div className="text-center py-4 text-slate-400 text-sm">
+                No ships built yet
               </div>
+            </div>
             </div>
           )}
         </div>
