@@ -263,9 +263,13 @@ function StaticShip({
 
   // Calculate ship position based on travel state
   const currentPosition = React.useMemo(() => {
+    console.log(`StaticShip ${ship.name}: location=${ship.location}, hasStartPos=${!!ship.startPosition}, hasEndPos=${!!ship.endPosition}, hasDepartureTime=${!!ship.departureTime}, hasTotalTime=${!!ship.totalTravelTime}`);
+    
     if (ship.location === 'traveling' && ship.startPosition && ship.endPosition && ship.departureTime && ship.totalTravelTime) {
       const elapsed = Date.now() - ship.departureTime;
       const progress = Math.min(elapsed / (ship.totalTravelTime * 1000), 1);
+      
+      console.log(`${ship.name} traveling progress: ${Math.floor(progress * 100)}%`);
       
       // Bezier curve for smooth trajectory
       const t = progress;
@@ -305,24 +309,63 @@ function StaticShip({
       
       const currentPos = [x, y, z] as [number, number, number];
       
-      // Debug log for traveling ships
-      if (Math.floor(progress * 100) % 10 === 0) {
-        console.log(`${ship.name} traveling: ${Math.floor(progress * 100)}% complete at position:`, currentPos);
-      }
+      console.log(`${ship.name} current traveling position:`, currentPos);
       
       return currentPos;
     }
     
+    console.log(`${ship.name} using static position:`, ship.staticPosition);
     return ship.staticPosition || [0, 0, 0];
-  }, [ship]);
+  }, [ship.location, ship.startPosition, ship.endPosition, ship.departureTime, ship.totalTravelTime, ship.staticPosition, ship.name]);
 
+  // Use useFrame for continuous position updates during travel
   useFrame(() => {
     if (shipRef.current) {
-      shipRef.current.position.set(currentPosition[0], currentPosition[1], currentPosition[2]);
+      let position = currentPosition;
+      
+      // Recalculate position for traveling ships to ensure smooth animation
+      if (ship.location === 'traveling' && ship.startPosition && ship.endPosition && ship.departureTime && ship.totalTravelTime) {
+        const elapsed = Date.now() - ship.departureTime;
+        const progress = Math.min(elapsed / (ship.totalTravelTime * 1000), 1);
+        
+        const t = progress;
+        const start = ship.startPosition;
+        const end = ship.endPosition;
+        
+        const distance = Math.sqrt(
+          Math.pow(end[0] - start[0], 2) + 
+          Math.pow(end[1] - start[1], 2) + 
+          Math.pow(end[2] - start[2], 2)
+        );
+        
+        const arcHeight = distance * 0.6;
+        const midY = Math.max(start[1], end[1]) + arcHeight;
+        
+        const directionX = (end[0] - start[0]) * 0.3;
+        const directionZ = (end[2] - start[2]) * 0.3;
+        
+        const mid: [number, number, number] = [
+          (start[0] + end[0]) / 2 + directionX * Math.sin(Math.PI * 0.5),
+          midY,
+          (start[2] + end[2]) / 2 + directionZ * Math.sin(Math.PI * 0.5)
+        ];
+        
+        const easeT = t < 0.5 
+          ? 2 * t * t 
+          : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        
+        const x = (1 - easeT) * (1 - easeT) * start[0] + 2 * (1 - easeT) * easeT * mid[0] + easeT * easeT * end[0];
+        const y = (1 - easeT) * (1 - easeT) * start[1] + 2 * (1 - easeT) * easeT * mid[1] + easeT * easeT * end[1];
+        const z = (1 - easeT) * (1 - easeT) * start[2] + 2 * (1 - easeT) * easeT * mid[2] + easeT * easeT * end[2];
+        
+        position = [x, y, z] as [number, number, number];
+      }
+      
+      shipRef.current.position.set(position[0], position[1], position[2]);
       
       // Update trail for traveling ships
       if (ship.location === 'traveling') {
-        const currentPos = new THREE.Vector3(...currentPosition);
+        const currentPos = new THREE.Vector3(...position);
         setTrailPoints(prev => {
           const newPoints = [...prev, currentPos];
           // Keep trail length manageable
