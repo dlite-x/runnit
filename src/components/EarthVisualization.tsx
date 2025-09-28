@@ -235,6 +235,155 @@ function CapitalShip({ position, rotation, selected, onShipClick, onShipDoubleCl
   );
 }
 
+// New StaticShip component for simplified movement system
+function StaticShip({ 
+  ship, 
+  selected, 
+  onShipClick, 
+  onShipDoubleClick 
+}: { 
+  ship: { 
+    type: 'colony' | 'cargo';
+    name: string;
+    location: 'earth' | 'moon' | 'preparing' | 'traveling';
+    staticPosition?: [number, number, number];
+    travelProgress?: number;
+    startPosition?: [number, number, number];
+    endPosition?: [number, number, number];
+    departureTime?: number;
+    totalTravelTime?: number;
+  };
+  selected: boolean;
+  onShipClick?: () => void;
+  onShipDoubleClick?: () => void;
+}) {
+  const shipRef = useRef<THREE.Group>(null);
+  const trailRef = useRef<THREE.LineSegments>(null);
+  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
+
+  // Calculate ship position based on travel state
+  const currentPosition = React.useMemo(() => {
+    if (ship.location === 'traveling' && ship.startPosition && ship.endPosition && ship.departureTime && ship.totalTravelTime) {
+      const elapsed = Date.now() - ship.departureTime;
+      const progress = Math.min(elapsed / (ship.totalTravelTime * 1000), 1);
+      
+      // Bezier curve for smooth trajectory
+      const t = progress;
+      const start = ship.startPosition;
+      const end = ship.endPosition;
+      
+      // Add curve height for visual appeal
+      const midY = Math.max(start[1], end[1]) + 8;
+      const mid: [number, number, number] = [
+        (start[0] + end[0]) / 2,
+        midY,
+        (start[2] + end[2]) / 2
+      ];
+      
+      // Quadratic Bezier interpolation
+      const x = (1 - t) * (1 - t) * start[0] + 2 * (1 - t) * t * mid[0] + t * t * end[0];
+      const y = (1 - t) * (1 - t) * start[1] + 2 * (1 - t) * t * mid[1] + t * t * end[1];
+      const z = (1 - t) * (1 - t) * start[2] + 2 * (1 - t) * t * mid[2] + t * t * end[2];
+      
+      return [x, y, z] as [number, number, number];
+    }
+    
+    return ship.staticPosition || [0, 0, 0];
+  }, [ship]);
+
+  useFrame(() => {
+    if (shipRef.current) {
+      shipRef.current.position.set(currentPosition[0], currentPosition[1], currentPosition[2]);
+      
+      // Update trail for traveling ships
+      if (ship.location === 'traveling') {
+        const currentPos = new THREE.Vector3(...currentPosition);
+        setTrailPoints(prev => {
+          const newPoints = [...prev, currentPos];
+          return newPoints.slice(-30); // Keep last 30 points
+        });
+      }
+    }
+  });
+
+  // Create trail geometry
+  React.useEffect(() => {
+    if (trailRef.current && trailPoints.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
+      trailRef.current.geometry.dispose();
+      trailRef.current.geometry = geometry;
+    }
+  }, [trailPoints]);
+
+  const shipColor = ship.type === 'colony' ? "#FF6B6B" : "#4ECDC4";
+
+  return (
+    <group>
+      {/* Trail for traveling ships */}
+      {ship.location === 'traveling' && trailPoints.length > 1 && (
+        <lineSegments ref={trailRef}>
+          <bufferGeometry />
+          <lineBasicMaterial 
+            color={shipColor} 
+            transparent 
+            opacity={0.6}
+            linewidth={2}
+          />
+        </lineSegments>
+      )}
+      
+      {/* Ship */}
+      <group ref={shipRef}>
+        <mesh
+          onClick={onShipClick}
+          onDoubleClick={onShipDoubleClick}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            document.body.style.cursor = onShipClick ? 'pointer' : 'default';
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'default';
+          }}
+        >
+          <boxGeometry args={[0.15, 0.08, 0.2]} />
+          <meshStandardMaterial 
+            color={selected ? "#FFD700" : shipColor} 
+            metalness={0.7} 
+            roughness={0.2}
+            emissive={selected ? "#FFD700" : shipColor}
+            emissiveIntensity={selected ? 0.5 : 0.2}
+          />
+        </mesh>
+        
+        {/* Engine glow */}
+        <mesh position={[0, 0, -0.12]}>
+          <cylinderGeometry args={[0.03, 0.05, 0.1, 8]} />
+          <meshStandardMaterial 
+            color="#FF8800" 
+            emissive="#FF6600" 
+            emissiveIntensity={ship.location === 'traveling' ? 0.8 : 0.3}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+        
+        {/* Selection indicator */}
+        {selected && (
+          <mesh position={[0, 0, 0]}>
+            <sphereGeometry args={[0.3, 16, 16]} />
+            <meshBasicMaterial 
+              color="#FFD700" 
+              transparent 
+              opacity={0.2}
+              wireframe
+            />
+          </mesh>
+        )}
+      </group>
+    </group>
+  );
+}
+
 function OrbitingShip({ moonPosition, index }: { moonPosition: [number, number, number]; index: number }) {
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
@@ -2125,8 +2274,44 @@ const EarthVisualization = () => {
     departureTime?: number,
     totalTravelTime?: number,
     destination?: string,
-    cargo?: { metal: number, fuel: number, food: number }
+    cargo?: { metal: number, fuel: number, food: number },
+    // New fields for static positioning
+    staticPosition?: [number, number, number],
+    travelProgress?: number,
+    startPosition?: [number, number, number],
+    endPosition?: [number, number, number]
   }>>([]);
+
+  // Helper functions for static positioning
+  const getStaticPositionNearPlanet = (planet: 'earth' | 'moon', index: number): [number, number, number] => {
+    if (planet === 'earth') {
+      // Position ships around Earth in a formation
+      const angle = (index * Math.PI * 2) / 8; // Up to 8 ships in circle
+      const radius = 4;
+      return [
+        Math.cos(angle) * radius,
+        Math.sin(angle) * 2,
+        Math.sin(angle) * radius
+      ];
+    } else {
+      // Position ships around Moon in a formation  
+      const angle = (index * Math.PI * 2) / 8;
+      const radius = 2;
+      return [
+        24 + Math.cos(angle) * radius, // Moon is at [24, 4, 8]
+        4 + Math.sin(angle) * 1,
+        8 + Math.sin(angle) * radius
+      ];
+    }
+  };
+
+  const getDestinationPosition = (destination: 'earth' | 'moon'): [number, number, number] => {
+    if (destination === 'earth') {
+      return [3, 1, 2]; // Static position near Earth
+    } else {
+      return [26, 5, 10]; // Static position near Moon
+    }
+  };
   const [colonyCount, setColonyCount] = useState(0);
   const [cargoCount, setCargoCount] = useState(0);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
@@ -2765,19 +2950,16 @@ const EarthVisualization = () => {
                        console.log('Colony clicked!');
                        const newColonyCount = colonyCount + 1;
                        setColonyCount(newColonyCount);
-                       const spherePosition: [number, number, number] = [
-                         4 + Math.random() * 2 - 1, // Random position near Earth
-                         Math.random() * 2 - 1,
-                         Math.random() * 2 - 1
-                       ];
-                        setBuiltSpheres(prev => [...prev, { 
-                          type: 'colony', 
-                          position: spherePosition, 
-                          name: `Colony ${newColonyCount}`, 
-                          location: 'earth', 
-                          destination: 'moon',
-                          cargo: { metal: 2, fuel: 2, food: 2 }
-                        }]);
+                        const staticPos = getStaticPositionNearPlanet(activeBuildingTab, builtSpheres.filter(s => s.location === activeBuildingTab).length);
+                         setBuiltSpheres(prev => [...prev, { 
+                           type: 'colony', 
+                           position: staticPos,
+                           staticPosition: staticPos,
+                           name: `Colony ${newColonyCount}`, 
+                           location: activeBuildingTab, 
+                           destination: 'moon',
+                           cargo: { metal: 2, fuel: 2, food: 2 }
+                         }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -2801,18 +2983,15 @@ const EarthVisualization = () => {
                         console.log('Cargo clicked!');
                         const newCargoCount = cargoCount + 1;
                         setCargoCount(newCargoCount);
-                        const spherePosition: [number, number, number] = [
-                          4 + Math.random() * 2 - 1, // Random position near Earth
-                          Math.random() * 2 - 1,
-                          Math.random() * 2 - 1
-                        ];
-                         setBuiltSpheres(prev => [...prev, { 
-                           type: 'cargo', 
-                           position: spherePosition, 
-                           name: `Cargo ${newCargoCount}`, 
-                           location: 'earth', 
-                           destination: 'moon',
-                           cargo: { metal: 10, fuel: 10, food: 10 }
+                        const staticPos = getStaticPositionNearPlanet(activeBuildingTab, builtSpheres.filter(s => s.location === activeBuildingTab).length);
+                          setBuiltSpheres(prev => [...prev, { 
+                            type: 'cargo', 
+                            position: staticPos,
+                            staticPosition: staticPos,
+                            name: `Cargo ${newCargoCount}`, 
+                            location: activeBuildingTab, 
+                            destination: 'moon',
+                            cargo: { metal: 10, fuel: 10, food: 10 }
                          }]);
                       }}
                    >
@@ -3023,19 +3202,39 @@ const EarthVisualization = () => {
                             } 
                             // Special case: Cargo ships with "offload" destination reset cargo to 0/0/0
                             else if (ship.type === 'cargo' && ship.destination === 'offload') {
+                              const arrivalPlanet = ship.destination === 'offload' ? 'moon' : (ship.destination === 'earth' ? 'earth' : 'moon');
+                              const arrivalPosition = getDestinationPosition(arrivalPlanet);
                               setBuiltSpheres(prev => prev.map(s => 
                                 s.name === ship.name ? { 
                                   ...s, 
-                                  location: ship.destination as any || 'moon',
-                                  cargo: { metal: 0, fuel: 0, food: 0 }
+                                  location: arrivalPlanet,
+                                  staticPosition: arrivalPosition,
+                                  position: arrivalPosition,
+                                  cargo: { metal: 0, fuel: 0, food: 0 },
+                                  startPosition: undefined,
+                                  endPosition: undefined,
+                                  departureTime: undefined,
+                                  totalTravelTime: undefined
                                 } : s
                               ));
-                              console.log(`${ship.name} has offloaded all cargo`);
+                              console.log(`${ship.name} has offloaded all cargo at ${arrivalPlanet}`);
                             } else {
-                              // Normal arrival behavior
+                              // Normal arrival behavior - set to static position at destination
+                              const arrivalPlanet = ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land' ? 'moon' : 'earth';
+                              const arrivalPosition = getDestinationPosition(arrivalPlanet);
                               setBuiltSpheres(prev => prev.map(s => 
-                                s.name === ship.name ? { ...s, location: ship.destination as any || 'moon' } : s
+                                s.name === ship.name ? { 
+                                  ...s, 
+                                  location: arrivalPlanet,
+                                  staticPosition: arrivalPosition,
+                                  position: arrivalPosition,
+                                  startPosition: undefined,
+                                  endPosition: undefined,
+                                  departureTime: undefined,
+                                  totalTravelTime: undefined
+                                } : s
                               ));
+                              console.log(`✅ ${ship.name} arrived at ${arrivalPlanet} and positioned statically`);
                             }
                           }}
                         />
@@ -3062,11 +3261,24 @@ const EarthVisualization = () => {
                         disabled={ship.location !== activeBuildingTab}
                         onClick={() => {
                           if (ship.location === activeBuildingTab) {
-                            // Launch from current planet's flight control
+                            // Launch with static positioning system
+                            const currentPlanet = activeBuildingTab;
+                            const targetPlanet = ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land' ? 'moon' : 'earth';
+                            const startPos = ship.staticPosition || ship.position;
+                            const endPos = getDestinationPosition(targetPlanet);
+                            const travelTime = calculateTravelTimeSeconds(currentPlanet, targetPlanet);
+                            
                             setBuiltSpheres(prev => prev.map(s => 
-                              s.name === ship.name ? { ...s, location: 'preparing' } : s
+                              s.name === ship.name ? { 
+                                ...s, 
+                                location: 'traveling',
+                                startPosition: startPos,
+                                endPosition: endPos,
+                                departureTime: Date.now(),
+                                totalTravelTime: travelTime
+                              } : s
                             ));
-                            console.log(`Launching ${ship.name} from ${activeBuildingTab} flight control`);
+                            console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`);
                           }
                         }}
                       >
@@ -3297,10 +3509,16 @@ const EarthVisualization = () => {
           />
         )}
         
-        {/* Orbiting ships around moon */}
-        <OrbitingShip moonPosition={[24, 4, 8]} index={0} />
-        <OrbitingShip moonPosition={[24, 4, 8]} index={1} />
-        <OrbitingShip moonPosition={[24, 4, 8]} index={2} />
+        {/* Static Ships - rendered based on builtSpheres */}
+        {builtSpheres.map((ship, index) => (
+          <StaticShip
+            key={ship.name}
+            ship={ship}
+            selected={selectedObject === ship.name}
+            onShipClick={() => setSelectedObject(ship.name)}
+            onShipDoubleClick={() => console.log(`Double-clicked ${ship.name}`)}
+          />
+        ))}
         
         {/* Coordinate System */}
         {showCoordinates && <CoordinateSystem />}
