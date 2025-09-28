@@ -272,8 +272,13 @@ function StaticShip({
       const start = ship.startPosition;
       const end = ship.endPosition;
       
-      // Add curve height for visual appeal
-      const midY = Math.max(start[1], end[1]) + 8;
+      // Add curve height for smooth trajectory
+      const distance = Math.sqrt(
+        Math.pow(end[0] - start[0], 2) + 
+        Math.pow(end[1] - start[1], 2) + 
+        Math.pow(end[2] - start[2], 2)
+      );
+      const midY = Math.max(start[1], end[1]) + distance * 0.4; // Height proportional to distance
       const mid: [number, number, number] = [
         (start[0] + end[0]) / 2,
         midY,
@@ -2268,7 +2273,7 @@ const EarthVisualization = () => {
   const [alienShipHits, setAlienShipHits] = useState(0);
   const [builtSpheres, setBuiltSpheres] = useState<Array<{ 
     type: 'colony' | 'cargo', 
-    position: [number, number, number], 
+    position?: [number, number, number], // Optional for legacy spheres
     name: string, 
     location: 'earth' | 'moon' | 'preparing' | 'traveling',
     departureTime?: number,
@@ -2953,11 +2958,10 @@ const EarthVisualization = () => {
                         const staticPos = getStaticPositionNearPlanet(activeBuildingTab, builtSpheres.filter(s => s.location === activeBuildingTab).length);
                          setBuiltSpheres(prev => [...prev, { 
                            type: 'colony', 
-                           position: staticPos,
                            staticPosition: staticPos,
                            name: `Colony ${newColonyCount}`, 
                            location: activeBuildingTab, 
-                           destination: 'moon',
+                           destination: activeBuildingTab === 'earth' ? 'moon' : 'earth',
                            cargo: { metal: 2, fuel: 2, food: 2 }
                          }]);
                      }}
@@ -2986,11 +2990,10 @@ const EarthVisualization = () => {
                         const staticPos = getStaticPositionNearPlanet(activeBuildingTab, builtSpheres.filter(s => s.location === activeBuildingTab).length);
                           setBuiltSpheres(prev => [...prev, { 
                             type: 'cargo', 
-                            position: staticPos,
                             staticPosition: staticPos,
                             name: `Cargo ${newCargoCount}`, 
                             location: activeBuildingTab, 
-                            destination: 'moon',
+                            destination: activeBuildingTab === 'earth' ? 'moon' : 'earth',
                             cargo: { metal: 10, fuel: 10, food: 10 }
                          }]);
                       }}
@@ -3556,37 +3559,21 @@ const EarthVisualization = () => {
         {/* Ship Panel Drones */}
         {shipFactoryBuilt && <ShipPanelDrones count={shipPanelDrones} />}
         
-        {/* Built Spheres */}
-        {builtSpheres.map((sphere, index) => {
-          const orbitRadius = sphere.location === 'moon' ? 2 + index * 0.3 : 5 + index * 0.5;
-          const orbitSpeed = 1.0 / Math.sqrt(orbitRadius);
-          return (
-            <OrbitingSphere 
-              key={index} 
-              type={sphere.type} 
-              orbitRadius={orbitRadius} 
-              orbitSpeed={orbitSpeed}
-              initialAngle={index * (Math.PI / 3)}
-              name={sphere.name}
-              location={sphere.location}
-              sphereData={sphere}
-              onLocationUpdate={(name, newLocation) => {
-                setBuiltSpheres(prev => prev.map(s => 
-                  s.name === name ? { ...s, location: newLocation } : s
-                ));
-              }}
-              onSphereUpdate={(name, updates) => {
-                setBuiltSpheres(prev => prev.map(s => 
-                  s.name === name ? { ...s, ...updates } : s
-                ));
-              }}
-              onShipClick={(name, type) => {
-                setSelectedShip({ name, type });
-                setShowShipLaunchModal(true);
-              }}
-            />
-          );
-        })}
+        {/* Static Ships */}
+        {builtSpheres.map((ship, index) => (
+          <StaticShip 
+            key={index} 
+            ship={ship}
+            selected={selectedShip?.name === ship.name}
+            onShipClick={() => {
+              setSelectedShip({ name: ship.name, type: ship.type });
+              setShowShipLaunchModal(true);
+            }}
+            onShipDoubleClick={() => {
+              console.log(`${ship.name} double clicked!`);
+            }}
+          />
+        ))}
         
         {/* Trajectory Ship with Figure-8 path */}
         <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
