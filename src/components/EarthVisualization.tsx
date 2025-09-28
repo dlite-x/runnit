@@ -1738,41 +1738,47 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
       const angle = initialAngle + time * orbitSpeed;
       
       if (location === 'preparing') {
-        // Continue orbiting until we reach a good launch position (facing the moon)
-        const x = Math.cos(angle) * orbitRadius;
-        const z = Math.sin(angle) * orbitRadius;
-        const y = Math.sin(angle * 0.5) * 0.5;
+        // Continue orbiting until we reach a good launch position (facing the target)
         
-        meshRef.current.position.set(x, y, z);
-        textRef.current.position.set(x, y + 0.5, z);
-        
-        // Determine target direction based on current location and destination
+        // Determine current planet and target destination first
         const destination = sphereData.destination || 'moon';
         let targetDirection: number;
         let targetCenter: [number, number, number];
         let currentPlanet: string;
+        let x, y, z;
         
-        // Determine current planet and target destination
-        if (location === 'preparing') {
-          // Check if we're currently orbiting Earth or Moon
-          if (orbitRadius < 10) { // Earth orbit
-            currentPlanet = 'earth';
-            if (destination === 'earth') {
-              // Already at Earth, don't launch
-              return;
-            }
-            targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
-            targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
-          } else { // Moon orbit
-            currentPlanet = 'moon';
-            if (destination === 'moon') {
-              // Already at Moon, don't launch
-              return;
-            }
-            targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
-            targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24); // From moon position to target
+        // Check if we're currently orbiting Earth or Moon based on orbit radius
+        if (orbitRadius < 10) { // Earth orbit
+          currentPlanet = 'earth';
+          // Earth-centered coordinates
+          x = Math.cos(angle) * orbitRadius;
+          z = Math.sin(angle) * orbitRadius;
+          y = Math.sin(angle * 0.5) * 0.5;
+          
+          if (destination === 'earth') {
+            // Already at Earth, don't launch
+            return;
           }
+          targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
+          targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
+        } else { // Moon orbit
+          currentPlanet = 'moon';
+          // Moon-centered coordinates (orbit around moon position)
+          const moonCenter = [24, 4, 8];
+          x = moonCenter[0] + Math.cos(angle) * orbitRadius;
+          z = moonCenter[2] + Math.sin(angle) * orbitRadius;
+          y = moonCenter[1] + Math.sin(angle * 0.5) * 0.5;
+          
+          if (destination === 'moon') {
+            // Already at Moon, don't launch
+            return;
+          }
+          targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
+          targetDirection = Math.atan2(targetCenter[2] - moonCenter[2], targetCenter[0] - moonCenter[0]); // From moon position to target
         }
+        
+        meshRef.current.position.set(x, y, z);
+        textRef.current.position.set(x, y + 0.5, z);
         
         const velocityDirection = (angle + Math.PI / 2) % (Math.PI * 2); // Orbital velocity is perpendicular to radius
         const directionDiff = Math.abs(velocityDirection - targetDirection);
@@ -1781,6 +1787,8 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         if (normalizedDiff < Math.PI / 9) { // π/9 = 20 degrees
           setLaunchPosition([x, y, z]);
           const travelTimeSeconds = calculateTravelTimeSeconds(currentPlanet, destination);
+          
+          console.log(`🚀 ${name} launching from ${currentPlanet} to ${destination} at position (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
           
           // Update with departure time and travel details
           onLocationUpdate(name, 'traveling');
