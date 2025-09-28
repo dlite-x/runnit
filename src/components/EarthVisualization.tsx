@@ -3287,7 +3287,9 @@ const EarthVisualization = () => {
                             // Special case: Cargo ships with "offload" destination reset cargo to 0/0/0
                             else if (ship.type === 'cargo' && ship.destination === 'offload') {
                               const arrivalPlanet = ship.destination === 'offload' ? 'moon' : (ship.destination === 'earth' ? 'earth' : 'moon');
-                              const arrivalPosition = getDestinationPosition(arrivalPlanet);
+                              // Count ships already at destination for proper spacing
+                              const shipsAtDestination = builtSpheres.filter(s => s.location === arrivalPlanet).length;
+                              const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
                               setBuiltSpheres(prev => prev.map(s => 
                                 s.name === ship.name ? { 
                                   ...s, 
@@ -3303,9 +3305,11 @@ const EarthVisualization = () => {
                               ));
                               console.log(`${ship.name} has offloaded all cargo at ${arrivalPlanet}`);
                             } else {
-                              // Normal arrival behavior - set to static position at destination
+                              // Normal arrival behavior - set to static position at destination with proper spacing
                               const arrivalPlanet = ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land' ? 'moon' : 'earth';
-                              const arrivalPosition = getDestinationPosition(arrivalPlanet);
+                              // Count ships already at destination to determine spacing index
+                              const shipsAtDestination = builtSpheres.filter(s => s.location === arrivalPlanet).length;
+                              const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
                               setBuiltSpheres(prev => prev.map(s => 
                                 s.name === ship.name ? { 
                                   ...s, 
@@ -3349,7 +3353,9 @@ const EarthVisualization = () => {
                             const currentPlanet = activeBuildingTab;
                             const targetPlanet = ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land' ? 'moon' : 'earth';
                             const startPos = ship.staticPosition || ship.position;
-                            const endPos = getDestinationPosition(targetPlanet);
+                            // Count ships that will be at destination to determine proper landing spot
+                            const shipsAtTargetDestination = builtSpheres.filter(s => s.location === targetPlanet || (s.location === 'traveling' && (s.destination === targetPlanet || (s.destination === 'moon' && targetPlanet === 'moon') || (s.destination === 'earth' && targetPlanet === 'earth')))).length;
+                            const endPos = getStaticPositionNearPlanet(targetPlanet, shipsAtTargetDestination);
                             const travelTime = calculateTravelTimeSeconds(currentPlanet, targetPlanet);
                             
                             setBuiltSpheres(prev => prev.map(s => 
