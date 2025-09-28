@@ -1817,7 +1817,7 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           let x, y, z;
           
           // Special curved trajectory for Moon Test ships
-          if (name.includes('Moon Test') && destination === 'earth' && launchPosition[0] === 24) {
+          if (name.includes('Moon Test') && destination === 'earth' && Math.abs(launchPosition[0] - 24) < 5) {
             // Moon Test ships get enhanced curved path with dramatic arc
             const startPos = launchPosition;
             const endPos = targetCenter;
@@ -1835,8 +1835,8 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
             y = oneMinusT * oneMinusT * startPos[1] + 2 * oneMinusT * t * midPointY + t * t * endPos[1];
             z = oneMinusT * oneMinusT * startPos[2] + 2 * oneMinusT * t * midPointZ + t * t * endPos[2];
             
-            console.log(`🚀 MOON TEST ${name} - Progress: ${newProgress.toFixed(3)}, Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
-          } else if (destination === 'earth' && launchPosition[0] === 24) {
+            console.log(`🚀 MOON TEST ${name} - Progress: ${newProgress.toFixed(3)}, Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)}), Launch: (${launchPosition[0].toFixed(1)}, ${launchPosition[1].toFixed(1)}, ${launchPosition[2].toFixed(1)})`);
+          } else if (destination === 'earth' && Math.abs(launchPosition[0] - 24) < 5) {
             // Regular Moon to Earth - use moderate curved path
             const startPos = launchPosition;
             const endPos = targetCenter;
