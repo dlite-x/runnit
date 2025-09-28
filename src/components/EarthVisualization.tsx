@@ -432,199 +432,6 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
   );
 }
 
-function TestCube({ position, status, travelProgress }: {
-  position: [number, number, number];
-  status: 'at-moon' | 'traveling' | 'at-earth';
-  travelProgress: number;
-}) {
-  const cubeRef = useRef<THREE.Mesh>(null);
-  const trailRef = useRef<THREE.LineSegments>(null);
-  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
-
-  useFrame(() => {
-    if (cubeRef.current) {
-      if (status === 'traveling') {
-        // Animate from moon to earth using curved trajectory
-        const startPos = [26, 5, 10]; // Near moon
-        const endPos = [3, 1, 2]; // Near earth
-        
-        // Bezier curve with high arc
-        const midPointX = (startPos[0] + endPos[0]) / 2;
-        const midPointY = Math.max(startPos[1], endPos[1]) + 8;
-        const midPointZ = (startPos[2] + endPos[2]) / 2;
-        
-        const t = travelProgress;
-        const oneMinusT = 1 - t;
-        
-        const x = oneMinusT * oneMinusT * startPos[0] + 2 * oneMinusT * t * midPointX + t * t * endPos[0];
-        const y = oneMinusT * oneMinusT * startPos[1] + 2 * oneMinusT * t * midPointY + t * t * endPos[1];
-        const z = oneMinusT * oneMinusT * startPos[2] + 2 * oneMinusT * t * midPointZ + t * t * endPos[2];
-        
-        cubeRef.current.position.set(x, y, z);
-        
-        // Update trail
-        const currentPos = new THREE.Vector3(x, y, z);
-        setTrailPoints(prev => {
-          const newPoints = [...prev, currentPos];
-          return newPoints.slice(-30);
-        });
-      } else {
-        cubeRef.current.position.set(...position);
-        // Clear trail when not traveling
-        if (trailPoints.length > 0) {
-          setTrailPoints([]);
-        }
-      }
-    }
-  });
-
-  // Create trail geometry
-  React.useEffect(() => {
-    if (trailRef.current && trailPoints.length > 1) {
-      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
-      trailRef.current.geometry.dispose();
-      trailRef.current.geometry = geometry;
-    }
-  }, [trailPoints]);
-
-  return (
-    <group>
-      <mesh ref={cubeRef}>
-        <boxGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial 
-          color="#FF0000" 
-          metalness={0.7} 
-          roughness={0.2}
-          emissive="#FF3333"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
-      
-      {/* Trail */}
-      {status === 'traveling' && trailPoints.length > 1 && (
-        <lineSegments ref={trailRef}>
-          <bufferGeometry />
-          <lineBasicMaterial 
-            color="#FF0000" 
-            transparent 
-            opacity={0.8}
-            linewidth={3}
-          />
-        </lineSegments>
-      )}
-    </group>
-  );
-}
-
-function BlueTrajectoryShip({ earthPosition, moonPosition }: { 
-  earthPosition: [number, number, number]; 
-  moonPosition: [number, number, number]; 
-}) {
-  const shipRef = useRef<THREE.Group>(null);
-  const trailRef = useRef<THREE.LineSegments>(null);
-  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
-  
-  useFrame((state, delta) => {
-    if (shipRef.current) {
-      const time = state.clock.getElapsedTime();
-      const speed = 0.08; // Different speed than yellow ship for variety
-      
-      // Different trajectory pattern - reversed figure-8
-      const t = time * speed + Math.PI; // Phase offset for different starting position
-      
-      // Calculate distance between Earth and Moon
-      const earthToMoon = {
-        x: moonPosition[0] - earthPosition[0],
-        y: moonPosition[1] - earthPosition[1],
-        z: moonPosition[2] - earthPosition[2]
-      };
-      
-      // Center point for the figure-8 (slightly closer to Moon this time)
-      const centerX = earthPosition[0] + earthToMoon.x * 0.6;
-      const centerY = earthPosition[1] + earthToMoon.y * 0.6;
-      const centerZ = earthPosition[2] + earthToMoon.z * 0.6;
-      
-      // Different figure-8 parameters for variety
-      const a = 12; // Slightly smaller width
-      const b = 10; // Taller height
-      
-      // Parametric equations for figure-8 (lemniscate) - reversed
-      const x = centerX + (a * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
-      const y = centerY + (b * Math.sin(t) * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
-      const z = centerZ + Math.sin(t * 0.5) * 4; // Different vertical oscillation
-      
-      shipRef.current.position.set(x, y, z);
-      
-      // Point ship in direction of movement
-      const nextT = t + 0.1;
-      const nextX = centerX + (a * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
-      const nextY = centerY + (b * Math.sin(nextT) * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
-      const nextZ = centerZ + Math.sin(nextT * 0.5) * 4;
-      shipRef.current.lookAt(nextX, nextY, nextZ);
-      
-      // Update trail
-      const currentPos = new THREE.Vector3(x, y, z);
-      setTrailPoints(prev => {
-        const newPoints = [...prev, currentPos];
-        // Keep trail for visibility
-        return newPoints.slice(-25);
-      });
-    }
-  });
-
-  // Create trail geometry
-  React.useEffect(() => {
-    if (trailRef.current && trailPoints.length > 1) {
-      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
-      trailRef.current.geometry.dispose();
-      trailRef.current.geometry = geometry;
-    }
-  }, [trailPoints]);
-
-  return (
-    <group>
-      {/* Ship */}
-      <group ref={shipRef}>
-        <mesh>
-          <boxGeometry args={[0.12, 0.06, 0.18]} />
-          <meshStandardMaterial 
-            color="#4169E1" 
-            metalness={0.7} 
-            roughness={0.2}
-            emissive="#1E90FF"
-            emissiveIntensity={0.3}
-          />
-        </mesh>
-        
-        {/* Engine glow */}
-        <mesh position={[0, 0, -0.1]}>
-          <cylinderGeometry args={[0.025, 0.04, 0.08, 8]} />
-          <meshStandardMaterial 
-            color="#00BFFF" 
-            emissive="#0080FF" 
-            emissiveIntensity={0.8}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
-      </group>
-      
-      {/* Trail */}
-      {trailPoints.length > 1 && (
-        <lineSegments ref={trailRef}>
-          <bufferGeometry />
-          <lineBasicMaterial 
-            color="#4169E1" 
-            transparent 
-            opacity={0.8}
-            linewidth={2}
-          />
-        </lineSegments>
-      )}
-    </group>
-  );
-}
-
 function MoonBase() {
   const baseRef = useRef<THREE.Group>(null);
   
@@ -1793,18 +1600,18 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
   orbitSpeed: number;
   initialAngle: number;
   name: string;
-  location: 'earth' | 'moon' | 'preparing' | 'traveling' | 'in-route' | 'arrived';
+  location: 'earth' | 'moon' | 'preparing' | 'traveling';
   sphereData: { 
     type: 'colony' | 'cargo', 
     position: [number, number, number], 
     name: string, 
-    location: 'earth' | 'moon' | 'preparing' | 'traveling' | 'in-route' | 'arrived',
+    location: 'earth' | 'moon' | 'preparing' | 'traveling',
     departureTime?: number,
     totalTravelTime?: number,
     destination?: string,
     cargo?: { metal: number, fuel: number, food: number }
   };
-  onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'preparing' | 'traveling' | 'in-route' | 'arrived') => void;
+  onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'preparing' | 'traveling') => void;
   onShipClick?: (name: string, type: 'colony' | 'cargo') => void;
   onSphereUpdate?: (name: string, updates: any) => void;
 }) => {
@@ -1815,7 +1622,6 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
   const [isInitialized, setIsInitialized] = useState(false);
   const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
   const [launchPosition, setLaunchPosition] = useState<[number, number, number] | null>(null);
-  const [preparingStartTime, setPreparingStartTime] = useState<number | null>(null);
   
   useFrame((state) => {
     if (meshRef.current && textRef.current) {
@@ -1823,109 +1629,63 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
       const angle = initialAngle + time * orbitSpeed;
       
       if (location === 'preparing') {
-        // Set start time for preparing state if not already set
-        if (!preparingStartTime) {
-          setPreparingStartTime(Date.now());
-        }
-        
-        // Continue orbiting until we reach a good launch position (facing the target)
-        
-        // Determine current planet and target destination first
-        const destination = sphereData.destination || 'moon';
-        let targetDirection: number;
-        let targetCenter: [number, number, number];
-        let currentPlanet: string;
-        let x, y, z;
-        
-        // Check if we're currently orbiting Earth or Moon based on orbit radius
-        if (orbitRadius < 10) { // Earth orbit
-          currentPlanet = 'earth';
-          // Earth-centered coordinates
-          x = Math.cos(angle) * orbitRadius;
-          z = Math.sin(angle) * orbitRadius;
-          y = Math.sin(angle * 0.5) * 0.5;
-          
-          if (destination === 'earth') {
-            // Already at Earth, don't launch
-            return;
-          }
-          targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
-          targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
-        } else { // Moon orbit
-          currentPlanet = 'moon';
-          // Moon-centered coordinates (orbit around moon position)
-          const moonCenter = [24, 4, 8];
-          x = moonCenter[0] + Math.cos(angle) * orbitRadius;
-          z = moonCenter[2] + Math.sin(angle) * orbitRadius;
-          y = moonCenter[1] + Math.sin(angle * 0.5) * 0.5;
-          
-          if (destination === 'moon') {
-            // Already at Moon, don't launch
-            return;
-          }
-          targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
-          // Calculate direction from current moon orbital position to Earth
-          targetDirection = Math.atan2(targetCenter[2] - moonCenter[2], targetCenter[0] - moonCenter[0]); // From moon center to target
-        }
+        // Continue orbiting until we reach a good launch position (facing the moon)
+        const x = Math.cos(angle) * orbitRadius;
+        const z = Math.sin(angle) * orbitRadius;
+        const y = Math.sin(angle * 0.5) * 0.5;
         
         meshRef.current.position.set(x, y, z);
         textRef.current.position.set(x, y + 0.5, z);
         
-        // Failsafe: If ship has been preparing for more than 30 seconds, force launch
-        const timeInPreparing = Date.now() - (preparingStartTime || 0);
-        if (timeInPreparing > 30000) { // 30 seconds
-          console.log(`⏰ FORCED LAUNCH: ${name} has been preparing for ${(timeInPreparing/1000).toFixed(1)}s, forcing launch!`);
-          setLaunchPosition([x, y, z]);
-          setPreparingStartTime(null);
-          onLocationUpdate(name, 'in-route');
-          onSphereUpdate?.(name, {
-            location: 'in-route',
-            departureTime: Date.now(),
-            totalTravelTime: 10000, // 10 second travel time
-            destination: sphereData.destination || 'earth'
-          });
-          return;
+        // Determine target direction based on current location and destination
+        const destination = sphereData.destination || 'moon';
+        let targetDirection: number;
+        let targetCenter: [number, number, number];
+        let currentPlanet: string;
+        
+        // Determine current planet and target destination
+        if (location === 'preparing') {
+          // Check if we're currently orbiting Earth or Moon
+          if (orbitRadius < 10) { // Earth orbit
+            currentPlanet = 'earth';
+            if (destination === 'earth') {
+              // Already at Earth, don't launch
+              return;
+            }
+            targetCenter = destination === 'moon' ? [24, 4, 8] : [24, 4, 8]; // Default to moon for now
+            targetDirection = Math.atan2(targetCenter[2], targetCenter[0]);
+          } else { // Moon orbit
+            currentPlanet = 'moon';
+            if (destination === 'moon') {
+              // Already at Moon, don't launch
+              return;
+            }
+            targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
+            targetDirection = Math.atan2(targetCenter[2] - 8, targetCenter[0] - 24); // From moon position to target
+          }
         }
         
         const velocityDirection = (angle + Math.PI / 2) % (Math.PI * 2); // Orbital velocity is perpendicular to radius
         const directionDiff = Math.abs(velocityDirection - targetDirection);
         const normalizedDiff = Math.min(directionDiff, 2 * Math.PI - directionDiff);
         
-        // Add debugging for Moon-to-Earth launches specifically
-        if (currentPlanet === 'moon' && destination === 'earth') {
-          console.log(`🌙➡️🌍 MOON-TO-EARTH LAUNCH CHECK: ${name}`);
-          console.log(`   Current Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
-          console.log(`   Angle: ${(angle * 180 / Math.PI).toFixed(1)}°`);
-          console.log(`   Target Direction: ${(targetDirection * 180 / Math.PI).toFixed(1)}°`);
-          console.log(`   Velocity Direction: ${(velocityDirection * 180 / Math.PI).toFixed(1)}°`);
-          console.log(`   Direction Diff: ${(normalizedDiff * 180 / Math.PI).toFixed(1)}° (need < ${(Math.PI / 9 * 180 / Math.PI).toFixed(1)}°)`);
-        }
-        
-        // Use different launch windows depending on direction
-        const launchWindowSize = (currentPlanet === 'moon' && destination === 'earth') ? Math.PI / 4 : Math.PI / 9; // Larger window for Moon-to-Earth
-        if (normalizedDiff < launchWindowSize) {
+        if (normalizedDiff < Math.PI / 9) { // π/9 = 20 degrees
           setLaunchPosition([x, y, z]);
           const travelTimeSeconds = calculateTravelTimeSeconds(currentPlanet, destination);
           
-          console.log(`🚀 LAUNCH DETECTED: ${name} launching from ${currentPlanet} to ${destination}`);
-          console.log(`   Launch Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
-          console.log(`   Orbit Radius: ${orbitRadius}, Angle: ${(angle * 180 / Math.PI).toFixed(1)}°`);
-          console.log(`   Target Direction: ${(targetDirection * 180 / Math.PI).toFixed(1)}°, Velocity: ${(velocityDirection * 180 / Math.PI).toFixed(1)}°`);
-          console.log(`   Travel Time: ${travelTimeSeconds}s`);
-          
-          // Update to "in-route" state instead of "traveling"
-          onLocationUpdate(name, 'in-route');
+          // Update with departure time and travel details
+          onLocationUpdate(name, 'traveling');
           
           // Also update the sphere data with timing info
           onSphereUpdate?.(name, {
-            location: 'in-route',
+            location: 'traveling',
             departureTime: Date.now(),
             totalTravelTime: travelTimeSeconds,
             destination
           });
         }
-      } else if (location === 'in-route') {
-        // Ship is in route - continue curved trajectory animation
+      } else if (location === 'traveling') {
+        // Dynamic travel animation based on destination
         const destination = sphereData.destination || 'moon';
         let targetCenter: [number, number, number];
         
@@ -1940,58 +1700,14 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         }
         
         const travelSpeed = 0.15; // Much slower, similar to figure-8 ship speed
-        console.log(`🔍 IN-ROUTE CHECK: ${name} - Progress: ${travelProgress.toFixed(3)}, Launch Position: ${launchPosition ? `(${launchPosition[0].toFixed(1)}, ${launchPosition[1].toFixed(1)}, ${launchPosition[2].toFixed(1)})` : 'NULL'}, Destination: ${destination}`);
         
         if (travelProgress < 1 && launchPosition) {
           const newProgress = Math.min(1, travelProgress + travelSpeed * 0.016); // ~60fps
           setTravelProgress(newProgress);
           
-          console.log(`🛸 TRAVEL UPDATE: ${name} - Progress: ${(newProgress * 100).toFixed(1)}%, Launch Pos: (${launchPosition[0].toFixed(1)}, ${launchPosition[1].toFixed(1)}, ${launchPosition[2].toFixed(1)})`);
-          
-          let x, y, z;
-          
-          // Special curved trajectory for Moon Test ships
-          if (name.includes('Moon Test') && destination === 'earth' && Math.abs(launchPosition[0] - 24) < 5) {
-            // Moon Test ships get enhanced curved path with dramatic arc
-            const startPos = launchPosition;
-            const endPos = targetCenter;
-            
-            // Create a high, dramatic arc for Moon Test ships
-            const midPointX = (startPos[0] + endPos[0]) / 2;
-            const midPointY = Math.max(startPos[1], endPos[1]) + 12; // Much higher arc for visibility
-            const midPointZ = (startPos[2] + endPos[2]) / 2 + 4; // Offset for more interesting path
-            
-            // Quadratic Bezier curve for smooth trajectory
-            const t = newProgress;
-            const oneMinusT = 1 - t;
-            
-            x = oneMinusT * oneMinusT * startPos[0] + 2 * oneMinusT * t * midPointX + t * t * endPos[0];
-            y = oneMinusT * oneMinusT * startPos[1] + 2 * oneMinusT * t * midPointY + t * t * endPos[1];
-            z = oneMinusT * oneMinusT * startPos[2] + 2 * oneMinusT * t * midPointZ + t * t * endPos[2];
-            
-            console.log(`🚀 MOON TEST ${name} - Progress: ${newProgress.toFixed(3)}, Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)}), Launch: (${launchPosition[0].toFixed(1)}, ${launchPosition[1].toFixed(1)}, ${launchPosition[2].toFixed(1)})`);
-          } else if (destination === 'earth' && Math.abs(launchPosition[0] - 24) < 5) {
-            // Regular Moon to Earth - use moderate curved path
-            const startPos = launchPosition;
-            const endPos = targetCenter;
-            
-            const midPointX = (startPos[0] + endPos[0]) / 2;
-            const midPointY = Math.max(startPos[1], endPos[1]) + 6; // Arc up for smooth trajectory
-            const midPointZ = (startPos[2] + endPos[2]) / 2;
-            
-            // Quadratic Bezier curve for smooth trajectory
-            const t = newProgress;
-            const oneMinusT = 1 - t;
-            
-            x = oneMinusT * oneMinusT * startPos[0] + 2 * oneMinusT * t * midPointX + t * t * endPos[0];
-            y = oneMinusT * oneMinusT * startPos[1] + 2 * oneMinusT * t * midPointY + t * t * endPos[1];
-            z = oneMinusT * oneMinusT * startPos[2] + 2 * oneMinusT * t * midPointZ + t * t * endPos[2];
-          } else {
-            // Earth to Moon or other destinations - use simple linear interpolation
-            x = launchPosition[0] + (targetCenter[0] - launchPosition[0]) * newProgress;
-            y = launchPosition[1] + (targetCenter[1] - launchPosition[1]) * newProgress;
-            z = launchPosition[2] + (targetCenter[2] - launchPosition[2]) * newProgress;
-          }
+          const x = launchPosition[0] + (targetCenter[0] - launchPosition[0]) * newProgress;
+          const y = launchPosition[1] + (targetCenter[1] - launchPosition[1]) * newProgress;
+          const z = launchPosition[2] + (targetCenter[2] - launchPosition[2]) * newProgress;
           
           meshRef.current.position.set(x, y, z);
           textRef.current.position.set(x, y + 0.5, z);
@@ -2000,46 +1716,18 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           const currentPos = new THREE.Vector3(x, y, z);
           setTrailPoints(prev => {
             const newPoints = [...prev, currentPos];
-            // Keep longer trail for Moon Test ships for better visibility
-            const maxTrailLength = name.includes('Moon Test') ? 40 : 25;
-            return newPoints.slice(-maxTrailLength);
+            // Keep trail for the journey
+            return newPoints.slice(-25);
           });
         } else if (travelProgress >= 1) {
-          // Travel complete, update location to "arrived" at destination
-          console.log(`✅ ARRIVAL: ${name} completed journey to ${destination}`);
-          onLocationUpdate(name, 'arrived');
+          // Travel complete, update location to destination
+          const finalLocation = destination === 'earth' ? 'earth' : 'moon';
+          onLocationUpdate(name, finalLocation as any);
           setTravelProgress(0);
           setLaunchPosition(null);
           // Clear trail when travel is complete
           setTrailPoints([]);
-        } else if (!launchPosition) {
-          // ERROR: No launch position but in "in-route" state - this causes teleportation!
-          console.error(`🚨 TELEPORTATION BUG: ${name} is in-route but has no launch position! Resetting to preparing.`);
-          onLocationUpdate(name, 'preparing');
         }
-      } else if (location === 'arrived') {
-        // Ship has arrived - move to final destination orbit
-        const destination = sphereData.destination || 'moon';
-        
-        // Give the ship some time in "arrived" state, then move to final location
-        setTimeout(() => {
-          if (destination === 'earth') {
-            onLocationUpdate(name, 'earth');
-          } else if (destination === 'moon') {
-            onLocationUpdate(name, 'moon');
-          }
-        }, 2000); // 2 second delay before moving to final orbit
-        
-        // Position ship at destination during arrived state
-        let finalX = 0, finalY = 0, finalZ = 0;
-        if (destination === 'earth') {
-          finalX = 3; finalY = 1; finalZ = 0; // Near Earth
-        } else if (destination === 'moon') {
-          finalX = 27; finalY = 5; finalZ = 8; // Near Moon
-        }
-        
-        meshRef.current.position.set(finalX, finalY, finalZ);
-        textRef.current.position.set(finalX, finalY + 0.5, finalZ);
       } else {
         // Normal orbit logic - clear trail when not traveling
         if (trailPoints.length > 0) {
@@ -2397,63 +2085,6 @@ const CountdownTimer = ({
 }) => {
   const [remainingTime, setRemainingTime] = useState(0);
 
-  // Test cube animation logic
-  useEffect(() => {
-    let animationId: number;
-    
-    if (testCube.status === 'traveling') {
-      const animate = () => {
-        setTestCube(prev => {
-          const newProgress = Math.min(1, prev.travelProgress + 0.01); // Slow travel
-          console.log(`🔴 Test Cube Progress: ${(newProgress * 100).toFixed(1)}%`);
-          
-          if (newProgress >= 1) {
-            console.log(`✅ Test Cube arrived at Earth`);
-            return {
-              position: [3, 1, 2], // Final position near Earth
-              status: 'at-earth',
-              travelProgress: 0
-            };
-          }
-          
-          return {
-            ...prev,
-            travelProgress: newProgress
-          };
-        });
-        
-        animationId = requestAnimationFrame(animate);
-      };
-      
-      animationId = requestAnimationFrame(animate);
-    }
-    
-    return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-    };
-  }, [testCube.status]);
-
-  const handleLaunchTestCube = () => {
-    console.log(`🚀 Launching Test Cube from Moon to Earth`);
-    setTestCube(prev => ({
-      ...prev,
-      status: 'traveling',
-      travelProgress: 0
-    }));
-    setShowTestModal(false);
-  };
-
-  const resetTestCube = () => {
-    console.log(`🔄 Resetting Test Cube to Moon`);
-    setTestCube({
-      position: [26, 5, 10],
-      status: 'at-moon',
-      travelProgress: 0
-    });
-  };
-
   useEffect(() => {
     const updateTimer = () => {
       const elapsed = (Date.now() - departureTime) / 1000;
@@ -2486,21 +2117,11 @@ const EarthVisualization = () => {
   const [modalContent, setModalContent] = useState('');
   const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
-  const [showTestModal, setShowTestModal] = useState(false);
-  const [testCube, setTestCube] = useState<{
-    position: [number, number, number];
-    status: 'at-moon' | 'traveling' | 'at-earth';
-    travelProgress: number;
-  }>({
-    position: [26, 5, 10], // Static position near moon
-    status: 'at-moon',
-    travelProgress: 0
-  });
   const [builtSpheres, setBuiltSpheres] = useState<Array<{ 
     type: 'colony' | 'cargo', 
     position: [number, number, number], 
     name: string, 
-    location: 'earth' | 'moon' | 'preparing' | 'traveling' | 'in-route' | 'arrived',
+    location: 'earth' | 'moon' | 'preparing' | 'traveling',
     departureTime?: number,
     totalTravelTime?: number,
     destination?: string,
@@ -2619,63 +2240,6 @@ const EarthVisualization = () => {
     });
   }, [builtSpheres]);
 
-  // Test cube animation logic
-  useEffect(() => {
-    let animationId: number;
-    
-    if (testCube.status === 'traveling') {
-      const animate = () => {
-        setTestCube(prev => {
-          const newProgress = Math.min(1, prev.travelProgress + 0.01); // Slow travel
-          console.log(`🔴 Test Cube Progress: ${(newProgress * 100).toFixed(1)}%`);
-          
-          if (newProgress >= 1) {
-            console.log(`✅ Test Cube arrived at Earth`);
-            return {
-              position: [3, 1, 2], // Final position near Earth
-              status: 'at-earth',
-              travelProgress: 0
-            };
-          }
-          
-          return {
-            ...prev,
-            travelProgress: newProgress
-          };
-        });
-        
-        animationId = requestAnimationFrame(animate);
-      };
-      
-      animationId = requestAnimationFrame(animate);
-    }
-    
-    return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-    };
-  }, [testCube.status]);
-
-  const handleLaunchTestCube = () => {
-    console.log(`🚀 Launching Test Cube from Moon to Earth`);
-    setTestCube(prev => ({
-      ...prev,
-      status: 'traveling',
-      travelProgress: 0
-    }));
-    setShowTestModal(false);
-  };
-
-  const resetTestCube = () => {
-    console.log(`🔄 Resetting Test Cube to Moon`);
-    setTestCube({
-      position: [26, 5, 10],
-      status: 'at-moon',
-      travelProgress: 0
-    });
-  };
-
   // Flight controls
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -2779,15 +2343,6 @@ const EarthVisualization = () => {
                 <span className="text-purple-300 font-medium text-sm">1</span>
               </div>
             </div>
-            
-            {/* Test Cube Button */}
-            <button
-              onClick={() => setShowTestModal(true)}
-              className="p-2 bg-red-600/80 hover:bg-red-700/80 text-white rounded-lg border border-red-500/50 transition-all duration-200 hover:scale-105 mr-2"
-              aria-label="Test Cube Control"
-            >
-              <span className="text-xs font-bold">🔴</span>
-            </button>
             
             {/* Operations Panel Toggle */}
             <button
@@ -3399,17 +2954,14 @@ const EarthVisualization = () => {
                       } else {
                         // After moon is colonized: ships show in their origin planet's flight control
                         if (activeBuildingTab === 'earth') {
-                          // Earth shows: ships that are actually at Earth or traveling TO earth
+                          // Earth shows: ships that started from Earth (destination moon/mars/etc)
                           return ship.location === 'earth' || 
-                                 (ship.location === 'preparing' && ship.destination !== 'earth') ||
-                                 (ship.location === 'arrived' && ship.destination === 'earth') ||
-                                 (ship.location === 'in-route' && ship.destination !== 'earth');
+                                 ship.location === 'preparing' || 
+                                 (ship.location === 'traveling' && ship.destination !== 'earth');
                         } else if (activeBuildingTab === 'moon') {
-                          // Moon shows: ships at moon + ships preparing to leave moon + ships traveling FROM moon
+                          // Moon shows: ships at moon + ships traveling FROM moon to elsewhere
                           return ship.location === 'moon' || 
-                                 (ship.location === 'preparing' && ship.destination === 'earth') ||
-                                 (ship.location === 'arrived' && ship.destination === 'moon') ||
-                                 (ship.location === 'in-route' && ship.destination === 'earth');
+                                 (ship.location === 'traveling' && ship.destination === 'earth');
                         }
                       }
                       return false;
@@ -3502,8 +3054,7 @@ const EarthVisualization = () => {
                       <span className="text-sm text-green-400">
                         {ship.location === 'earth' ? 'Ready' : 
                          ship.location === 'preparing' ? 'Preparing' :
-                         ship.location === 'in-route' ? 'In Route' : 
-                         ship.location === 'arrived' ? 'Arrived' :
+                         ship.location === 'traveling' ? 'En route' : 
                          ship.location === 'moon' ? 'At Moon' : 'Ready'}
                       </span>
                       <button 
@@ -3819,16 +3370,8 @@ const EarthVisualization = () => {
           );
         })}
         
-        {/* Test Cube */}
-        <TestCube 
-          position={testCube.position}
-          status={testCube.status}
-          travelProgress={testCube.travelProgress}
-        />
-        
-        {/* Trajectory Ships with Figure-8 paths */}
+        {/* Trajectory Ship with Figure-8 path */}
         <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
-        <BlueTrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
         
         
         {/* Alien Ship */}
@@ -3954,66 +3497,8 @@ const EarthVisualization = () => {
           setSelectedShip(null);
         }}
       />
-
-      {/* Test Cube Modal */}
-      {showTestModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-slate-800 rounded-xl p-6 border border-slate-600 shadow-xl max-w-md w-full mx-4">
-            <h3 className="text-xl font-semibold text-slate-200 mb-4">Test Cube Control</h3>
-            
-            <div className="space-y-4">
-              <div className="p-4 bg-slate-700/50 rounded-lg">
-                <p className="text-slate-300 text-sm mb-2">
-                  Status: <span className="text-red-400 font-semibold">
-                    {testCube.status === 'at-moon' ? 'At Moon' : 
-                     testCube.status === 'traveling' ? `Traveling (${(testCube.travelProgress * 100).toFixed(1)}%)` : 
-                     'At Earth'}
-                  </span>
-                </p>
-                <p className="text-slate-400 text-xs">
-                  Position: ({testCube.position[0].toFixed(1)}, {testCube.position[1].toFixed(1)}, {testCube.position[2].toFixed(1)})
-                </p>
-              </div>
-              
-              <div className="flex gap-3">
-                {testCube.status === 'at-moon' && (
-                  <button
-                    onClick={handleLaunchTestCube}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-1"
-                  >
-                    Launch to Earth
-                  </button>
-                )}
-                
-                {testCube.status === 'at-earth' && (
-                  <button
-                    onClick={resetTestCube}
-                    className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors flex-1"
-                  >
-                    Reset to Moon
-                  </button>
-                )}
-                
-                <button
-                  onClick={() => setShowTestModal(false)}
-                  className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 export default EarthVisualization;
-
-// Simple test functions for debugging
-export const testCubeFunctions = {
-  createStaticCube: () => console.log('🔴 Static red cube created near moon'),
-  launchToEarth: () => console.log('🚀 Test cube launching to earth with smooth trajectory'),
-  resetToMoon: () => console.log('🔄 Test cube reset to moon position')
-};
