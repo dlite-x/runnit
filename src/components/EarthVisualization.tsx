@@ -1731,6 +1731,7 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
   const [isInitialized, setIsInitialized] = useState(false);
   const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
   const [launchPosition, setLaunchPosition] = useState<[number, number, number] | null>(null);
+  const [preparingStartTime, setPreparingStartTime] = useState<number | null>(null);
   
   useFrame((state) => {
     if (meshRef.current && textRef.current) {
@@ -1738,6 +1739,11 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
       const angle = initialAngle + time * orbitSpeed;
       
       if (location === 'preparing') {
+        // Set start time for preparing state if not already set
+        if (!preparingStartTime) {
+          setPreparingStartTime(Date.now());
+        }
+        
         // Continue orbiting until we reach a good launch position (facing the target)
         
         // Determine current planet and target destination first
@@ -1774,11 +1780,28 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
             return;
           }
           targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
-          targetDirection = Math.atan2(targetCenter[2] - moonCenter[2], targetCenter[0] - moonCenter[0]); // From moon position to target
+          // Calculate direction from current moon orbital position to Earth
+          targetDirection = Math.atan2(targetCenter[2] - z, targetCenter[0] - x); // From current position to target
         }
         
         meshRef.current.position.set(x, y, z);
         textRef.current.position.set(x, y + 0.5, z);
+        
+        // Failsafe: If ship has been preparing for more than 30 seconds, force launch
+        const timeInPreparing = Date.now() - (preparingStartTime || 0);
+        if (timeInPreparing > 30000) { // 30 seconds
+          console.log(`⏰ FORCED LAUNCH: ${name} has been preparing for ${(timeInPreparing/1000).toFixed(1)}s, forcing launch!`);
+          setLaunchPosition([x, y, z]);
+          setPreparingStartTime(null);
+          onLocationUpdate(name, 'in-route');
+          onSphereUpdate?.(name, {
+            location: 'in-route',
+            departureTime: Date.now(),
+            totalTravelTime: 10000, // 10 second travel time
+            destination: sphereData.destination || 'earth'
+          });
+          return;
+        }
         
         const velocityDirection = (angle + Math.PI / 2) % (Math.PI * 2); // Orbital velocity is perpendicular to radius
         const directionDiff = Math.abs(velocityDirection - targetDirection);
@@ -1794,7 +1817,7 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           console.log(`   Direction Diff: ${(normalizedDiff * 180 / Math.PI).toFixed(1)}° (need < ${(Math.PI / 9 * 180 / Math.PI).toFixed(1)}°)`);
         }
         
-        if (normalizedDiff < Math.PI / 9) { // π/9 = 20 degrees
+        if (normalizedDiff < Math.PI / 4) { // Much larger launch window (45 degrees instead of 20)
           setLaunchPosition([x, y, z]);
           const travelTimeSeconds = calculateTravelTimeSeconds(currentPlanet, destination);
           
