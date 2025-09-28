@@ -1784,6 +1784,16 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         const directionDiff = Math.abs(velocityDirection - targetDirection);
         const normalizedDiff = Math.min(directionDiff, 2 * Math.PI - directionDiff);
         
+        // Add debugging for Moon-to-Earth launches specifically
+        if (currentPlanet === 'moon' && destination === 'earth') {
+          console.log(`🌙➡️🌍 MOON-TO-EARTH LAUNCH CHECK: ${name}`);
+          console.log(`   Current Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
+          console.log(`   Angle: ${(angle * 180 / Math.PI).toFixed(1)}°`);
+          console.log(`   Target Direction: ${(targetDirection * 180 / Math.PI).toFixed(1)}°`);
+          console.log(`   Velocity Direction: ${(velocityDirection * 180 / Math.PI).toFixed(1)}°`);
+          console.log(`   Direction Diff: ${(normalizedDiff * 180 / Math.PI).toFixed(1)}° (need < ${(Math.PI / 9 * 180 / Math.PI).toFixed(1)}°)`);
+        }
+        
         if (normalizedDiff < Math.PI / 9) { // π/9 = 20 degrees
           setLaunchPosition([x, y, z]);
           const travelTimeSeconds = calculateTravelTimeSeconds(currentPlanet, destination);
@@ -3147,15 +3157,16 @@ const EarthVisualization = () => {
                       } else {
                         // After moon is colonized: ships show in their origin planet's flight control
                         if (activeBuildingTab === 'earth') {
-                          // Earth shows: ships that started from Earth + ships that arrived at Earth
+                          // Earth shows: ships that are actually at Earth or traveling TO earth
                           return ship.location === 'earth' || 
-                                 ship.location === 'preparing' || 
-                                 ship.location === 'arrived' ||
+                                 (ship.location === 'preparing' && ship.destination !== 'earth') ||
+                                 (ship.location === 'arrived' && ship.destination === 'earth') ||
                                  (ship.location === 'in-route' && ship.destination !== 'earth');
                         } else if (activeBuildingTab === 'moon') {
-                          // Moon shows: ships at moon + ships traveling FROM moon to elsewhere
+                          // Moon shows: ships at moon + ships preparing to leave moon + ships traveling FROM moon
                           return ship.location === 'moon' || 
-                                 ship.location === 'arrived' ||
+                                 (ship.location === 'preparing' && ship.destination === 'earth') ||
+                                 (ship.location === 'arrived' && ship.destination === 'moon') ||
                                  (ship.location === 'in-route' && ship.destination === 'earth');
                         }
                       }
