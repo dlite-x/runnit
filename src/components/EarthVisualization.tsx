@@ -1788,7 +1788,11 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           setLaunchPosition([x, y, z]);
           const travelTimeSeconds = calculateTravelTimeSeconds(currentPlanet, destination);
           
-          console.log(`🚀 ${name} launching from ${currentPlanet} to ${destination} at position (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
+          console.log(`🚀 LAUNCH DETECTED: ${name} launching from ${currentPlanet} to ${destination}`);
+          console.log(`   Launch Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
+          console.log(`   Orbit Radius: ${orbitRadius}, Angle: ${(angle * 180 / Math.PI).toFixed(1)}°`);
+          console.log(`   Target Direction: ${(targetDirection * 180 / Math.PI).toFixed(1)}°, Velocity: ${(velocityDirection * 180 / Math.PI).toFixed(1)}°`);
+          console.log(`   Travel Time: ${travelTimeSeconds}s`);
           
           // Update to "in-route" state instead of "traveling"
           onLocationUpdate(name, 'in-route');
@@ -1817,10 +1821,13 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
         }
         
         const travelSpeed = 0.15; // Much slower, similar to figure-8 ship speed
+        console.log(`🔍 IN-ROUTE CHECK: ${name} - Progress: ${travelProgress.toFixed(3)}, Launch Position: ${launchPosition ? `(${launchPosition[0].toFixed(1)}, ${launchPosition[1].toFixed(1)}, ${launchPosition[2].toFixed(1)})` : 'NULL'}, Destination: ${destination}`);
         
         if (travelProgress < 1 && launchPosition) {
           const newProgress = Math.min(1, travelProgress + travelSpeed * 0.016); // ~60fps
           setTravelProgress(newProgress);
+          
+          console.log(`🛸 TRAVEL UPDATE: ${name} - Progress: ${(newProgress * 100).toFixed(1)}%, Launch Pos: (${launchPosition[0].toFixed(1)}, ${launchPosition[1].toFixed(1)}, ${launchPosition[2].toFixed(1)})`);
           
           let x, y, z;
           
@@ -1880,12 +1887,16 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           });
         } else if (travelProgress >= 1) {
           // Travel complete, update location to "arrived" at destination
+          console.log(`✅ ARRIVAL: ${name} completed journey to ${destination}`);
           onLocationUpdate(name, 'arrived');
           setTravelProgress(0);
           setLaunchPosition(null);
           // Clear trail when travel is complete
           setTrailPoints([]);
-          console.log(`✅ ${name} arrived at ${destination}`);
+        } else if (!launchPosition) {
+          // ERROR: No launch position but in "in-route" state - this causes teleportation!
+          console.error(`🚨 TELEPORTATION BUG: ${name} is in-route but has no launch position! Resetting to preparing.`);
+          onLocationUpdate(name, 'preparing');
         }
       } else if (location === 'arrived') {
         // Ship has arrived - move to final destination orbit
