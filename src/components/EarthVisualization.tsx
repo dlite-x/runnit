@@ -1707,13 +1707,31 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           
           let x, y, z;
           
-          // Use curved trajectory similar to TrajectoryShip for smoother movement
-          if (destination === 'earth' && launchPosition[0] === 24) {
-            // Moon to Earth - use elegant curved path
+          // Special curved trajectory for Moon Test ships
+          if (name.includes('Moon Test') && destination === 'earth' && launchPosition[0] === 24) {
+            // Moon Test ships get enhanced curved path with dramatic arc
             const startPos = launchPosition;
             const endPos = targetCenter;
             
-            // Create a curved path with control points for smooth arc
+            // Create a high, dramatic arc for Moon Test ships
+            const midPointX = (startPos[0] + endPos[0]) / 2;
+            const midPointY = Math.max(startPos[1], endPos[1]) + 12; // Much higher arc for visibility
+            const midPointZ = (startPos[2] + endPos[2]) / 2 + 4; // Offset for more interesting path
+            
+            // Quadratic Bezier curve for smooth trajectory
+            const t = newProgress;
+            const oneMinusT = 1 - t;
+            
+            x = oneMinusT * oneMinusT * startPos[0] + 2 * oneMinusT * t * midPointX + t * t * endPos[0];
+            y = oneMinusT * oneMinusT * startPos[1] + 2 * oneMinusT * t * midPointY + t * t * endPos[1];
+            z = oneMinusT * oneMinusT * startPos[2] + 2 * oneMinusT * t * midPointZ + t * t * endPos[2];
+            
+            console.log(`🚀 MOON TEST ${name} - Progress: ${newProgress.toFixed(3)}, Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
+          } else if (destination === 'earth' && launchPosition[0] === 24) {
+            // Regular Moon to Earth - use moderate curved path
+            const startPos = launchPosition;
+            const endPos = targetCenter;
+            
             const midPointX = (startPos[0] + endPos[0]) / 2;
             const midPointY = Math.max(startPos[1], endPos[1]) + 6; // Arc up for smooth trajectory
             const midPointZ = (startPos[2] + endPos[2]) / 2;
@@ -1739,11 +1757,10 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           const currentPos = new THREE.Vector3(x, y, z);
           setTrailPoints(prev => {
             const newPoints = [...prev, currentPos];
-            // Keep trail for the journey
-            return newPoints.slice(-25);
+            // Keep longer trail for Moon Test ships for better visibility
+            const maxTrailLength = name.includes('Moon Test') ? 40 : 25;
+            return newPoints.slice(-maxTrailLength);
           });
-          
-          console.log(`Travel progress: ${newProgress.toFixed(3)}, Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)}), Destination: ${destination}`);
         } else if (travelProgress >= 1) {
           // Travel complete, update location to destination
           const finalLocation = destination === 'earth' ? 'earth' : 'moon';
@@ -1752,7 +1769,7 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           setLaunchPosition(null);
           // Clear trail when travel is complete
           setTrailPoints([]);
-          console.log(`Travel completed to ${destination}`);
+          console.log(`✅ ${name} travel completed to ${destination}`);
         }
       } else {
         // Normal orbit logic - clear trail when not traveling
