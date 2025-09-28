@@ -432,6 +432,115 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
   );
 }
 
+function BlueTrajectoryShip({ earthPosition, moonPosition }: { 
+  earthPosition: [number, number, number]; 
+  moonPosition: [number, number, number]; 
+}) {
+  const shipRef = useRef<THREE.Group>(null);
+  const trailRef = useRef<THREE.LineSegments>(null);
+  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
+  
+  useFrame((state, delta) => {
+    if (shipRef.current) {
+      const time = state.clock.getElapsedTime();
+      const speed = 0.08; // Different speed than yellow ship for variety
+      
+      // Different trajectory pattern - reversed figure-8
+      const t = time * speed + Math.PI; // Phase offset for different starting position
+      
+      // Calculate distance between Earth and Moon
+      const earthToMoon = {
+        x: moonPosition[0] - earthPosition[0],
+        y: moonPosition[1] - earthPosition[1],
+        z: moonPosition[2] - earthPosition[2]
+      };
+      
+      // Center point for the figure-8 (slightly closer to Moon this time)
+      const centerX = earthPosition[0] + earthToMoon.x * 0.6;
+      const centerY = earthPosition[1] + earthToMoon.y * 0.6;
+      const centerZ = earthPosition[2] + earthToMoon.z * 0.6;
+      
+      // Different figure-8 parameters for variety
+      const a = 12; // Slightly smaller width
+      const b = 10; // Taller height
+      
+      // Parametric equations for figure-8 (lemniscate) - reversed
+      const x = centerX + (a * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
+      const y = centerY + (b * Math.sin(t) * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
+      const z = centerZ + Math.sin(t * 0.5) * 4; // Different vertical oscillation
+      
+      shipRef.current.position.set(x, y, z);
+      
+      // Point ship in direction of movement
+      const nextT = t + 0.1;
+      const nextX = centerX + (a * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
+      const nextY = centerY + (b * Math.sin(nextT) * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
+      const nextZ = centerZ + Math.sin(nextT * 0.5) * 4;
+      shipRef.current.lookAt(nextX, nextY, nextZ);
+      
+      // Update trail
+      const currentPos = new THREE.Vector3(x, y, z);
+      setTrailPoints(prev => {
+        const newPoints = [...prev, currentPos];
+        // Keep trail for visibility
+        return newPoints.slice(-25);
+      });
+    }
+  });
+
+  // Create trail geometry
+  React.useEffect(() => {
+    if (trailRef.current && trailPoints.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
+      trailRef.current.geometry.dispose();
+      trailRef.current.geometry = geometry;
+    }
+  }, [trailPoints]);
+
+  return (
+    <group>
+      {/* Ship */}
+      <group ref={shipRef}>
+        <mesh>
+          <boxGeometry args={[0.12, 0.06, 0.18]} />
+          <meshStandardMaterial 
+            color="#4169E1" 
+            metalness={0.7} 
+            roughness={0.2}
+            emissive="#1E90FF"
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+        
+        {/* Engine glow */}
+        <mesh position={[0, 0, -0.1]}>
+          <cylinderGeometry args={[0.025, 0.04, 0.08, 8]} />
+          <meshStandardMaterial 
+            color="#00BFFF" 
+            emissive="#0080FF" 
+            emissiveIntensity={0.8}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      </group>
+      
+      {/* Trail */}
+      {trailPoints.length > 1 && (
+        <lineSegments ref={trailRef}>
+          <bufferGeometry />
+          <lineBasicMaterial 
+            color="#4169E1" 
+            transparent 
+            opacity={0.8}
+            linewidth={2}
+          />
+        </lineSegments>
+      )}
+    </group>
+  );
+}
+
 function MoonBase() {
   const baseRef = useRef<THREE.Group>(null);
   
@@ -3413,8 +3522,9 @@ const EarthVisualization = () => {
           );
         })}
         
-        {/* Trajectory Ship with Figure-8 path */}
+        {/* Trajectory Ships with Figure-8 paths */}
         <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
+        <BlueTrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
         
         
         {/* Alien Ship */}
