@@ -272,23 +272,36 @@ function StaticShip({
       const start = ship.startPosition;
       const end = ship.endPosition;
       
-      // Add curve height for smooth trajectory
+      // Calculate smooth trajectory with proper arc
       const distance = Math.sqrt(
         Math.pow(end[0] - start[0], 2) + 
         Math.pow(end[1] - start[1], 2) + 
         Math.pow(end[2] - start[2], 2)
       );
-      const midY = Math.max(start[1], end[1]) + distance * 0.4; // Height proportional to distance
+      
+      // Create an arc that goes up and curves naturally
+      const arcHeight = distance * 0.6; // Higher arc for more dramatic trajectory
+      const midY = Math.max(start[1], end[1]) + arcHeight;
+      
+      // Add slight offset to X and Z for more natural curve
+      const directionX = (end[0] - start[0]) * 0.3;
+      const directionZ = (end[2] - start[2]) * 0.3;
+      
       const mid: [number, number, number] = [
-        (start[0] + end[0]) / 2,
+        (start[0] + end[0]) / 2 + directionX * Math.sin(Math.PI * 0.5),
         midY,
-        (start[2] + end[2]) / 2
+        (start[2] + end[2]) / 2 + directionZ * Math.sin(Math.PI * 0.5)
       ];
       
-      // Quadratic Bezier interpolation
-      const x = (1 - t) * (1 - t) * start[0] + 2 * (1 - t) * t * mid[0] + t * t * end[0];
-      const y = (1 - t) * (1 - t) * start[1] + 2 * (1 - t) * t * mid[1] + t * t * end[1];
-      const z = (1 - t) * (1 - t) * start[2] + 2 * (1 - t) * t * mid[2] + t * t * end[2];
+      // Smooth easing for more natural acceleration/deceleration
+      const easeT = t < 0.5 
+        ? 2 * t * t 
+        : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      
+      // Quadratic Bezier interpolation with easing
+      const x = (1 - easeT) * (1 - easeT) * start[0] + 2 * (1 - easeT) * easeT * mid[0] + easeT * easeT * end[0];
+      const y = (1 - easeT) * (1 - easeT) * start[1] + 2 * (1 - easeT) * easeT * mid[1] + easeT * easeT * end[1];
+      const z = (1 - easeT) * (1 - easeT) * start[2] + 2 * (1 - easeT) * easeT * mid[2] + easeT * easeT * end[2];
       
       return [x, y, z] as [number, number, number];
     }
