@@ -1709,18 +1709,18 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
   orbitSpeed: number;
   initialAngle: number;
   name: string;
-  location: 'earth' | 'moon' | 'preparing' | 'traveling';
+  location: 'earth' | 'moon' | 'preparing' | 'traveling' | 'in-route' | 'arrived';
   sphereData: { 
     type: 'colony' | 'cargo', 
     position: [number, number, number], 
     name: string, 
-    location: 'earth' | 'moon' | 'preparing' | 'traveling',
+    location: 'earth' | 'moon' | 'preparing' | 'traveling' | 'in-route' | 'arrived',
     departureTime?: number,
     totalTravelTime?: number,
     destination?: string,
     cargo?: { metal: number, fuel: number, food: number }
   };
-  onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'preparing' | 'traveling') => void;
+  onLocationUpdate: (name: string, newLocation: 'earth' | 'moon' | 'preparing' | 'traveling' | 'in-route' | 'arrived') => void;
   onShipClick?: (name: string, type: 'colony' | 'cargo') => void;
   onSphereUpdate?: (name: string, updates: any) => void;
 }) => {
@@ -1790,19 +1790,19 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           
           console.log(`🚀 ${name} launching from ${currentPlanet} to ${destination} at position (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
           
-          // Update with departure time and travel details
-          onLocationUpdate(name, 'traveling');
+          // Update to "in-route" state instead of "traveling"
+          onLocationUpdate(name, 'in-route');
           
           // Also update the sphere data with timing info
           onSphereUpdate?.(name, {
-            location: 'traveling',
+            location: 'in-route',
             departureTime: Date.now(),
             totalTravelTime: travelTimeSeconds,
             destination
           });
         }
-      } else if (location === 'traveling') {
-        // Dynamic travel animation based on destination
+      } else if (location === 'in-route') {
+        // Ship is in route - continue curved trajectory animation
         const destination = sphereData.destination || 'moon';
         let targetCenter: [number, number, number];
         
@@ -1879,15 +1879,37 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
             return newPoints.slice(-maxTrailLength);
           });
         } else if (travelProgress >= 1) {
-          // Travel complete, update location to destination
-          const finalLocation = destination === 'earth' ? 'earth' : 'moon';
-          onLocationUpdate(name, finalLocation as any);
+          // Travel complete, update location to "arrived" at destination
+          onLocationUpdate(name, 'arrived');
           setTravelProgress(0);
           setLaunchPosition(null);
           // Clear trail when travel is complete
           setTrailPoints([]);
-          console.log(`✅ ${name} travel completed to ${destination}`);
+          console.log(`✅ ${name} arrived at ${destination}`);
         }
+      } else if (location === 'arrived') {
+        // Ship has arrived - move to final destination orbit
+        const destination = sphereData.destination || 'moon';
+        
+        // Give the ship some time in "arrived" state, then move to final location
+        setTimeout(() => {
+          if (destination === 'earth') {
+            onLocationUpdate(name, 'earth');
+          } else if (destination === 'moon') {
+            onLocationUpdate(name, 'moon');
+          }
+        }, 2000); // 2 second delay before moving to final orbit
+        
+        // Position ship at destination during arrived state
+        let finalX = 0, finalY = 0, finalZ = 0;
+        if (destination === 'earth') {
+          finalX = 3; finalY = 1; finalZ = 0; // Near Earth
+        } else if (destination === 'moon') {
+          finalX = 27; finalY = 5; finalZ = 8; // Near Moon
+        }
+        
+        meshRef.current.position.set(finalX, finalY, finalZ);
+        textRef.current.position.set(finalX, finalY + 0.5, finalZ);
       } else {
         // Normal orbit logic - clear trail when not traveling
         if (trailPoints.length > 0) {
@@ -2281,7 +2303,7 @@ const EarthVisualization = () => {
     type: 'colony' | 'cargo', 
     position: [number, number, number], 
     name: string, 
-    location: 'earth' | 'moon' | 'preparing' | 'traveling',
+    location: 'earth' | 'moon' | 'preparing' | 'traveling' | 'in-route' | 'arrived',
     departureTime?: number,
     totalTravelTime?: number,
     destination?: string,
@@ -3114,14 +3136,16 @@ const EarthVisualization = () => {
                       } else {
                         // After moon is colonized: ships show in their origin planet's flight control
                         if (activeBuildingTab === 'earth') {
-                          // Earth shows: ships that started from Earth (destination moon/mars/etc)
+                          // Earth shows: ships that started from Earth + ships that arrived at Earth
                           return ship.location === 'earth' || 
                                  ship.location === 'preparing' || 
-                                 (ship.location === 'traveling' && ship.destination !== 'earth');
+                                 ship.location === 'arrived' ||
+                                 (ship.location === 'in-route' && ship.destination !== 'earth');
                         } else if (activeBuildingTab === 'moon') {
                           // Moon shows: ships at moon + ships traveling FROM moon to elsewhere
                           return ship.location === 'moon' || 
-                                 (ship.location === 'traveling' && ship.destination === 'earth');
+                                 ship.location === 'arrived' ||
+                                 (ship.location === 'in-route' && ship.destination === 'earth');
                         }
                       }
                       return false;
@@ -3214,7 +3238,8 @@ const EarthVisualization = () => {
                       <span className="text-sm text-green-400">
                         {ship.location === 'earth' ? 'Ready' : 
                          ship.location === 'preparing' ? 'Preparing' :
-                         ship.location === 'traveling' ? 'En route' : 
+                         ship.location === 'in-route' ? 'In Route' : 
+                         ship.location === 'arrived' ? 'Arrived' :
                          ship.location === 'moon' ? 'At Moon' : 'Ready'}
                       </span>
                       <button 
