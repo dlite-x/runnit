@@ -303,7 +303,14 @@ function StaticShip({
       const y = (1 - easeT) * (1 - easeT) * start[1] + 2 * (1 - easeT) * easeT * mid[1] + easeT * easeT * end[1];
       const z = (1 - easeT) * (1 - easeT) * start[2] + 2 * (1 - easeT) * easeT * mid[2] + easeT * easeT * end[2];
       
-      return [x, y, z] as [number, number, number];
+      const currentPos = [x, y, z] as [number, number, number];
+      
+      // Debug log for traveling ships
+      if (Math.floor(progress * 100) % 10 === 0) {
+        console.log(`${ship.name} traveling: ${Math.floor(progress * 100)}% complete at position:`, currentPos);
+      }
+      
+      return currentPos;
     }
     
     return ship.staticPosition || [0, 0, 0];
@@ -318,8 +325,14 @@ function StaticShip({
         const currentPos = new THREE.Vector3(...currentPosition);
         setTrailPoints(prev => {
           const newPoints = [...prev, currentPos];
-          return newPoints.slice(-30); // Keep last 30 points
+          // Keep trail length manageable
+          return newPoints.length > 50 ? newPoints.slice(-50) : newPoints;
         });
+      } else {
+        // Clear trail when not traveling
+        if (trailPoints.length > 0) {
+          setTrailPoints([]);
+        }
       }
     }
   });
@@ -3291,10 +3304,16 @@ const EarthVisualization = () => {
                                 startPosition: startPos,
                                 endPosition: endPos,
                                 departureTime: Date.now(),
-                                totalTravelTime: travelTime
+                                totalTravelTime: travelTime,
+                                staticPosition: undefined // Clear static position during travel
                               } : s
                             ));
-                            console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`);
+                            console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`, {
+                              startPos,
+                              endPos,
+                              departureTime: Date.now(),
+                              totalTravelTime: travelTime
+                            });
                           }
                         }}
                       >
