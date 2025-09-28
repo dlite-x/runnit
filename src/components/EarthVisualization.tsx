@@ -432,6 +432,90 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
   );
 }
 
+function TestCube({ position, status, travelProgress }: {
+  position: [number, number, number];
+  status: 'at-moon' | 'traveling' | 'at-earth';
+  travelProgress: number;
+}) {
+  const cubeRef = useRef<THREE.Mesh>(null);
+  const trailRef = useRef<THREE.LineSegments>(null);
+  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
+
+  useFrame(() => {
+    if (cubeRef.current) {
+      if (status === 'traveling') {
+        // Animate from moon to earth using curved trajectory
+        const startPos = [26, 5, 10]; // Near moon
+        const endPos = [3, 1, 2]; // Near earth
+        
+        // Bezier curve with high arc
+        const midPointX = (startPos[0] + endPos[0]) / 2;
+        const midPointY = Math.max(startPos[1], endPos[1]) + 8;
+        const midPointZ = (startPos[2] + endPos[2]) / 2;
+        
+        const t = travelProgress;
+        const oneMinusT = 1 - t;
+        
+        const x = oneMinusT * oneMinusT * startPos[0] + 2 * oneMinusT * t * midPointX + t * t * endPos[0];
+        const y = oneMinusT * oneMinusT * startPos[1] + 2 * oneMinusT * t * midPointY + t * t * endPos[1];
+        const z = oneMinusT * oneMinusT * startPos[2] + 2 * oneMinusT * t * midPointZ + t * t * endPos[2];
+        
+        cubeRef.current.position.set(x, y, z);
+        
+        // Update trail
+        const currentPos = new THREE.Vector3(x, y, z);
+        setTrailPoints(prev => {
+          const newPoints = [...prev, currentPos];
+          return newPoints.slice(-30);
+        });
+      } else {
+        cubeRef.current.position.set(...position);
+        // Clear trail when not traveling
+        if (trailPoints.length > 0) {
+          setTrailPoints([]);
+        }
+      }
+    }
+  });
+
+  // Create trail geometry
+  React.useEffect(() => {
+    if (trailRef.current && trailPoints.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
+      trailRef.current.geometry.dispose();
+      trailRef.current.geometry = geometry;
+    }
+  }, [trailPoints]);
+
+  return (
+    <group>
+      <mesh ref={cubeRef}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshStandardMaterial 
+          color="#FF0000" 
+          metalness={0.7} 
+          roughness={0.2}
+          emissive="#FF3333"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      
+      {/* Trail */}
+      {status === 'traveling' && trailPoints.length > 1 && (
+        <lineSegments ref={trailRef}>
+          <bufferGeometry />
+          <lineBasicMaterial 
+            color="#FF0000" 
+            transparent 
+            opacity={0.8}
+            linewidth={3}
+          />
+        </lineSegments>
+      )}
+    </group>
+  );
+}
+
 function BlueTrajectoryShip({ earthPosition, moonPosition }: { 
   earthPosition: [number, number, number]; 
   moonPosition: [number, number, number]; 
@@ -2313,6 +2397,63 @@ const CountdownTimer = ({
 }) => {
   const [remainingTime, setRemainingTime] = useState(0);
 
+  // Test cube animation logic
+  useEffect(() => {
+    let animationId: number;
+    
+    if (testCube.status === 'traveling') {
+      const animate = () => {
+        setTestCube(prev => {
+          const newProgress = Math.min(1, prev.travelProgress + 0.01); // Slow travel
+          console.log(`🔴 Test Cube Progress: ${(newProgress * 100).toFixed(1)}%`);
+          
+          if (newProgress >= 1) {
+            console.log(`✅ Test Cube arrived at Earth`);
+            return {
+              position: [3, 1, 2], // Final position near Earth
+              status: 'at-earth',
+              travelProgress: 0
+            };
+          }
+          
+          return {
+            ...prev,
+            travelProgress: newProgress
+          };
+        });
+        
+        animationId = requestAnimationFrame(animate);
+      };
+      
+      animationId = requestAnimationFrame(animate);
+    }
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [testCube.status]);
+
+  const handleLaunchTestCube = () => {
+    console.log(`🚀 Launching Test Cube from Moon to Earth`);
+    setTestCube(prev => ({
+      ...prev,
+      status: 'traveling',
+      travelProgress: 0
+    }));
+    setShowTestModal(false);
+  };
+
+  const resetTestCube = () => {
+    console.log(`🔄 Resetting Test Cube to Moon`);
+    setTestCube({
+      position: [26, 5, 10],
+      status: 'at-moon',
+      travelProgress: 0
+    });
+  };
+
   useEffect(() => {
     const updateTimer = () => {
       const elapsed = (Date.now() - departureTime) / 1000;
@@ -2345,6 +2486,16 @@ const EarthVisualization = () => {
   const [modalContent, setModalContent] = useState('');
   const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
+  const [showTestModal, setShowTestModal] = useState(false);
+  const [testCube, setTestCube] = useState<{
+    position: [number, number, number];
+    status: 'at-moon' | 'traveling' | 'at-earth';
+    travelProgress: number;
+  }>({
+    position: [26, 5, 10], // Static position near moon
+    status: 'at-moon',
+    travelProgress: 0
+  });
   const [builtSpheres, setBuiltSpheres] = useState<Array<{ 
     type: 'colony' | 'cargo', 
     position: [number, number, number], 
@@ -2468,6 +2619,63 @@ const EarthVisualization = () => {
     });
   }, [builtSpheres]);
 
+  // Test cube animation logic
+  useEffect(() => {
+    let animationId: number;
+    
+    if (testCube.status === 'traveling') {
+      const animate = () => {
+        setTestCube(prev => {
+          const newProgress = Math.min(1, prev.travelProgress + 0.01); // Slow travel
+          console.log(`🔴 Test Cube Progress: ${(newProgress * 100).toFixed(1)}%`);
+          
+          if (newProgress >= 1) {
+            console.log(`✅ Test Cube arrived at Earth`);
+            return {
+              position: [3, 1, 2], // Final position near Earth
+              status: 'at-earth',
+              travelProgress: 0
+            };
+          }
+          
+          return {
+            ...prev,
+            travelProgress: newProgress
+          };
+        });
+        
+        animationId = requestAnimationFrame(animate);
+      };
+      
+      animationId = requestAnimationFrame(animate);
+    }
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [testCube.status]);
+
+  const handleLaunchTestCube = () => {
+    console.log(`🚀 Launching Test Cube from Moon to Earth`);
+    setTestCube(prev => ({
+      ...prev,
+      status: 'traveling',
+      travelProgress: 0
+    }));
+    setShowTestModal(false);
+  };
+
+  const resetTestCube = () => {
+    console.log(`🔄 Resetting Test Cube to Moon`);
+    setTestCube({
+      position: [26, 5, 10],
+      status: 'at-moon',
+      travelProgress: 0
+    });
+  };
+
   // Flight controls
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -2571,6 +2779,15 @@ const EarthVisualization = () => {
                 <span className="text-purple-300 font-medium text-sm">1</span>
               </div>
             </div>
+            
+            {/* Test Cube Button */}
+            <button
+              onClick={() => setShowTestModal(true)}
+              className="p-2 bg-red-600/80 hover:bg-red-700/80 text-white rounded-lg border border-red-500/50 transition-all duration-200 hover:scale-105 mr-2"
+              aria-label="Test Cube Control"
+            >
+              <span className="text-xs font-bold">🔴</span>
+            </button>
             
             {/* Operations Panel Toggle */}
             <button
@@ -3602,6 +3819,13 @@ const EarthVisualization = () => {
           );
         })}
         
+        {/* Test Cube */}
+        <TestCube 
+          position={testCube.position}
+          status={testCube.status}
+          travelProgress={testCube.travelProgress}
+        />
+        
         {/* Trajectory Ships with Figure-8 paths */}
         <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
         <BlueTrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
@@ -3730,8 +3954,66 @@ const EarthVisualization = () => {
           setSelectedShip(null);
         }}
       />
+
+      {/* Test Cube Modal */}
+      {showTestModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-slate-800 rounded-xl p-6 border border-slate-600 shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-xl font-semibold text-slate-200 mb-4">Test Cube Control</h3>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-slate-700/50 rounded-lg">
+                <p className="text-slate-300 text-sm mb-2">
+                  Status: <span className="text-red-400 font-semibold">
+                    {testCube.status === 'at-moon' ? 'At Moon' : 
+                     testCube.status === 'traveling' ? `Traveling (${(testCube.travelProgress * 100).toFixed(1)}%)` : 
+                     'At Earth'}
+                  </span>
+                </p>
+                <p className="text-slate-400 text-xs">
+                  Position: ({testCube.position[0].toFixed(1)}, {testCube.position[1].toFixed(1)}, {testCube.position[2].toFixed(1)})
+                </p>
+              </div>
+              
+              <div className="flex gap-3">
+                {testCube.status === 'at-moon' && (
+                  <button
+                    onClick={handleLaunchTestCube}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-1"
+                  >
+                    Launch to Earth
+                  </button>
+                )}
+                
+                {testCube.status === 'at-earth' && (
+                  <button
+                    onClick={resetTestCube}
+                    className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors flex-1"
+                  >
+                    Reset to Moon
+                  </button>
+                )}
+                
+                <button
+                  onClick={() => setShowTestModal(false)}
+                  className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default EarthVisualization;
+
+// Simple test functions for debugging
+export const testCubeFunctions = {
+  createStaticCube: () => console.log('🔴 Static red cube created near moon'),
+  launchToEarth: () => console.log('🚀 Test cube launching to earth with smooth trajectory'),
+  resetToMoon: () => console.log('🔄 Test cube reset to moon position')
+};
