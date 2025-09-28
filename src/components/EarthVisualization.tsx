@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars, Text } from '@react-three/drei';
+import { OrbitControls, Stars, Text, Html } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
@@ -440,6 +440,13 @@ function StaticShip({
             opacity={0.7}
           />
         </mesh>
+        
+        {/* Ship Name Label - Simple approach with HTML */}
+        <Html position={[0, 0.4, 0]} center>
+          <div className="bg-black/70 text-white text-xs px-2 py-1 rounded pointer-events-none whitespace-nowrap">
+            {ship.name}
+          </div>
+        </Html>
         
         {/* Selection indicator */}
         {selected && (
@@ -2359,22 +2366,27 @@ const EarthVisualization = () => {
   // Helper functions for static positioning
   const getStaticPositionNearPlanet = (planet: 'earth' | 'moon', index: number): [number, number, number] => {
     if (planet === 'earth') {
-      // Position ships around Earth in a formation
-      const angle = (index * Math.PI * 2) / 8; // Up to 8 ships in circle
-      const radius = 4;
+      // Position ships around Earth in a wider formation
+      const angle = (index * Math.PI * 2) / 6; // 6 ships per ring
+      const ring = Math.floor(index / 6); // Multiple rings if more than 6 ships
+      const radius = 5 + ring * 2; // Increase radius for each ring
+      const height = Math.sin(angle) * 1.5 + ring * 0.8; // Vary height
       return [
         Math.cos(angle) * radius,
-        Math.sin(angle) * 2,
+        height,
         Math.sin(angle) * radius
       ];
     } else {
-      // Position ships around Moon in a formation  
-      const angle = (index * Math.PI * 2) / 8;
-      const radius = 2;
+      // Position ships around Moon in formation
+      const moonBase = [24, 4, 8];
+      const angle = (index * Math.PI * 2) / 6;
+      const ring = Math.floor(index / 6);
+      const radius = 3 + ring * 1.5;
+      const height = Math.sin(angle) * 1 + ring * 0.6;
       return [
-        24 + Math.cos(angle) * radius, // Moon is at [24, 4, 8]
-        4 + Math.sin(angle) * 1,
-        8 + Math.sin(angle) * radius
+        moonBase[0] + Math.cos(angle) * radius,
+        moonBase[1] + height,
+        moonBase[2] + Math.sin(angle) * radius
       ];
     }
   };
