@@ -1705,9 +1705,32 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           const newProgress = Math.min(1, travelProgress + travelSpeed * 0.016); // ~60fps
           setTravelProgress(newProgress);
           
-          const x = launchPosition[0] + (targetCenter[0] - launchPosition[0]) * newProgress;
-          const y = launchPosition[1] + (targetCenter[1] - launchPosition[1]) * newProgress;
-          const z = launchPosition[2] + (targetCenter[2] - launchPosition[2]) * newProgress;
+          let x, y, z;
+          
+          // Use curved trajectory similar to TrajectoryShip for smoother movement
+          if (destination === 'earth' && launchPosition[0] === 24) {
+            // Moon to Earth - use elegant curved path
+            const startPos = launchPosition;
+            const endPos = targetCenter;
+            
+            // Create a curved path with control points for smooth arc
+            const midPointX = (startPos[0] + endPos[0]) / 2;
+            const midPointY = Math.max(startPos[1], endPos[1]) + 6; // Arc up for smooth trajectory
+            const midPointZ = (startPos[2] + endPos[2]) / 2;
+            
+            // Quadratic Bezier curve for smooth trajectory
+            const t = newProgress;
+            const oneMinusT = 1 - t;
+            
+            x = oneMinusT * oneMinusT * startPos[0] + 2 * oneMinusT * t * midPointX + t * t * endPos[0];
+            y = oneMinusT * oneMinusT * startPos[1] + 2 * oneMinusT * t * midPointY + t * t * endPos[1];
+            z = oneMinusT * oneMinusT * startPos[2] + 2 * oneMinusT * t * midPointZ + t * t * endPos[2];
+          } else {
+            // Earth to Moon or other destinations - use simple linear interpolation
+            x = launchPosition[0] + (targetCenter[0] - launchPosition[0]) * newProgress;
+            y = launchPosition[1] + (targetCenter[1] - launchPosition[1]) * newProgress;
+            z = launchPosition[2] + (targetCenter[2] - launchPosition[2]) * newProgress;
+          }
           
           meshRef.current.position.set(x, y, z);
           textRef.current.position.set(x, y + 0.5, z);
@@ -1719,6 +1742,8 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
             // Keep trail for the journey
             return newPoints.slice(-25);
           });
+          
+          console.log(`Travel progress: ${newProgress.toFixed(3)}, Position: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)}), Destination: ${destination}`);
         } else if (travelProgress >= 1) {
           // Travel complete, update location to destination
           const finalLocation = destination === 'earth' ? 'earth' : 'moon';
@@ -1727,6 +1752,7 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           setLaunchPosition(null);
           // Clear trail when travel is complete
           setTrailPoints([]);
+          console.log(`Travel completed to ${destination}`);
         }
       } else {
         // Normal orbit logic - clear trail when not traveling
