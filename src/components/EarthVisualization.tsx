@@ -1781,7 +1781,7 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           }
           targetCenter = destination === 'earth' ? [0, 0, 0] : [0, 0, 0]; // Default to earth for now
           // Calculate direction from current moon orbital position to Earth
-          targetDirection = Math.atan2(targetCenter[2] - z, targetCenter[0] - x); // From current position to target
+          targetDirection = Math.atan2(targetCenter[2] - moonCenter[2], targetCenter[0] - moonCenter[0]); // From moon center to target
         }
         
         meshRef.current.position.set(x, y, z);
@@ -1817,7 +1817,9 @@ const OrbitingSphere = ({ type, orbitRadius, orbitSpeed, initialAngle, name, loc
           console.log(`   Direction Diff: ${(normalizedDiff * 180 / Math.PI).toFixed(1)}° (need < ${(Math.PI / 9 * 180 / Math.PI).toFixed(1)}°)`);
         }
         
-        if (normalizedDiff < Math.PI / 4) { // Much larger launch window (45 degrees instead of 20)
+        // Use different launch windows depending on direction
+        const launchWindowSize = (currentPlanet === 'moon' && destination === 'earth') ? Math.PI / 4 : Math.PI / 9; // Larger window for Moon-to-Earth
+        if (normalizedDiff < launchWindowSize) {
           setLaunchPosition([x, y, z]);
           const travelTimeSeconds = calculateTravelTimeSeconds(currentPlanet, destination);
           
