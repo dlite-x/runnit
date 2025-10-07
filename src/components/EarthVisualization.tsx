@@ -291,7 +291,7 @@ function StaticShip({
   ship: { 
     type: 'colony' | 'cargo';
     name: string;
-    location: 'earth' | 'moon' | 'preparing' | 'traveling';
+    location: 'earth' | 'moon' | 'mars' | 'preparing' | 'traveling';
     staticPosition?: [number, number, number];
     travelProgress?: number;
     startPosition?: [number, number, number];
@@ -2320,7 +2320,7 @@ const calculateTravelTimeSeconds = (origin: string, destination: string): number
   const positions = {
     earth: [0, 0, 0],
     moon: [24, 4, 8],
-    mars: [50, 0, 20],
+    mars: [60, 10, 20],
     eml1: [36, 6, 12]
   };
 
@@ -2397,7 +2397,7 @@ const EarthVisualization = () => {
     type: 'colony' | 'cargo', 
     position?: [number, number, number], // Optional for legacy spheres
     name: string, 
-    location: 'earth' | 'moon' | 'preparing' | 'traveling',
+    location: 'earth' | 'moon' | 'mars' | 'preparing' | 'traveling',
     departureTime?: number,
     totalTravelTime?: number,
     destination?: string,
@@ -2410,7 +2410,7 @@ const EarthVisualization = () => {
   }>>([]);
 
   // Helper functions for static positioning
-  const getStaticPositionNearPlanet = (planet: 'earth' | 'moon', index: number): [number, number, number] => {
+  const getStaticPositionNearPlanet = (planet: 'earth' | 'moon' | 'mars', index: number): [number, number, number] => {
     if (planet === 'earth') {
       // Position ships around Earth in a wider formation
       const angle = (index * Math.PI * 2) / 6; // 6 ships per ring
@@ -2422,7 +2422,7 @@ const EarthVisualization = () => {
         height,
         Math.sin(angle) * radius
       ];
-    } else {
+    } else if (planet === 'moon') {
       // Position ships around Moon in formation
       const moonBase = [24, 4, 8];
       const angle = (index * Math.PI * 2) / 6;
@@ -2434,14 +2434,28 @@ const EarthVisualization = () => {
         moonBase[1] + height,
         moonBase[2] + Math.sin(angle) * radius
       ];
+    } else {
+      // Position ships around Mars in formation
+      const marsBase = [60, 10, 20];
+      const angle = (index * Math.PI * 2) / 6;
+      const ring = Math.floor(index / 6);
+      const radius = 4 + ring * 2; // Slightly larger formation for Mars
+      const height = Math.sin(angle) * 1.2 + ring * 0.7;
+      return [
+        marsBase[0] + Math.cos(angle) * radius,
+        marsBase[1] + height,
+        marsBase[2] + Math.sin(angle) * radius
+      ];
     }
   };
 
-  const getDestinationPosition = (destination: 'earth' | 'moon'): [number, number, number] => {
+  const getDestinationPosition = (destination: 'earth' | 'moon' | 'mars'): [number, number, number] => {
     if (destination === 'earth') {
       return [3, 1, 2]; // Static position near Earth
-    } else {
+    } else if (destination === 'moon') {
       return [26, 5, 10]; // Static position near Moon
+    } else {
+      return [64, 11, 23]; // Static position near Mars
     }
   };
   const [colonyCount, setColonyCount] = useState(0);
@@ -2463,7 +2477,8 @@ const EarthVisualization = () => {
   
   // Moon colonization state
   const [isMoonColonized, setIsMoonColonized] = useState(false);
-  const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon'>('earth');
+  const [isMarsColonized, setIsMarsColonized] = useState(false);
+  const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon' | 'mars'>('earth');
   
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
@@ -2528,10 +2543,13 @@ const EarthVisualization = () => {
             ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling') {
           console.log(`${ship.name} consumed after colonizing at ${ship.location}`);
           
-          // Check if colonizing the Moon
+          // Check if colonizing the Moon or Mars
           if (ship.location === 'moon') {
             setIsMoonColonized(true);
             console.log('Moon has been colonized!');
+          } else if (ship.location === 'mars') {
+            setIsMarsColonized(true);
+            console.log('Mars has been colonized!');
           }
           
           hasChanges = true;
@@ -2757,6 +2775,19 @@ const EarthVisualization = () => {
                 }`}
               >
                 🌙 {isMoonColonized ? 'Moon' : 'Moon'}
+              </button>
+              <button
+                onClick={() => setActiveBuildingTab('mars')}
+                disabled={!isMarsColonized}
+                className={`px-3 py-1 text-xs rounded transition-all duration-200 ${
+                  activeBuildingTab === 'mars' && isMarsColonized
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : isMarsColonized
+                    ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                    : 'text-slate-500 cursor-not-allowed opacity-50'
+                }`}
+              >
+                🔴 {isMarsColonized ? 'Mars' : 'Mars'}
               </button>
             </div>
           </div>
@@ -3082,15 +3113,15 @@ const EarthVisualization = () => {
                        console.log('Colony clicked!');
                        const newColonyCount = colonyCount + 1;
                        setColonyCount(newColonyCount);
-                        const staticPos = getStaticPositionNearPlanet(activeBuildingTab, builtSpheres.filter(s => s.location === activeBuildingTab).length);
-                         setBuiltSpheres(prev => [...prev, { 
-                           type: 'colony', 
-                           staticPosition: staticPos,
-                           name: `Colony ${newColonyCount}`, 
-                           location: activeBuildingTab, 
-                           destination: activeBuildingTab === 'earth' ? 'moon' : 'earth',
-                           cargo: { metal: 2, fuel: 2, food: 2 }
-                         }]);
+                         const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
+                          setBuiltSpheres(prev => [...prev, { 
+                            type: 'colony', 
+                            staticPosition: staticPos,
+                            name: `Colony ${newColonyCount}`, 
+                            location: activeBuildingTab, 
+                            destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
+                            cargo: { metal: 2, fuel: 2, food: 2 }
+                          }]);
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -3114,13 +3145,13 @@ const EarthVisualization = () => {
                         console.log('Cargo clicked!');
                         const newCargoCount = cargoCount + 1;
                         setCargoCount(newCargoCount);
-                        const staticPos = getStaticPositionNearPlanet(activeBuildingTab, builtSpheres.filter(s => s.location === activeBuildingTab).length);
+                         const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
                           setBuiltSpheres(prev => [...prev, { 
                             type: 'cargo', 
                             staticPosition: staticPos,
                             name: `Cargo ${newCargoCount}`, 
                             location: activeBuildingTab, 
-                            destination: activeBuildingTab === 'earth' ? 'moon' : 'earth',
+                            destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
                             cargo: { metal: 10, fuel: 10, food: 10 }
                          }]);
                       }}
@@ -3352,7 +3383,14 @@ const EarthVisualization = () => {
                               console.log(`${ship.name} has offloaded all cargo at ${arrivalPlanet}`);
                             } else {
                               // Normal arrival behavior - set to static position at destination with proper spacing
-                              const arrivalPlanet = ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land' ? 'moon' : 'earth';
+                              let arrivalPlanet: 'earth' | 'moon' | 'mars';
+                              if (ship.destination === 'mars') {
+                                arrivalPlanet = 'mars';
+                              } else if (ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land') {
+                                arrivalPlanet = 'moon';
+                              } else {
+                                arrivalPlanet = 'earth';
+                              }
                               // Count ships already at destination to determine spacing index
                               const shipsAtDestination = builtSpheres.filter(s => s.location === arrivalPlanet).length;
                               const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
@@ -3374,7 +3412,7 @@ const EarthVisualization = () => {
                         />
                       ) : (
                         <span className="text-sm text-slate-300 italic">
-                          {formatTime(calculateTravelTimeSeconds(ship.location === 'moon' ? 'moon' : 'earth', ship.destination || 'moon'))}
+                          {formatTime(calculateTravelTimeSeconds(ship.location === 'mars' ? 'mars' : (ship.location === 'moon' ? 'moon' : 'earth'), ship.destination || 'moon'))}
                         </span>
                       )}
                       <div className="text-sm flex items-center gap-0.5">
@@ -3397,10 +3435,18 @@ const EarthVisualization = () => {
                           if (ship.location === activeBuildingTab) {
                             // Launch with static positioning system
                             const currentPlanet = activeBuildingTab;
-                            const targetPlanet = ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land' ? 'moon' : 'earth';
+                            // Determine target planet based on destination
+                            let targetPlanet: 'earth' | 'moon' | 'mars';
+                            if (ship.destination === 'mars') {
+                              targetPlanet = 'mars';
+                            } else if (ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land') {
+                              targetPlanet = 'moon';
+                            } else {
+                              targetPlanet = 'earth';
+                            }
                             const startPos = ship.staticPosition || ship.position;
                             // Count ships that will be at destination to determine proper landing spot
-                            const shipsAtTargetDestination = builtSpheres.filter(s => s.location === targetPlanet || (s.location === 'traveling' && (s.destination === targetPlanet || (s.destination === 'moon' && targetPlanet === 'moon') || (s.destination === 'earth' && targetPlanet === 'earth')))).length;
+                            const shipsAtTargetDestination = builtSpheres.filter(s => s.location === targetPlanet || (s.location === 'traveling' && (s.destination === targetPlanet || (s.destination === 'moon' && targetPlanet === 'moon') || (s.destination === 'earth' && targetPlanet === 'earth') || (s.destination === 'mars' && targetPlanet === 'mars')))).length;
                             const endPos = getStaticPositionNearPlanet(targetPlanet, shipsAtTargetDestination);
                             const travelTime = calculateTravelTimeSeconds(currentPlanet, targetPlanet);
                             
