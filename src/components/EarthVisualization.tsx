@@ -2276,7 +2276,7 @@ function Atmosphere() {
 // Travel time matrix in seconds for predefined routes
 const TRAVEL_TIMES: Record<string, Record<string, number>> = {
   earth: {
-    moon: 6,
+    moon: 40,
     mars: 45,
     eml1: 12,
     offload: 4,   // Cargo operation
