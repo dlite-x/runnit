@@ -3288,11 +3288,11 @@ const EarthVisualization = () => {
                     // - If Moon not colonized: Earth shows ALL ships
                     // - If Moon colonized: Ships appear in flight control of their origin planet during transit
                     const currentPlanetShips = builtSpheres.filter(ship => {
-                      if (!isMoonColonized) {
-                        // Until moon is colonized, all ships appear in Earth's flight control
+                      if (!isMoonColonized && !isMarsColonized) {
+                        // Until moon/mars are colonized, all ships appear in Earth's flight control
                         return activeBuildingTab === 'earth';
                       } else {
-                        // After moon is colonized: ships show in their origin planet's flight control
+                        // After colonization: ships show in their current location's flight control
                         if (activeBuildingTab === 'earth') {
                           // Earth shows: ships that started from Earth (destination moon/mars/etc)
                           return ship.location === 'earth' || 
@@ -3302,6 +3302,10 @@ const EarthVisualization = () => {
                           // Moon shows: ships at moon + ships traveling FROM moon to elsewhere
                           return ship.location === 'moon' || 
                                  (ship.location === 'traveling' && ship.destination === 'earth');
+                        } else if (activeBuildingTab === 'mars') {
+                          // Mars shows: ships at mars + ships traveling FROM mars to elsewhere
+                          return ship.location === 'mars' || 
+                                 (ship.location === 'traveling' && ship.destination === 'mars');
                         }
                       }
                       return false;
