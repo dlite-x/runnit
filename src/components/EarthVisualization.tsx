@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
+import marsTexture from '@/assets/mars-texture-2k.jpg';
 import ShipLaunchModal from './ShipLaunchModal';
 
 interface EarthProps {
@@ -21,6 +22,12 @@ interface MoonProps {
   autoRotate: boolean;
   onMoonClick?: () => void;
   onMoonDoubleClick?: () => void;
+}
+
+interface MarsProps {
+  autoRotate: boolean;
+  onMarsClick?: () => void;
+  onMarsDoubleClick?: () => void;
 }
 
 function Earth({ autoRotate, onEarthClick, onEarthDoubleClick }: EarthProps) {
@@ -94,6 +101,45 @@ function Moon({ autoRotate, onMoonClick, onMoonDoubleClick }: MoonProps) {
         map={texture}
         roughness={0.9}
         metalness={0.0}
+      />
+    </mesh>
+  );
+}
+
+function Mars({ autoRotate, onMarsClick, onMarsDoubleClick }: MarsProps) {
+  const marsRef = useRef<THREE.Mesh>(null);
+  const texture = useLoader(TextureLoader, marsTexture);
+  
+  // Configure texture for better appearance
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  
+  useFrame((state, delta) => {
+    if (marsRef.current && autoRotate) {
+      marsRef.current.rotation.y += delta * 0.03; // Slower rotation
+    }
+  });
+
+  return (
+    <mesh 
+      ref={marsRef} 
+      position={[60, 10, 20]} // ~2.5x distance from Earth as Moon
+      onClick={onMarsClick}
+      onDoubleClick={onMarsDoubleClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = onMarsClick ? 'pointer' : 'default';
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'default';
+      }}
+    >
+      <sphereGeometry args={[1.33, 64, 64]} /> {/* 2/3 of Earth's size (2 * 2/3 = 1.33) */}
+      <meshStandardMaterial
+        map={texture}
+        roughness={0.8}
+        metalness={0.1}
+        emissive="#331100"
+        emissiveIntensity={0.1}
       />
     </mesh>
   );
@@ -3565,7 +3611,7 @@ const EarthVisualization = () => {
         {/* Camera Controller - follows ship in fly mode */}
         <CameraController flyMode={flyMode} shipPosition={new Vector3(...shipPosition)} cameraTarget={cameraTarget} />
 
-        {/* Earth, Moon, Ship, Orbiting Ships, Grid and Atmosphere */}
+        {/* Earth, Moon, Mars, Ship, Orbiting Ships, Grid and Atmosphere */}
         <Earth 
           autoRotate={autoRotate} 
           onEarthClick={handleEarthClick}
@@ -3575,6 +3621,11 @@ const EarthVisualization = () => {
           autoRotate={autoRotate} 
           onMoonClick={handleMoonClick}
           onMoonDoubleClick={() => setSelectedObject("moon")}
+        />
+        <Mars 
+          autoRotate={autoRotate} 
+          onMarsClick={() => console.log('Mars clicked')}
+          onMarsDoubleClick={() => setSelectedObject("mars")}
         />
         {flyMode && (
           <CustomShip 
@@ -3596,6 +3647,11 @@ const EarthVisualization = () => {
           position={[24, 4, 8]} 
           radius={0.6} 
           selected={selectedObject === "moon"} 
+        />
+        <SelectionRing 
+          position={[60, 10, 20]} 
+          radius={1.33} 
+          selected={selectedObject === "mars"} 
         />
         {flyMode && (
           <SelectionRing 
