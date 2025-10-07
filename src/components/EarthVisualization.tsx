@@ -136,10 +136,10 @@ function Mars({ autoRotate, onMarsClick, onMarsDoubleClick }: MarsProps) {
       <sphereGeometry args={[1.33, 64, 64]} /> {/* 2/3 of Earth's size (2 * 2/3 = 1.33) */}
       <meshStandardMaterial
         map={texture}
-        roughness={0.8}
-        metalness={0.1}
-        emissive="#331100"
-        emissiveIntensity={0.1}
+        roughness={0.95}
+        metalness={0.05}
+        emissive="#ff4400"
+        emissiveIntensity={0.08}
       />
     </mesh>
   );
