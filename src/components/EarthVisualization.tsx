@@ -3794,7 +3794,7 @@ const EarthVisualization = () => {
           enableZoom={true}
           enableRotate={true}
           minDistance={5}
-          maxDistance={flyMode ? 40 : 30}
+          maxDistance={flyMode ? 80 : 100}
           dampingFactor={0.05}
           enableDamping={true}
           target={flyMode ? new Vector3(...shipPosition) : new Vector3(...cameraTarget)}
