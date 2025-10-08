@@ -3209,9 +3209,13 @@ const EarthVisualization = () => {
                           return ship.location === 'moon' || 
                                  (ship.location === 'traveling' && ship.destination === 'earth');
                         } else if (activeBuildingTab === 'mars') {
-                          // Mars shows: ships at mars + ships traveling TO mars
-                          return ship.location === 'mars' || 
-                                 (ship.location === 'traveling' && ship.destination === 'mars');
+                          // Mars shows: ships at mars + ships traveling TO mars (only if Mars is colonized)
+                          // If Mars is not colonized, ships stay in Earth's control even when arriving
+                          if (isMarsColonized) {
+                            return ship.location === 'mars' || 
+                                   (ship.location === 'traveling' && ship.destination === 'mars');
+                          }
+                          return false;
                         }
                       }
                       return false;
