@@ -2104,36 +2104,14 @@ const CameraController = ({ flyMode, shipPosition, cameraTarget }: {
         camera.position.lerp(targetPosition, 0.05);
       }
     } else {
-      // Handle camera target changes when not in fly mode
+      // Camera target changes are tracked but camera position is not automatically moved
+      // This allows OrbitControls target to update without repositioning the camera
       const [x, y, z] = cameraTarget;
       const [lastX, lastY, lastZ] = lastCameraTarget.current;
       
-      // Check if camera target has changed
+      // Just update the last target reference without moving the camera
       if (x !== lastX || y !== lastY || z !== lastZ) {
         lastCameraTarget.current = [x, y, z];
-        
-        // Move camera to a good viewing position for the target
-        const targetPos = new Vector3(x, y, z);
-        let cameraDistance = 8; // Default distance
-        
-        // Adjust distance based on target
-        if (x === 24 && y === 4 && z === 8) { // Moon position
-          cameraDistance = 4; // Closer for moon
-        } else if (x === 0 && y === 0 && z === 0) { // Earth position
-          cameraDistance = 8; // Standard distance for Earth
-        } else if (x === 12 && y === 2 && z === 4) { // Overview position
-          cameraDistance = 20; // Far enough to see both Earth and Moon
-        }
-        
-        // Position camera at a good angle
-        const cameraPos = new Vector3(
-          targetPos.x + cameraDistance * 0.8,
-          targetPos.y + cameraDistance * 0.5,
-          targetPos.z + cameraDistance * 0.8
-        );
-        
-        camera.position.copy(cameraPos);
-        camera.lookAt(targetPos);
       }
     }
   });
@@ -2717,7 +2695,7 @@ const EarthVisualization = () => {
               filter: isMoonColonized ? 'drop-shadow(0 0 2px rgba(156, 163, 175, 0.1))' : 'none'
             }}></div>
             <span className={`font-medium group-hover:text-blue-200 transition-colors ${isMoonColonized ? 'text-blue-300' : 'text-gray-500'}`}>
-              Moon {!isMoonColonized && '(Uncolonized)'}
+              Moon
             </span>
           </div>
           
@@ -2734,12 +2712,12 @@ const EarthVisualization = () => {
           
           <div className="flex items-center gap-3 p-1 hover:bg-slate-800/30 transition-all duration-200 cursor-pointer group">
             <div className="w-4 h-4 rounded-full" style={{
-              backgroundColor: '#f87171',
-              boxShadow: '0 0 4px rgba(248, 113, 113, 0.2)',
-              filter: 'drop-shadow(0 0 2px rgba(248, 113, 113, 0.1))'
+              backgroundColor: isMarsColonized ? '#f87171' : '#555',
+              boxShadow: isMarsColonized ? '0 0 4px rgba(248, 113, 113, 0.2)' : 'none',
+              filter: isMarsColonized ? 'drop-shadow(0 0 2px rgba(248, 113, 113, 0.1))' : 'none'
             }}></div>
-            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors" style={{
-              textShadow: '0 0 6px rgba(147, 197, 253, 0.3)'
+            <span className={`font-medium group-hover:text-blue-200 transition-colors ${isMarsColonized ? 'text-blue-300' : 'text-gray-500'}`} style={{
+              textShadow: isMarsColonized ? '0 0 6px rgba(147, 197, 253, 0.3)' : 'none'
             }}>
               Mars
             </span>
