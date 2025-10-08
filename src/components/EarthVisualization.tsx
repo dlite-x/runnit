@@ -2813,7 +2813,9 @@ const EarthVisualization = () => {
                 <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
                   <Globe className="w-4 h-4 text-blue-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-200">{activeBuildingTab === 'earth' ? 'Earth' : 'Moon'}</h3>
+                <h3 className="text-xl font-semibold text-slate-200">
+                  {activeBuildingTab === 'earth' ? 'Earth' : activeBuildingTab === 'moon' ? 'Moon' : 'Mars'}
+                </h3>
               </div>
               
               
