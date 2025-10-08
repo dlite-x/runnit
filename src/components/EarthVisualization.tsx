@@ -3177,8 +3177,8 @@ const EarthVisualization = () => {
               </div>
             </div>
 
-            {/* Flight Control Section - Always show for Earth, Moon only when colonized */}
-            {(activeBuildingTab === 'earth' || (activeBuildingTab === 'moon' && isMoonColonized)) && (
+            {/* Flight Control Section - Always show for Earth, Moon only when colonized, Mars only when colonized */}
+            {(activeBuildingTab === 'earth' || (activeBuildingTab === 'moon' && isMoonColonized) || (activeBuildingTab === 'mars' && isMarsColonized)) && (
               <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -3209,7 +3209,7 @@ const EarthVisualization = () => {
                           return ship.location === 'moon' || 
                                  (ship.location === 'traveling' && ship.destination === 'earth');
                         } else if (activeBuildingTab === 'mars') {
-                          // Mars shows: ships at mars + ships traveling FROM mars to elsewhere
+                          // Mars shows: ships at mars + ships traveling TO mars
                           return ship.location === 'mars' || 
                                  (ship.location === 'traveling' && ship.destination === 'mars');
                         }
@@ -3219,7 +3219,7 @@ const EarthVisualization = () => {
                     
                     return currentPlanetShips.length === 0 ? (
                       <div className="text-center py-4 text-slate-400 text-sm">
-                        No ships in {activeBuildingTab === 'earth' ? 'Earth' : 'Moon'} flight control
+                        No ships in {activeBuildingTab === 'earth' ? 'Earth' : activeBuildingTab === 'moon' ? 'Moon' : 'Mars'} flight control
                       </div>
                     ) : (
                       currentPlanetShips.map((ship, index) => (
