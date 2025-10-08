@@ -3205,9 +3205,13 @@ const EarthVisualization = () => {
                                  ship.location === 'preparing' || 
                                  (ship.location === 'traveling' && ship.destination !== 'earth');
                         } else if (activeBuildingTab === 'moon') {
-                          // Moon shows: ships at moon + ships traveling FROM moon to elsewhere
-                          return ship.location === 'moon' || 
-                                 (ship.location === 'traveling' && ship.destination === 'earth');
+                          // Moon shows: ships at moon + ships traveling FROM moon to elsewhere (only if Moon is colonized)
+                          // If Moon is not colonized, ships stay in Earth's control even when arriving
+                          if (isMoonColonized) {
+                            return ship.location === 'moon' || 
+                                   (ship.location === 'traveling' && ship.destination === 'earth');
+                          }
+                          return false;
                         } else if (activeBuildingTab === 'mars') {
                           // Mars shows: ships at mars + ships traveling TO mars (only if Mars is colonized)
                           // If Mars is not colonized, ships stay in Earth's control even when arriving
