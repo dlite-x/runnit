@@ -2361,7 +2361,7 @@ const CountdownTimer = ({
 };
 
 const EarthVisualization = () => {
-  const { credits } = useCredits(); // Hook for auto-incrementing credits
+  const { credits, spendCredits } = useCredits(); // Hook for auto-incrementing credits
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(false);
@@ -2947,7 +2947,11 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Lab clicked!');
-                      setModalContent('Lab Building - Upgrade Cost: ₵ 200');
+                      if (spendCredits(200)) {
+                        setModalContent('Lab Building - Constructed! Cost: ₵ 200');
+                      } else {
+                        setModalContent('Lab Building - Insufficient Credits! Need: ₵ 200');
+                      }
                       setShowModal(true);
                     }}
                   >
@@ -2974,7 +2978,11 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Farm clicked!');
-                      setModalContent('Farm Building - Upgrade Cost: ₵ 200');
+                      if (spendCredits(200)) {
+                        setModalContent('Farm Building - Constructed! Cost: ₵ 200');
+                      } else {
+                        setModalContent('Farm Building - Insufficient Credits! Need: ₵ 200');
+                      }
                       setShowModal(true);
                     }}
                   >
@@ -3001,7 +3009,11 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Mine clicked!');
-                      setModalContent('Mine Building - Upgrade Cost: ₵ 200');
+                      if (spendCredits(200)) {
+                        setModalContent('Mine Building - Constructed! Cost: ₵ 200');
+                      } else {
+                        setModalContent('Mine Building - Insufficient Credits! Need: ₵ 200');
+                      }
                       setShowModal(true);
                     }}
                   >
@@ -3028,7 +3040,11 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Power clicked!');
-                      setModalContent('Power Building - Upgrade Cost: ₵ 200');
+                      if (spendCredits(200)) {
+                        setModalContent('Power Building - Constructed! Cost: ₵ 200');
+                      } else {
+                        setModalContent('Power Building - Insufficient Credits! Need: ₵ 200');
+                      }
                       setShowModal(true);
                     }}
                   >
@@ -3055,7 +3071,11 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Refinery clicked!');
-                      setModalContent('Refinery Building - Upgrade Cost: ₵ 200');
+                      if (spendCredits(200)) {
+                        setModalContent('Refinery Building - Constructed! Cost: ₵ 200');
+                      } else {
+                        setModalContent('Refinery Building - Insufficient Credits! Need: ₵ 200');
+                      }
                       setShowModal(true);
                     }}
                   >
@@ -3093,17 +3113,19 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                      onClick={() => {
                        console.log('Colony clicked!');
-                       const newColonyCount = colonyCount + 1;
-                       setColonyCount(newColonyCount);
+                       if (spendCredits(200)) {
+                         const newColonyCount = colonyCount + 1;
+                         setColonyCount(newColonyCount);
                          const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
-                          setBuiltSpheres(prev => [...prev, { 
-                            type: 'colony', 
-                            staticPosition: staticPos,
-                            name: `Colony ${newColonyCount}`, 
-                            location: activeBuildingTab, 
-                            destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
-                            cargo: { metal: 2, fuel: 2, food: 2 }
-                          }]);
+                         setBuiltSpheres(prev => [...prev, { 
+                           type: 'colony', 
+                           staticPosition: staticPos,
+                           name: `Colony ${newColonyCount}`, 
+                           location: activeBuildingTab, 
+                           destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
+                           cargo: { metal: 2, fuel: 2, food: 2 }
+                         }]);
+                       }
                      }}
                   >
                     <div className="flex items-center gap-2">
@@ -3125,9 +3147,10 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
                      onClick={() => {
                         console.log('Cargo clicked!');
-                        const newCargoCount = cargoCount + 1;
-                        setCargoCount(newCargoCount);
-                         const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
+                        if (spendCredits(200)) {
+                          const newCargoCount = cargoCount + 1;
+                          setCargoCount(newCargoCount);
+                          const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
                           setBuiltSpheres(prev => [...prev, { 
                             type: 'cargo', 
                             staticPosition: staticPos,
@@ -3135,7 +3158,8 @@ const EarthVisualization = () => {
                             location: activeBuildingTab, 
                             destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
                             cargo: { metal: 10, fuel: 10, food: 10 }
-                         }]);
+                          }]);
+                        }
                       }}
                    >
                      <div className="flex items-center gap-2">
