@@ -11,6 +11,7 @@ import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 import marsTexture from '@/assets/mars-texture-2k.jpg';
 import ShipLaunchModal from './ShipLaunchModal';
+import { useCredits } from '@/hooks/use-credits';
 
 interface EarthProps {
   autoRotate: boolean;
@@ -2360,6 +2361,7 @@ const CountdownTimer = ({
 };
 
 const EarthVisualization = () => {
+  const { credits } = useCredits(); // Hook for auto-incrementing credits
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(false);
@@ -2645,7 +2647,7 @@ const EarthVisualization = () => {
                 <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                   <span className="text-xs font-bold text-slate-900">₵</span>
                 </div>
-                <span className="font-medium">5,000</span>
+                <span className="font-medium">{credits.toLocaleString()}</span>
               </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
                 <span className="text-cyan-400 text-xs">💎</span>
