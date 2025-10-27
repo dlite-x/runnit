@@ -18,6 +18,7 @@ import ShipLaunchModal from './ShipLaunchModal';
 import FlightControlPanel from './FlightControlPanel';
 import CO2LogModal from './CO2LogModal';
 import { MissionsModal } from './MissionsModal';
+import { InvestmentModal } from './InvestmentModal';
 import { useCredits } from '@/hooks/use-credits';
 import { useBuildingLevels } from '@/hooks/use-building-levels';
 import { usePlanetResources } from '@/hooks/use-planet-resources';
@@ -2573,6 +2574,7 @@ const EarthVisualization = () => {
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showTravelGuide, setShowTravelGuide] = useState(false);
+  const [showInvestModal, setShowInvestModal] = useState(false);
   
   // Cargo loading modal state
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
@@ -3001,6 +3003,15 @@ const EarthVisualization = () => {
               aria-label="Toggle Travel Guide"
             >
               <Rocket className="w-5 h-5" />
+            </button>
+            
+            {/* Investment Toggle */}
+            <button
+              onClick={() => setShowInvestModal(!showInvestModal)}
+              className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
+              aria-label="Toggle Investment"
+            >
+              <Coins className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -4506,6 +4517,12 @@ const EarthVisualization = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Investment Modal */}
+      <InvestmentModal 
+        open={showInvestModal} 
+        onOpenChange={setShowInvestModal} 
+      />
     </div>
   );
 };
