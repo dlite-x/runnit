@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Package, ArrowUp, ArrowDown, Flag, Fuel } from 'lucide-react';
+import { Home, Package, ArrowUp, ArrowDown, Flag, Fuel, Rocket } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -161,17 +161,6 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
         
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12"></TableHead>
-                <TableHead>Destination</TableHead>
-                <TableHead>Fuel</TableHead>
-                <TableHead>Cargo (F/Fu/M)</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>ETA</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
             <TableBody>
               {ships.map((ship) => {
                 const requiredFuel = ship.destination ? (FUEL_REQUIREMENTS[ship.destination] || 0) : 0;
@@ -273,11 +262,12 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                       ) : ship.location !== 'traveling' ? (
                         <Button
                           size="sm"
-                          className="h-8"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
                           onClick={() => onLaunchShip(ship.name)}
                           disabled={!canLaunch(ship)}
                         >
-                          Launch
+                          <Rocket className={`w-4 h-4 ${canLaunch(ship) ? 'text-green-400' : 'text-muted-foreground'}`} />
                         </Button>
                       ) : null}
                     </TableCell>
