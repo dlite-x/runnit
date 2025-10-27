@@ -73,6 +73,21 @@ Same rate but negative - population decreases when starving.
 - 100 population with food: grows by ~1 person/hr
 - 100 population without food: declines by ~1 person/hr
 
+## Credits Generation
+
+Credits are generated based on population:
+
+```
+Credits per second = population / 360,000
+```
+
+**Examples:**
+- 100 population: 0.000278 credits/sec (1 credit/hr)
+- 1000 population: 0.00278 credits/sec (10 credits/hr)
+- 360,000 population: 1 credit/sec (3,600 credits/hr)
+
+This creates an incentive to maintain and grow population, as larger populations generate more income.
+
 ## CO2 Emissions
 
 Player actions affect CO2 levels:
