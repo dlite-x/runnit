@@ -13,6 +13,7 @@ import moonTexture from '@/assets/moon-texture-2k.jpg';
 import marsTexture from '@/assets/mars-texture-2k.jpg';
 import ShipLaunchModal from './ShipLaunchModal';
 import CO2LogModal from './CO2LogModal';
+import { MissionsModal } from './MissionsModal';
 import { useCredits } from '@/hooks/use-credits';
 import { useBuildingLevels } from '@/hooks/use-building-levels';
 import { usePlanetResources } from '@/hooks/use-planet-resources';
@@ -2552,6 +2553,7 @@ const EarthVisualization = () => {
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [isOperationsPanelOpen, setIsOperationsPanelOpen] = useState(false);
   const [showCO2LogModal, setShowCO2LogModal] = useState(false);
+  const [showMissionsModal, setShowMissionsModal] = useState(false);
   
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
@@ -2793,6 +2795,13 @@ const EarthVisualization = () => {
             <div className="flex items-center gap-4 text-sm">
               <span className="text-slate-300">Level <span className="text-blue-400 font-bold">1</span></span>
               <span className="text-slate-300">Time <span className="text-emerald-400 font-mono">{formatGameTime(gameTime)}</span></span>
+              <button
+                onClick={() => setShowMissionsModal(true)}
+                className="px-3 py-1.5 rounded-md bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600/50 transition-all flex items-center gap-2"
+              >
+                <Zap className="w-4 h-4 text-yellow-400" />
+                <span className="font-medium">Missions</span>
+              </button>
             </div>
           </div>
           
@@ -4098,6 +4107,12 @@ const EarthVisualization = () => {
         onClose={() => setShowCO2LogModal(false)}
         events={co2Events}
         currentCO2={co2ppm}
+      />
+
+      {/* Missions Modal */}
+      <MissionsModal
+        open={showMissionsModal}
+        onOpenChange={setShowMissionsModal}
       />
     </div>
   );
