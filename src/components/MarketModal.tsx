@@ -72,7 +72,7 @@ export function MarketModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto -translate-y-[25px]">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto translate-y-[-25px]">
         <DialogHeader>
           <DialogTitle className="text-2xl">Market</DialogTitle>
         </DialogHeader>
