@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Package, ArrowUp, ArrowDown, Flag, Fuel, Rocket } from 'lucide-react';
+import { Home, Package, ArrowUp, ArrowDown, Flag, Fuel } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -161,6 +161,19 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
         
         <div className="overflow-x-auto">
           <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12"></TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Destination</TableHead>
+                <TableHead>Fuel</TableHead>
+                <TableHead>Cargo (F/Fu/M)</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>ETA</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
             <TableBody>
               {ships.map((ship) => {
                 const requiredFuel = ship.destination ? (FUEL_REQUIREMENTS[ship.destination] || 0) : 0;
@@ -177,6 +190,10 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                         <Package className="w-5 h-5 text-orange-400" />
                       )}
                     </TableCell>
+                    <TableCell className="text-sm">
+                      {ship.type === 'colony' ? 'Colony' : 'Cargo'}
+                    </TableCell>
+                    <TableCell className="font-medium">{ship.name}</TableCell>
                     <TableCell>
                       {ship.location === 'traveling' ? (
                         <span className="text-sm text-muted-foreground">{ship.destination}</span>
@@ -262,12 +279,11 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                       ) : ship.location !== 'traveling' ? (
                         <Button
                           size="sm"
-                          variant="ghost"
-                          className="h-8 w-8 p-0"
+                          className="h-8"
                           onClick={() => onLaunchShip(ship.name)}
                           disabled={!canLaunch(ship)}
                         >
-                          <Rocket className={`w-4 h-4 ${canLaunch(ship) ? 'text-green-400' : 'text-muted-foreground'}`} />
+                          Launch
                         </Button>
                       ) : null}
                     </TableCell>
