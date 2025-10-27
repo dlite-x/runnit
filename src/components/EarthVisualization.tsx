@@ -2571,12 +2571,17 @@ const EarthVisualization = () => {
   const { buildingLevels: moonBuildings, upgradeBuilding: upgradeMoonBuilding } = useBuildingLevels('Moon');
   const { buildingLevels: marsBuildings, upgradeBuilding: upgradeMarsBuilding } = useBuildingLevels('Mars');
   
-  // Planet populations
-  const { population: earthPopulation, growthRatePerHour: earthGrowthRate } = usePlanetPopulation('Earth', true);
-  const { population: moonPopulation, growthRatePerHour: moonGrowthRate } = usePlanetPopulation('Moon', isMoonColonized);
-  const { population: marsPopulation, growthRatePerHour: marsGrowthRate } = usePlanetPopulation('Mars', isMarsColonized);
+  // Planet resources for each planet (need to get these first)
+  const tempEarthResources = usePlanetResources('Earth', earthBuildings, temperature, 100);
+  const tempMoonResources = usePlanetResources('Moon', moonBuildings);
+  const tempMarsResources = usePlanetResources('Mars', marsBuildings);
   
-  // Planet resources for each planet
+  // Planet populations (depends on food stock)
+  const { population: earthPopulation, growthRatePerHour: earthGrowthRate } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
+  const { population: moonPopulation, growthRatePerHour: moonGrowthRate } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.resources.food);
+  const { population: marsPopulation, growthRatePerHour: marsGrowthRate } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
+  
+  // Now get resources again with actual population
   const { resources: earthResources, productionRates: earthProduction } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
   const { resources: moonResources, productionRates: moonProduction } = usePlanetResources('Moon', moonBuildings);
   const { resources: marsResources, productionRates: marsProduction } = usePlanetResources('Mars', marsBuildings);

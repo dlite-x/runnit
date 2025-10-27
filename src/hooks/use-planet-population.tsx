@@ -7,14 +7,6 @@ interface PlanetPopulation {
 const STORAGE_KEY = 'planet_population';
 const UPDATE_INTERVAL = 1000; // Update every 1 second
 
-// Base growth rate per hour for each planet
-const BASE_GROWTH_RATES: { [key: string]: number } = {
-  Earth: 1, // 1 per hour
-  Moon: 0,
-  Mars: 0,
-  EML1: 0,
-};
-
 const DEFAULT_POPULATIONS: { [key: string]: number } = {
   Earth: 100,
   Moon: 0,
@@ -22,7 +14,11 @@ const DEFAULT_POPULATIONS: { [key: string]: number } = {
   EML1: 0,
 };
 
-export function usePlanetPopulation(planet: string, isColonized: boolean = true) {
+export function usePlanetPopulation(
+  planet: string, 
+  isColonized: boolean = true,
+  foodStock: number = 0
+) {
   const [population, setPopulation] = useState<number>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -32,15 +28,20 @@ export function usePlanetPopulation(planet: string, isColonized: boolean = true)
     return DEFAULT_POPULATIONS[planet];
   });
 
-  // Auto-increment population based on growth rate
+  // Auto-increment population based on percentage growth rate
+  // Formula: population * (1/360,000) per second
+  // This equals approximately 1% growth per hour
   useEffect(() => {
-    if (!isColonized) return;
+    if (!isColonized || population <= 0) return;
 
     const interval = setInterval(() => {
       setPopulation((prev) => {
-        const growthRatePerHour = BASE_GROWTH_RATES[planet] || 0;
-        const growthRatePerSecond = growthRatePerHour / 3600;
-        const newPopulation = prev + growthRatePerSecond;
+        // Population grows if food > 0, declines if food < 0
+        const growthDirection = foodStock > 0 ? 1 : (foodStock < 0 ? -1 : 0);
+        
+        // Growth rate: population * (1/360,000) per second
+        const growthRatePerSecond = (prev / 360000) * growthDirection;
+        const newPopulation = Math.max(0, prev + growthRatePerSecond);
         
         // Save to localStorage
         const stored = localStorage.getItem(STORAGE_KEY);
@@ -53,13 +54,15 @@ export function usePlanetPopulation(planet: string, isColonized: boolean = true)
     }, UPDATE_INTERVAL);
 
     return () => clearInterval(interval);
-  }, [planet, isColonized]);
+  }, [planet, isColonized, foodStock, population]);
 
-  // Calculate growth rate per hour
-  const growthRatePerHour = isColonized ? BASE_GROWTH_RATES[planet] || 0 : 0;
+  // Calculate growth rate per hour for UI display
+  // Growth per second * 3600 = growth per hour
+  const growthRatePerSecond = foodStock > 0 ? population / 360000 : (foodStock < 0 ? -population / 360000 : 0);
+  const growthRatePerHour = Math.round(growthRatePerSecond * 3600);
 
   return { 
     population: Math.floor(population),
-    growthRatePerHour: Math.round(growthRatePerHour)
+    growthRatePerHour
   };
 }
