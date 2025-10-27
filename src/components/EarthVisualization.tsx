@@ -3807,7 +3807,6 @@ const EarthVisualization = () => {
 
         {/* Controls - now enabled in both modes with target following in fly mode */}
         <OrbitControls
-          key="main-orbit-controls"
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
@@ -3815,7 +3814,6 @@ const EarthVisualization = () => {
           maxDistance={flyMode ? 80 : 100}
           dampingFactor={0.05}
           enableDamping={true}
-          target={flyMode ? new Vector3(...shipPosition) : new Vector3(...cameraTarget)}
           mouseButtons={{
             LEFT: THREE.MOUSE.PAN,
             MIDDLE: THREE.MOUSE.DOLLY,
