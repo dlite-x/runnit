@@ -2603,8 +2603,8 @@ const EarthVisualization = () => {
   
   // Planet populations (depends on food stock)
   const { population: earthPopulation, growthRatePerHour: earthGrowthRate, adjustPopulation: adjustEarthPopulation } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
-  const { population: moonPopulation, growthRatePerHour: moonGrowthRate } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.resources.food);
-  const { population: marsPopulation, growthRatePerHour: marsGrowthRate } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
+  const { population: moonPopulation, growthRatePerHour: moonGrowthRate, adjustPopulation: adjustMoonPopulation } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.resources.food);
+  const { population: marsPopulation, growthRatePerHour: marsGrowthRate, adjustPopulation: adjustMarsPopulation } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
   
   // Now get resources again with actual population - THIS IS THE SINGLE SOURCE OF TRUTH
   const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource, addResource: addEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
@@ -2714,6 +2714,17 @@ const EarthVisualization = () => {
         if (ship.type === 'colony' && ship.destination === 'colonize' && 
             ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling') {
           console.log(`${ship.name} consumed after colonizing at ${ship.location}`);
+          
+          // Transfer people from ship to planet population
+          if (ship.people && ship.people > 0) {
+            if (ship.location === 'moon') {
+              adjustMoonPopulation(ship.people);
+              console.log(`Transferred ${ship.people} people to Moon`);
+            } else if (ship.location === 'mars') {
+              adjustMarsPopulation(ship.people);
+              console.log(`Transferred ${ship.people} people to Mars`);
+            }
+          }
           
           // Check if colonizing the Moon, Mars, or EML-1
           if (ship.location === 'moon') {
