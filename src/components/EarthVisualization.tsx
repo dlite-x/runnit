@@ -3692,7 +3692,7 @@ const EarthVisualization = () => {
                       {/* Fuel column */}
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-slate-300">
-                          {currentFuel}/{requiredFuel || '-'}
+                          {Math.floor(currentFuel)}/{requiredFuel || '-'}
                         </span>
                         {ship.destination && ship.location !== 'traveling' && ship.location !== 'preparing' && (
                           <button
