@@ -3933,8 +3933,15 @@ const EarthVisualization = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSpaceStationBuilt(!spaceStationBuilt)}
-                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                  onClick={() => {
+                    if (activeBuildingTab === 'earth') {
+                      setSpaceStationBuilt(!spaceStationBuilt);
+                    }
+                  }}
+                  disabled={activeBuildingTab !== 'earth'}
+                  className={`w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 ${
+                    activeBuildingTab === 'earth' ? 'hover:bg-slate-600/40' : 'opacity-50 cursor-not-allowed'
+                  }`}
                 >
                   <Building className="w-4 h-4 mr-2" />
                   {spaceStationBuilt ? 'Dismantle' : 'Build'} Station
