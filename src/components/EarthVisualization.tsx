@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ScrollArea } from '@/components/ui/scroll-area';
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 import marsTexture from '@/assets/mars-texture-2k.jpg';
@@ -3381,67 +3382,24 @@ const EarthVisualization = () => {
               </div>
             </div>
 
-            {/* Flight Control Section - Always show for Earth, Moon only when colonized, Mars only when colonized */}
-            {(activeBuildingTab === 'earth' || (activeBuildingTab === 'moon' && isMoonColonized) || (activeBuildingTab === 'mars' && isMarsColonized)) && (
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                    <Satellite className="w-4 h-4 text-purple-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-slate-200">Flight Control</h3>
+            {/* Flight Control Section - Universal Solar System Control */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                  <Satellite className="w-4 h-4 text-purple-400" />
                 </div>
-                
-                {/* Table Content */}
+                <h3 className="text-xl font-semibold text-slate-200">Flight Control <span className="text-sm text-slate-400">(Solar System)</span></h3>
+              </div>
+              
+              {/* Table Content with Scrolling */}
+              <ScrollArea className="h-[400px] pr-3">
                 <div className="space-y-1">
-                  {(() => {
-                    // Filter ships based on rules:
-                    // - If Moon not colonized: Earth shows ALL ships
-                    // - If Moon colonized: Ships appear in flight control of their origin planet during transit
-                    const currentPlanetShips = builtSpheres.filter(ship => {
-                      if (!isMoonColonized && !isMarsColonized) {
-                        // Until moon/mars are colonized, all ships appear in Earth's flight control
-                        return activeBuildingTab === 'earth';
-                      } else {
-                        // After colonization: ships show in their current location's flight control
-                        if (activeBuildingTab === 'earth') {
-                          // Earth shows: ships at earth, preparing, or traveling to destinations
-                          // BUT ships traveling to uncolonized destinations stay in Earth's control
-                          const isAtOrPreparingAtEarth = ship.location === 'earth' || ship.location === 'preparing';
-                          const isTravelingToMoon = ship.location === 'traveling' && (ship.destination === 'moon' || ship.destination === 'offload' || ship.destination === 'land');
-                          const isTravelingToMars = ship.location === 'traveling' && (ship.destination === 'mars' || ship.destination === 'colonize');
-                          
-                          // Show ships traveling to uncolonized planets in Earth's control
-                          const shouldShowMoonShip = isTravelingToMoon && !isMoonColonized;
-                          const shouldShowMarsShip = isTravelingToMars && !isMarsColonized;
-                          
-                          return isAtOrPreparingAtEarth || shouldShowMoonShip || shouldShowMarsShip;
-                        } else if (activeBuildingTab === 'moon') {
-                          // Moon shows: ships at moon + ships traveling FROM moon to elsewhere (only if Moon is colonized)
-                          // If Moon is not colonized, ships stay in Earth's control even when arriving
-                          if (isMoonColonized) {
-                            return ship.location === 'moon' || 
-                                   (ship.location === 'traveling' && ship.destination === 'earth');
-                          }
-                          return false;
-                        } else if (activeBuildingTab === 'mars') {
-                          // Mars shows: ships at mars + ships traveling TO mars (only if Mars is colonized)
-                          // If Mars is not colonized, ships stay in Earth's control even when arriving
-                          if (isMarsColonized) {
-                            return ship.location === 'mars' || 
-                                   (ship.location === 'traveling' && ship.destination === 'mars');
-                          }
-                          return false;
-                        }
-                      }
-                      return false;
-                    });
-                    
-                    return currentPlanetShips.length === 0 ? (
-                      <div className="text-center py-4 text-slate-400 text-sm">
-                        No ships in {activeBuildingTab === 'earth' ? 'Earth' : activeBuildingTab === 'moon' ? 'Moon' : 'Mars'} flight control
-                      </div>
-                    ) : (
-                      currentPlanetShips.map((ship, index) => (
+                  {builtSpheres.length === 0 ? (
+                    <div className="text-center py-4 text-slate-400 text-sm">
+                      No ships in solar system
+                    </div>
+                  ) : (
+                    builtSpheres.map((ship, index) => (
                     <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto] gap-3 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20 relative">
                       <div className="flex items-center gap-2 min-w-0">
                         {ship.type === 'colony' ? (
@@ -3570,11 +3528,11 @@ const EarthVisualization = () => {
                       </span>
                       <button 
                         className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-                        disabled={ship.location !== activeBuildingTab}
+                        disabled={ship.location === 'traveling' || ship.location === 'preparing'}
                         onClick={() => {
-                          if (ship.location === activeBuildingTab) {
+                          if (ship.location !== 'traveling' && ship.location !== 'preparing') {
                             // Launch with static positioning system
-                            const currentPlanet = activeBuildingTab;
+                            const currentPlanet = ship.location as 'earth' | 'moon' | 'mars' | 'eml1';
                             // Determine target planet based on destination
                             let targetPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
                             if (ship.destination === 'mars') {
@@ -3612,17 +3570,15 @@ const EarthVisualization = () => {
                           }
                         }}
                       >
-                        {ship.location === activeBuildingTab ? 'launch' : 
-                         ship.location === 'preparing' ? 'prep' :
-                         ship.location === 'traveling' ? 'flying' : 'arrived'}
+                        {ship.location === 'traveling' ? 'flying' : 
+                         ship.location === 'preparing' ? 'prep' : 'launch'}
                       </button>
                     </div>
                     ))
-                  );
-                })()}
+                  )}
                 </div>
-              </div>
-            )}
+              </ScrollArea>
+            </div>
           </div>
         </div>
       </div>
