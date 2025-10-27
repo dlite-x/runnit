@@ -3860,7 +3860,7 @@ const EarthVisualization = () => {
 
       {/* Flight Control Panel */}
       {showFlightControl && (
-        <div className="absolute bottom-4 left-4 right-4 z-10 max-w-6xl mx-auto">
+        <div className="fixed bottom-[270px] left-4 right-4 z-[10000] max-w-6xl mx-auto">
           <FlightControlPanel
             ships={builtSpheres}
             onUpdateShip={handleUpdateShip}
