@@ -2876,14 +2876,15 @@ const EarthVisualization = () => {
   const handleLoadCargo = () => {
     if (!selectedShipForCargo) return;
 
-    const maxCapacity = selectedShipForCargo.type === 'colony' ? 6 : 10;
+    const maxCapacity = selectedShipForCargo.type === 'colony' ? 10 : 20;
     const currentCargo = selectedShipForCargo.cargo || { metal: 0, fuel: 0, food: 0 };
-    const currentTotal = currentCargo.metal + currentCargo.fuel + currentCargo.food;
+    const currentFuel = selectedShipForCargo.fuel || 0;
+    const currentTotal = currentCargo.metal + currentCargo.fuel + currentCargo.food + currentFuel;
     const requestedTotal = cargoInputs.metal + cargoInputs.fuel + cargoInputs.food;
 
     if (cargoMode === 'load') {
       if (currentTotal + requestedTotal > maxCapacity) {
-        alert(`Cargo capacity exceeded! Max: ${maxCapacity}, Current: ${currentTotal}, Requested: ${requestedTotal}`);
+        alert(`Cargo capacity exceeded! Max: ${maxCapacity}, Current (including fuel): ${currentTotal.toFixed(1)}, Requested: ${requestedTotal}`);
         return;
       }
 
@@ -4361,7 +4362,7 @@ const EarthVisualization = () => {
           <DialogHeader>
             <DialogTitle>Manage Cargo - {selectedShipForCargo?.name}</DialogTitle>
             <DialogDescription>
-              Max capacity: {selectedShipForCargo?.type === 'colony' ? 6 : 10} units total
+              Capacity: {((selectedShipForCargo?.cargo?.metal || 0) + (selectedShipForCargo?.cargo?.fuel || 0) + (selectedShipForCargo?.cargo?.food || 0) + (selectedShipForCargo?.fuel || 0)).toFixed(1)} / {selectedShipForCargo?.type === 'colony' ? 10 : 20} units (including fuel)
             </DialogDescription>
           </DialogHeader>
           
