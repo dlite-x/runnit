@@ -2961,6 +2961,13 @@ const EarthVisualization = () => {
                 <Zap className="w-4 h-4 text-yellow-400" />
                 <span className="font-medium">Missions</span>
               </button>
+              <button
+                onClick={() => setShowInvestModal(true)}
+                className="px-3 py-1.5 rounded-md bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600/50 transition-all flex items-center gap-2"
+              >
+                <Coins className="w-4 h-4 text-green-400" />
+                <span className="font-medium">Invest</span>
+              </button>
             </div>
           </div>
           
@@ -3003,15 +3010,6 @@ const EarthVisualization = () => {
               aria-label="Toggle Travel Guide"
             >
               <Rocket className="w-5 h-5" />
-            </button>
-            
-            {/* Investment Toggle */}
-            <button
-              onClick={() => setShowInvestModal(!showInvestModal)}
-              className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
-              aria-label="Toggle Investment"
-            >
-              <Coins className="w-5 h-5" />
             </button>
           </div>
         </div>
