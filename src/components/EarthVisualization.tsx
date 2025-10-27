@@ -3218,22 +3218,6 @@ const EarthVisualization = () => {
                             {moonGrowthRate >= 0 ? '+' : ''}{moonGrowthRate}/hr
                           </span>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
-                              <span className="text-sm font-bold text-slate-900">₵</span>
-                            </div>
-                            <span className="text-base text-slate-400">Credits</span>
-                          </div>
-                          <span className="text-base font-bold text-green-400">+{Math.round((50 / 360000) * 3600)}/hr</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-red-400" />
-                            <span className="text-base text-slate-400">Temperature</span>
-                          </div>
-                          <span className="text-base font-bold text-slate-200">+0°C</span>
-                        </div>
                       </>
                     ) : (
                       <div className="text-center py-6 text-slate-400 text-sm">
@@ -3260,22 +3244,6 @@ const EarthVisualization = () => {
                           <span className={`text-base font-bold ${marsGrowthRate >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {marsGrowthRate >= 0 ? '+' : ''}{marsGrowthRate}/hr
                           </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
-                              <span className="text-sm font-bold text-slate-900">₵</span>
-                            </div>
-                            <span className="text-base text-slate-400">Credits</span>
-                          </div>
-                          <span className="text-base font-bold text-green-400">+{Math.round((25 / 360000) * 3600)}/hr</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-red-400" />
-                            <span className="text-base text-slate-400">Temperature</span>
-                          </div>
-                          <span className="text-base font-bold text-slate-200">-63°C</span>
                         </div>
                       </>
                     ) : (
