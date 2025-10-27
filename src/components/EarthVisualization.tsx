@@ -1340,7 +1340,157 @@ function SpaceStation({ onSpaceStationDoubleClick }: { onSpaceStationDoubleClick
   );
 }
 
-// Ship Factory Component - static near Earth
+// EML-1 Station Component - stationed at Lagrange Point 1
+function EML1Station({ onEML1StationDoubleClick }: { onEML1StationDoubleClick?: () => void }) {
+  const stationRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (stationRef.current) {
+      // Gentle rotation on the vertical axis
+      stationRef.current.rotation.y = state.clock.getElapsedTime() * 0.1;
+    }
+  });
+
+  return (
+    <group ref={stationRef} position={[16, 2.5, 5.3]}>
+      {/* Lower vertical spine */}
+      <mesh position={[0, -1.5, 0]}>
+        <cylinderGeometry args={[0.08, 0.12, 3, 8]} />
+        <meshStandardMaterial 
+          color="#4A90E2" 
+          metalness={0.85} 
+          roughness={0.2}
+          emissive="#2E5F8F"
+          emissiveIntensity={0.15}
+        />
+      </mesh>
+
+      {/* Upper vertical spine */}
+      <mesh position={[0, 1.5, 0]}>
+        <cylinderGeometry args={[0.12, 0.08, 3, 8]} />
+        <meshStandardMaterial 
+          color="#4A90E2" 
+          metalness={0.85} 
+          roughness={0.2}
+          emissive="#2E5F8F"
+          emissiveIntensity={0.15}
+        />
+      </mesh>
+
+      {/* Central ring structure */}
+      <mesh
+        rotation={[Math.PI / 2, 0, 0]}
+        onDoubleClick={onEML1StationDoubleClick}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = onEML1StationDoubleClick ? 'pointer' : 'default';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'default';
+        }}
+      >
+        <torusGeometry args={[1.2, 0.15, 12, 32]} />
+        <meshStandardMaterial 
+          color="#5AA0E8" 
+          metalness={0.8} 
+          roughness={0.25}
+          emissive="#3D7AB8"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+
+      {/* Inner ring detail */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.9, 0.08, 8, 24]} />
+        <meshStandardMaterial 
+          color="#6BB5F5" 
+          metalness={0.9} 
+          roughness={0.15}
+          emissive="#4A9FE0"
+          emissiveIntensity={0.25}
+        />
+      </mesh>
+
+      {/* Ring connectors (4 spokes) */}
+      {[0, 1, 2, 3].map((i) => (
+        <mesh 
+          key={i} 
+          rotation={[Math.PI / 2, 0, (i * Math.PI) / 2]}
+          position={[
+            Math.cos((i * Math.PI) / 2) * 0.6,
+            0,
+            Math.sin((i * Math.PI) / 2) * 0.6
+          ]}
+        >
+          <cylinderGeometry args={[0.04, 0.04, 1.2, 6]} />
+          <meshStandardMaterial 
+            color="#87CEEB" 
+            metalness={0.75} 
+            roughness={0.3}
+            emissive="#5AA0E8"
+            emissiveIntensity={0.15}
+          />
+        </mesh>
+      ))}
+
+      {/* Top communication array */}
+      <mesh position={[0, 3.2, 0]}>
+        <sphereGeometry args={[0.15, 12, 12]} />
+        <meshStandardMaterial 
+          color="#FFFFFF" 
+          metalness={0.6}
+          roughness={0.2}
+          emissive="#AADDFF"
+          emissiveIntensity={0.4}
+        />
+      </mesh>
+
+      {/* Top antenna */}
+      <mesh position={[0, 3.6, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.8, 6]} />
+        <meshStandardMaterial 
+          color="#C0C0C0" 
+          metalness={0.9}
+          roughness={0.1}
+          emissive="#FFFFFF"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+
+      {/* Bottom docking port */}
+      <mesh position={[0, -3.2, 0]}>
+        <cylinderGeometry args={[0.2, 0.15, 0.4, 8]} />
+        <meshStandardMaterial 
+          color="#6BB5F5" 
+          metalness={0.8}
+          roughness={0.25}
+          emissive="#4A9FE0"
+          emissiveIntensity={0.25}
+        />
+      </mesh>
+
+      {/* Station lights (4 around the ring) */}
+      {[0, 1, 2, 3].map((i) => (
+        <mesh 
+          key={`light-${i}`}
+          position={[
+            Math.cos((i * Math.PI) / 2) * 1.2,
+            0,
+            Math.sin((i * Math.PI) / 2) * 1.2
+          ]}
+        >
+          <sphereGeometry args={[0.06, 8, 8]} />
+          <meshStandardMaterial 
+            color="#00FFFF" 
+            emissive="#00FFFF"
+            emissiveIntensity={0.8}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function ShipFactory({ onShipFactoryDoubleClick }: { onShipFactoryDoubleClick?: () => void }) {
   const factoryRef = useRef<THREE.Group>(null);
   
@@ -3769,6 +3919,9 @@ const EarthVisualization = () => {
         {/* Space Station */}
         {spaceStationBuilt && <SpaceStation onSpaceStationDoubleClick={() => setSelectedObject("spaceStation")} />}
         
+        {/* EML-1 Station */}
+        {isEML1Colonized && <EML1Station onEML1StationDoubleClick={() => setSelectedObject("eml1Station")} />}
+        
         {/* Ship Factory */}
         {shipFactoryBuilt && <ShipFactory onShipFactoryDoubleClick={() => setSelectedObject("shipFactory")} />}
         
@@ -3829,9 +3982,16 @@ const EarthVisualization = () => {
             selected={selectedObject === "spaceStation"} 
           />
         )}
+        {isEML1Colonized && (
+          <SelectionRing 
+            position={[16, 2.5, 5.3]} 
+            radius={1.5} 
+            selected={selectedObject === "eml1Station"} 
+          />
+        )}
         {shipFactoryBuilt && (
           <SelectionRing 
-            position={[3, 3, 2]} 
+            position={[3, 3, 2]}
             radius={0.8} 
             selected={selectedObject === "shipFactory"} 
           />
