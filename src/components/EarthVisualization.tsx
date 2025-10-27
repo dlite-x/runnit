@@ -2972,7 +2972,7 @@ const EarthVisualization = () => {
                         </div>
                         <span className="text-base text-slate-400">Credits</span>
                       </div>
-                      <span className="text-lg font-bold text-green-400">+{Math.round((100 / 360000) * 3600)}/hr</span>
+                      <span className="text-base font-bold text-green-400">+{Math.round((100 / 360000) * 3600)}/hr</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -3007,7 +3007,7 @@ const EarthVisualization = () => {
                             </div>
                             <span className="text-base text-slate-400">Credits</span>
                           </div>
-                          <span className="text-lg font-bold text-green-400">+{Math.round((50 / 360000) * 3600)}/hr</span>
+                          <span className="text-base font-bold text-green-400">+{Math.round((50 / 360000) * 3600)}/hr</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -3041,7 +3041,7 @@ const EarthVisualization = () => {
                             </div>
                             <span className="text-base text-slate-400">Credits</span>
                           </div>
-                          <span className="text-lg font-bold text-green-400">+{Math.round((25 / 360000) * 3600)}/hr</span>
+                          <span className="text-base font-bold text-green-400">+{Math.round((25 / 360000) * 3600)}/hr</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
