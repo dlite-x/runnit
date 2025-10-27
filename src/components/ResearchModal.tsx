@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Lock } from "lucide-react";
+import { FlaskConical } from "lucide-react";
 
 interface ResearchModalProps {
   isOpen: boolean;
@@ -13,26 +12,31 @@ interface ResearchItem {
   name: string;
   unlocked: boolean;
   cost: number;
+  level: number;
 }
 
 const ResearchModal = ({ isOpen, onOpenChange }: ResearchModalProps) => {
   // Placeholder research items - functionality to be added later
   const researchItems: ResearchItem[] = [
-    { id: 'ship-speed-1', name: 'Ship Speed 1', unlocked: false, cost: 1000 },
-    { id: 'ship-speed-2', name: 'Ship Speed 2', unlocked: false, cost: 2000 },
-    { id: 'ship-speed-3', name: 'Ship Speed 3', unlocked: false, cost: 4000 },
-    { id: 'ship-speed-4', name: 'Ship Speed 4', unlocked: false, cost: 8000 },
-    { id: 'proxima-scout', name: 'Proxima Scout', unlocked: false, cost: 10000 },
-    { id: 'alpha-centauri-map', name: 'Alpha Centauri Map', unlocked: false, cost: 15000 },
-    { id: 'proxima-map', name: 'Proxima Map', unlocked: false, cost: 20000 },
-    { id: 'efficient-manufacturing', name: 'Efficient Manufacturing', unlocked: false, cost: 3000 },
-    { id: 'lunar-telescope', name: 'Lunar Telescope', unlocked: false, cost: 5000 },
-    { id: 'sunshade-1', name: 'Sunshade 1', unlocked: false, cost: 6000 },
-    { id: 'sunshade-2', name: 'Sunshade 2', unlocked: false, cost: 12000 },
+    { id: 'ship-speed-1', name: 'Ship Speed 1', unlocked: false, cost: 1000, level: 10 },
+    { id: 'ship-speed-2', name: 'Ship Speed 2', unlocked: false, cost: 2000, level: 20 },
+    { id: 'ship-speed-3', name: 'Ship Speed 3', unlocked: false, cost: 4000, level: 35 },
+    { id: 'ship-speed-4', name: 'Ship Speed 4', unlocked: false, cost: 8000, level: 50 },
+    { id: 'proxima-scout', name: 'Proxima Scout', unlocked: false, cost: 10000, level: 60 },
+    { id: 'alpha-centauri-map', name: 'Alpha Centauri Map', unlocked: false, cost: 15000, level: 80 },
+    { id: 'proxima-map', name: 'Proxima Map', unlocked: false, cost: 20000, level: 100 },
+    { id: 'efficient-manufacturing', name: 'Efficient Manufacturing', unlocked: false, cost: 3000, level: 25 },
+    { id: 'lunar-telescope', name: 'Lunar Telescope', unlocked: false, cost: 5000, level: 40 },
+    { id: 'sunshade-1', name: 'Sunshade 1', unlocked: false, cost: 6000, level: 45 },
+    { id: 'sunshade-2', name: 'Sunshade 2', unlocked: false, cost: 12000, level: 70 },
   ];
 
   const ResearchCard = ({ item }: { item: ResearchItem }) => (
     <Card className="p-3 bg-card border-border min-w-[140px]">
+      <div className="flex items-center gap-2 mb-1">
+        <FlaskConical className="w-4 h-4 text-purple-400" />
+        <span className="text-xs font-semibold text-muted-foreground">{item.level}</span>
+      </div>
       <div className="text-sm font-medium text-card-foreground">{item.name}</div>
     </Card>
   );
