@@ -3528,10 +3528,11 @@ const EarthVisualization = () => {
                 <h3 className="text-xl font-semibold text-slate-200">Space</h3>
               </div>
               <div className="space-y-2 relative z-[9999] pointer-events-auto">
-                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                <div className={`border border-slate-600/30 rounded-lg p-1 transition-colors relative z-[9999] pointer-events-auto ${activeBuildingTab === 'earth' ? 'hover:border-slate-500/50' : 'opacity-50 cursor-not-allowed'}`}>
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                    className={`flex items-center justify-between px-2 py-0.5 rounded transition-colors group relative z-[9999] ${activeBuildingTab === 'earth' ? 'cursor-pointer hover:bg-slate-700/50' : 'cursor-not-allowed'}`}
                      onClick={() => {
+                       if (activeBuildingTab !== 'earth') return;
                        console.log('Colony clicked!');
                        if (spendCredits(200)) {
                          const newColonyCount = colonyCount + 1;
@@ -3566,10 +3567,11 @@ const EarthVisualization = () => {
                 </div>
               </div>
             </div>
-                <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
+                <div className={`border border-slate-600/30 rounded-lg p-1 transition-colors relative z-[9999] pointer-events-auto ${activeBuildingTab === 'earth' ? 'hover:border-slate-500/50' : 'opacity-50 cursor-not-allowed'}`}>
                   <div 
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999]"
+                    className={`flex items-center justify-between px-2 py-0.5 rounded transition-colors group relative z-[9999] ${activeBuildingTab === 'earth' ? 'cursor-pointer hover:bg-slate-700/50' : 'cursor-not-allowed'}`}
                      onClick={() => {
+                        if (activeBuildingTab !== 'earth') return;
                         console.log('Cargo clicked!');
                         if (spendCredits(200)) {
                           const newCargoCount = cargoCount + 1;
