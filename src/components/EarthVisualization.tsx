@@ -12,9 +12,11 @@ import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 import marsTexture from '@/assets/mars-texture-2k.jpg';
 import ShipLaunchModal from './ShipLaunchModal';
+import CO2LogModal from './CO2LogModal';
 import { useCredits } from '@/hooks/use-credits';
 import { useBuildingLevels } from '@/hooks/use-building-levels';
 import { usePlanetResources } from '@/hooks/use-planet-resources';
+import { useEarthClimate } from '@/hooks/use-earth-climate';
 
 interface EarthProps {
   autoRotate: boolean;
@@ -2445,6 +2447,7 @@ const CountdownTimer = ({
 
 const EarthVisualization = () => {
   const { credits, spendCredits } = useCredits(); // Hook for auto-incrementing credits
+  const { co2ppm, temperature, co2Events, addCO2Event } = useEarthClimate(); // Hook for Earth climate tracking
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(false);
@@ -2548,6 +2551,7 @@ const EarthVisualization = () => {
   const [shipPanelDrones, setShipPanelDrones] = useState(0);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [isOperationsPanelOpen, setIsOperationsPanelOpen] = useState(false);
+  const [showCO2LogModal, setShowCO2LogModal] = useState(false);
   
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
@@ -2979,14 +2983,14 @@ const EarthVisualization = () => {
                         <Zap className="w-4 h-4 text-red-400" />
                         <span className="text-base text-slate-400">Temperature</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200">+0°C</span>
+                      <span className="text-base font-bold text-slate-200">{temperature > 0 ? '+' : ''}{temperature.toFixed(1)}°C</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Zap className="w-4 h-4 text-orange-400" />
                         <span className="text-base text-slate-400">CO2 ppm</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200">400</span>
+                      <span className="text-base font-bold text-slate-200">{co2ppm}</span>
                     </div>
                   </>
                 ) : activeBuildingTab === 'moon' ? (
@@ -3141,13 +3145,18 @@ const EarthVisualization = () => {
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
-                    onClick={() => {
-                      console.log('Lab clicked!');
-                      const upgradeCost = 200;
-                      if (spendCredits(upgradeCost)) {
-                        getCurrentUpgradeFunction()('lab');
-                      }
-                    }}
+                     onClick={() => {
+                       console.log('Lab clicked!');
+                       const upgradeCost = 200;
+                       if (spendCredits(upgradeCost)) {
+                         getCurrentUpgradeFunction()('lab');
+                         // Add CO2 event only for Earth
+                         if (activeBuildingTab === 'earth') {
+                           const newLevel = getCurrentBuildings().lab + 1;
+                           addCO2Event('building', `Upgraded Lab to Level ${newLevel}`);
+                         }
+                       }
+                     }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
@@ -3170,13 +3179,18 @@ const EarthVisualization = () => {
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
-                    onClick={() => {
-                      console.log('Farm clicked!');
-                      const upgradeCost = 200;
-                      if (spendCredits(upgradeCost)) {
-                        getCurrentUpgradeFunction()('farm');
-                      }
-                    }}
+                     onClick={() => {
+                       console.log('Farm clicked!');
+                       const upgradeCost = 200;
+                       if (spendCredits(upgradeCost)) {
+                         getCurrentUpgradeFunction()('farm');
+                         // Add CO2 event only for Earth
+                         if (activeBuildingTab === 'earth') {
+                           const newLevel = getCurrentBuildings().farm + 1;
+                           addCO2Event('building', `Upgraded Farm to Level ${newLevel}`);
+                         }
+                       }
+                     }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
@@ -3199,13 +3213,18 @@ const EarthVisualization = () => {
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
-                    onClick={() => {
-                      console.log('Mine clicked!');
-                      const upgradeCost = 200;
-                      if (spendCredits(upgradeCost)) {
-                        getCurrentUpgradeFunction()('mine');
-                      }
-                    }}
+                     onClick={() => {
+                       console.log('Mine clicked!');
+                       const upgradeCost = 200;
+                       if (spendCredits(upgradeCost)) {
+                         getCurrentUpgradeFunction()('mine');
+                         // Add CO2 event only for Earth
+                         if (activeBuildingTab === 'earth') {
+                           const newLevel = getCurrentBuildings().mine + 1;
+                           addCO2Event('building', `Upgraded Mine to Level ${newLevel}`);
+                         }
+                       }
+                     }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
@@ -3228,13 +3247,18 @@ const EarthVisualization = () => {
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
-                    onClick={() => {
-                      console.log('Power clicked!');
-                      const upgradeCost = 200;
-                      if (spendCredits(upgradeCost)) {
-                        getCurrentUpgradeFunction()('power');
-                      }
-                    }}
+                     onClick={() => {
+                       console.log('Power clicked!');
+                       const upgradeCost = 200;
+                       if (spendCredits(upgradeCost)) {
+                         getCurrentUpgradeFunction()('power');
+                         // Add CO2 event only for Earth
+                         if (activeBuildingTab === 'earth') {
+                           const newLevel = getCurrentBuildings().power + 1;
+                           addCO2Event('building', `Upgraded Power to Level ${newLevel}`);
+                         }
+                       }
+                     }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
@@ -3257,13 +3281,18 @@ const EarthVisualization = () => {
                 <div className="border border-slate-600/30 rounded-lg p-1 hover:border-slate-500/50 transition-colors relative z-[9999] pointer-events-auto">
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
-                    onClick={() => {
-                      console.log('Refine clicked!');
-                      const upgradeCost = 200;
-                      if (spendCredits(upgradeCost)) {
-                        getCurrentUpgradeFunction()('refinery');
-                      }
-                    }}
+                     onClick={() => {
+                       console.log('Refine clicked!');
+                       const upgradeCost = 200;
+                       if (spendCredits(upgradeCost)) {
+                         getCurrentUpgradeFunction()('refinery');
+                         // Add CO2 event only for Earth
+                         if (activeBuildingTab === 'earth') {
+                           const newLevel = getCurrentBuildings().refinery + 1;
+                           addCO2Event('building', `Upgraded Refinery to Level ${newLevel}`);
+                         }
+                       }
+                     }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
@@ -3311,6 +3340,10 @@ const EarthVisualization = () => {
                            destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
                            cargo: { metal: 2, fuel: 2, food: 2 }
                          }]);
+                         // Add CO2 event only for Earth
+                         if (activeBuildingTab === 'earth') {
+                           addCO2Event('ship_construct', `Constructed Colony Ship ${newColonyCount}`);
+                         }
                        }
                      }}
                   >
@@ -3345,6 +3378,10 @@ const EarthVisualization = () => {
                             destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
                             cargo: { metal: 10, fuel: 10, food: 10 }
                           }]);
+                          // Add CO2 event only for Earth
+                          if (activeBuildingTab === 'earth') {
+                            addCO2Event('ship_construct', `Constructed Cargo Ship ${newCargoCount}`);
+                          }
                         }
                       }}
                    >
@@ -3679,6 +3716,16 @@ const EarthVisualization = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() => setShowCO2LogModal(true)}
+                  className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
+                >
+                  <span className="w-4 h-4 mr-2">🌡️</span>
+                  CO₂ Emissions Log
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleReset}
                   className="w-full justify-start bg-slate-700/30 border-slate-600/30 text-slate-300 hover:bg-slate-600/40"
                 >
@@ -4001,15 +4048,32 @@ const EarthVisualization = () => {
         }}
         onLaunch={() => {
           if (selectedShip) {
+            // Find the ship to get its current location
+            const ship = builtSpheres.find(s => s.name === selectedShip.name);
+            
             // Update the ship's location to 'preparing' which triggers the launch sequence
             setBuiltSpheres(prev => prev.map(s => 
               s.name === selectedShip.name ? { ...s, location: 'preparing' } : s
             ));
+            
+            // Add CO2 event only for Earth launches
+            if (ship?.location === 'earth') {
+              addCO2Event('ship_launch', `Launched ${selectedShip.name} from Earth`);
+            }
+            
             console.log(`Initiating launch sequence for ${selectedShip.name}`);
           }
           setShowShipLaunchModal(false);
           setSelectedShip(null);
         }}
+      />
+
+      {/* CO2 Log Modal */}
+      <CO2LogModal
+        isOpen={showCO2LogModal}
+        onClose={() => setShowCO2LogModal(false)}
+        events={co2Events}
+        currentCO2={co2ppm}
       />
     </div>
   );
