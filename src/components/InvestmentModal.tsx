@@ -100,7 +100,7 @@ export function InvestmentModal({ open, onOpenChange }: InvestmentModalProps) {
             <div className="flex flex-col items-center space-y-3">
               <h3 className="text-lg font-medium">invested</h3>
               <div className="text-2xl font-bold">
-                {investedAmount.toFixed(1)}
+                {investedAmount.toFixed(2)}
               </div>
             </div>
 
@@ -116,7 +116,7 @@ export function InvestmentModal({ open, onOpenChange }: InvestmentModalProps) {
 
         <div className="mt-4 text-sm text-muted-foreground text-center">
           <p>Interest compounds every second at a rate of 0.5% per hour.</p>
-          <p className="mt-1">Available credits: <span className="font-semibold">{credits.toFixed(1)}</span></p>
+          <p className="mt-1">Available credits: <span className="font-semibold">{credits.toFixed(2)}</span></p>
         </div>
       </DialogContent>
     </Dialog>
