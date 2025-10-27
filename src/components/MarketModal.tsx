@@ -112,7 +112,7 @@ export function MarketModal({
                     <td className="p-4 text-center">
                       <Button
                         onClick={() => handleBuy(resource)}
-                        className="w-full bg-blue-400 hover:bg-blue-500 text-white"
+                        className="w-full bg-slate-700 hover:bg-slate-600 text-slate-300"
                       >
                         <div className="flex flex-col items-center">
                           <span className="text-xs opacity-70">Buy for</span>
@@ -123,7 +123,7 @@ export function MarketModal({
                     <td className="p-4 text-center">
                       <Button
                         onClick={() => handleSell(resource)}
-                        className="w-full bg-blue-200 hover:bg-blue-300 text-blue-900"
+                        className="w-full bg-slate-700 hover:bg-slate-600 text-slate-300"
                       >
                         <div className="flex flex-col items-center">
                           <span className="text-xs opacity-70">Sell for</span>
