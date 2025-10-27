@@ -42,15 +42,16 @@ export function usePlanetResources(planet: string, buildingLevels: BuildingLevel
     };
   });
 
-  // Auto-increment resources based on building levels (production rates)
+  // Auto-increment resources based on building levels (production rates per hour)
   useEffect(() => {
     const interval = setInterval(() => {
       setResources((prev) => {
+        // Production rates are per hour, so divide by 3600 to get per-second increment
         const newResources = {
-          food: prev.food + buildingLevels.farm,      // Farm level = food production rate
-          fuel: prev.fuel + buildingLevels.refinery,  // Refinery level = fuel production rate
-          metal: prev.metal + buildingLevels.mine,    // Mine level = metal production rate
-          power: prev.power + buildingLevels.power,   // Power level = power production rate
+          food: prev.food + (buildingLevels.farm / 3600),      // Farm level = food production rate per hour
+          fuel: prev.fuel + (buildingLevels.refinery / 3600),  // Refinery level = fuel production rate per hour
+          metal: prev.metal + (buildingLevels.mine / 3600),    // Mine level = metal production rate per hour
+          power: prev.power + (buildingLevels.power / 3600),   // Power level = power production rate per hour
         };
         
         // Save to localStorage

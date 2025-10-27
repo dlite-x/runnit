@@ -2918,10 +2918,10 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {getCurrentResources().food}
+                      {Math.floor(getCurrentResources().food)}
                     </span>
                     <span className="text-base text-green-400">
-                      +{getCurrentProduction().food}
+                      +{getCurrentProduction().food}/h
                     </span>
                   </div>
                 </div>
@@ -2932,10 +2932,10 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {getCurrentResources().fuel}
+                      {Math.floor(getCurrentResources().fuel)}
                     </span>
                     <span className="text-base text-green-400">
-                      +{getCurrentProduction().fuel}
+                      +{getCurrentProduction().fuel}/h
                     </span>
                   </div>
                 </div>
@@ -2946,10 +2946,10 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {getCurrentResources().metal}
+                      {Math.floor(getCurrentResources().metal)}
                     </span>
                     <span className="text-base text-green-400">
-                      +{getCurrentProduction().metal}
+                      +{getCurrentProduction().metal}/h
                     </span>
                   </div>
                 </div>
@@ -2960,10 +2960,10 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {getCurrentResources().power}
+                      {Math.floor(getCurrentResources().power)}
                     </span>
                     <span className="text-base text-green-400">
-                      +{getCurrentProduction().power}
+                      +{getCurrentProduction().power}/h
                     </span>
                   </div>
                 </div>
