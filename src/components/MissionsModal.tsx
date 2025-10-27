@@ -1,8 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, Trophy, Zap, Lightbulb } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle2, Circle, Trophy, Zap, Lightbulb, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 
 interface Mission {
   id: string;
@@ -13,10 +14,24 @@ interface Mission {
   difficulty: "easy" | "medium" | "hard";
   completed: boolean;
   category: "resource" | "exploration" | "development";
+  checkCompletion: (gameState: GameState) => boolean;
+}
+
+interface GameState {
+  isMarsColonized: boolean;
+  marsPopulation: number;
+  eml1Population: number;
+  // Add more as needed
+}
+
+interface MissionsModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  gameState: GameState;
 }
 
 // Sample missions data
-const missions: Mission[] = [
+const getMissions = (gameState: GameState): Mission[] => [
   {
     id: "1",
     title: "Colonize Mars",
@@ -24,8 +39,9 @@ const missions: Mission[] = [
     tips: "Build a Ship Construction Facility first, then use the Launch Ship modal to send colonists to Mars. Make sure you have enough resources for the journey.",
     reward: "1000 Credits",
     difficulty: "easy",
-    completed: false,
-    category: "exploration"
+    completed: gameState.isMarsColonized,
+    category: "exploration",
+    checkCompletion: (state) => state.isMarsColonized
   },
   {
     id: "2",
@@ -34,8 +50,9 @@ const missions: Mission[] = [
     tips: "Send multiple colonization missions and ensure your Mars colony has adequate food, water, and energy production to support growth.",
     reward: "1000 Credits",
     difficulty: "medium",
-    completed: false,
-    category: "exploration"
+    completed: gameState.marsPopulation > 1000,
+    category: "exploration",
+    checkCompletion: (state) => state.marsPopulation > 1000
   },
   {
     id: "3",
@@ -44,8 +61,9 @@ const missions: Mission[] = [
     tips: "EML1 is a strategic location for space operations. Build space stations and continuously supply them with resources and colonists.",
     reward: "1 Antimatter",
     difficulty: "medium",
-    completed: false,
-    category: "exploration"
+    completed: gameState.eml1Population > 100,
+    category: "exploration",
+    checkCompletion: (state) => state.eml1Population > 100
   },
   {
     id: "4",
@@ -55,17 +73,41 @@ const missions: Mission[] = [
     reward: "1 Joule",
     difficulty: "hard",
     completed: false,
-    category: "development"
+    category: "development",
+    checkCompletion: () => false // Not yet implemented
   }
 ];
 
-interface MissionsModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function MissionsModal({ open, onOpenChange }: MissionsModalProps) {
+export function MissionsModal({ open, onOpenChange, gameState }: MissionsModalProps) {
+  const missions = getMissions(gameState);
   const [selectedMission, setSelectedMission] = useState<Mission>(missions[0]);
+  const [previousCompletionState, setPreviousCompletionState] = useState<{[key: string]: boolean}>({});
+
+  // Check for newly completed missions and show toast
+  useEffect(() => {
+    missions.forEach(mission => {
+      const wasCompleted = previousCompletionState[mission.id];
+      if (mission.completed && !wasCompleted) {
+        toast.success(`🎉 Mission Complete: ${mission.title}!`, {
+          description: `You earned ${mission.reward}`,
+          duration: 5000,
+        });
+      }
+    });
+    
+    // Update previous state
+    const newState: {[key: string]: boolean} = {};
+    missions.forEach(m => { newState[m.id] = m.completed; });
+    setPreviousCompletionState(newState);
+  }, [missions.map(m => m.completed).join(',')]);
+
+  // Update selected mission when missions change
+  useEffect(() => {
+    const updatedSelected = missions.find(m => m.id === selectedMission.id);
+    if (updatedSelected) {
+      setSelectedMission(updatedSelected);
+    }
+  }, [missions, selectedMission.id]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -148,9 +190,10 @@ export function MissionsModal({ open, onOpenChange }: MissionsModalProps) {
                   <span className="text-lg font-semibold text-yellow-400">{selectedMission.reward}</span>
                 </div>
                 {selectedMission.completed && (
-                  <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 rounded-lg p-3 border border-emerald-500/30">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="font-semibold">Mission Completed!</span>
+                  <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 rounded-lg p-4 border border-emerald-500/30 animate-in fade-in slide-in-from-top-2">
+                    <Sparkles className="w-5 h-5 animate-pulse" />
+                    <span className="font-semibold text-lg">Mission Completed!</span>
+                    <Sparkles className="w-5 h-5 animate-pulse" />
                   </div>
                 )}
               </div>

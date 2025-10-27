@@ -4124,10 +4124,15 @@ const EarthVisualization = () => {
       />
 
       {/* Missions Modal */}
-      <MissionsModal
-        open={showMissionsModal}
-        onOpenChange={setShowMissionsModal}
-      />
+        <MissionsModal 
+          open={showMissionsModal} 
+          onOpenChange={setShowMissionsModal}
+          gameState={{
+            isMarsColonized,
+            marsPopulation,
+            eml1Population: 0, // TODO: Add EML1 population tracking
+          }}
+        />
     </div>
   );
 };
