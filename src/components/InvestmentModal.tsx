@@ -3,16 +3,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useInvestment } from '@/hooks/use-investment';
-import { useCredits } from '@/hooks/use-credits';
 import { toast } from 'sonner';
 
 interface InvestmentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  credits: number;
+  spendCredits: (amount: number) => boolean;
+  setCredits: (credits: number) => void;
 }
 
-export function InvestmentModal({ open, onOpenChange }: InvestmentModalProps) {
-  const { credits, spendCredits, setCredits } = useCredits();
+export function InvestmentModal({ open, onOpenChange, credits, spendCredits, setCredits }: InvestmentModalProps) {
   const { investedAmount, deposit, withdraw, interestRateDisplay } = useInvestment();
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');

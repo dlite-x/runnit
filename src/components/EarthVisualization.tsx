@@ -2461,7 +2461,7 @@ const CountdownTimer = ({
 };
 
 const EarthVisualization = () => {
-  const { credits, spendCredits } = useCredits(); // Hook for auto-incrementing credits
+  const { credits, spendCredits, setCredits } = useCredits(); // Hook for auto-incrementing credits
   const { co2ppm, temperature, co2Events, addCO2Event } = useEarthClimate(); // Hook for Earth climate tracking
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
@@ -4519,7 +4519,10 @@ const EarthVisualization = () => {
       {/* Investment Modal */}
       <InvestmentModal 
         open={showInvestModal} 
-        onOpenChange={setShowInvestModal} 
+        onOpenChange={setShowInvestModal}
+        credits={credits}
+        spendCredits={spendCredits}
+        setCredits={setCredits}
       />
     </div>
   );
