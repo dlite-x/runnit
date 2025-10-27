@@ -3392,8 +3392,8 @@ const EarthVisualization = () => {
               </div>
               
               {/* Table Content with Scrolling */}
-              <ScrollArea className="h-[400px] pr-3">
-                <div className="space-y-1">
+              <ScrollArea className="h-[400px]">
+                <div className="space-y-1 pr-3">
                   {builtSpheres.length === 0 ? (
                     <div className="text-center py-4 text-slate-400 text-sm">
                       No ships in solar system
