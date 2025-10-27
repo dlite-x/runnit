@@ -12,6 +12,7 @@ import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 import marsTexture from '@/assets/mars-texture-2k.jpg';
 import ShipLaunchModal from './ShipLaunchModal';
+import FlightControlPanel from './FlightControlPanel';
 import CO2LogModal from './CO2LogModal';
 import { MissionsModal } from './MissionsModal';
 import { useCredits } from '@/hooks/use-credits';
@@ -2559,6 +2560,7 @@ const EarthVisualization = () => {
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
+  const [showFlightControl, setShowFlightControl] = useState(false);
   
   // Moon colonization state
   const [isMoonColonized, setIsMoonColonized] = useState(false);
@@ -2582,7 +2584,7 @@ const EarthVisualization = () => {
   const { population: marsPopulation, growthRatePerHour: marsGrowthRate } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
   
   // Now get resources again with actual population
-  const { resources: earthResources, productionRates: earthProduction } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
+  const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
   const { resources: moonResources, productionRates: moonProduction } = usePlanetResources('Moon', moonBuildings);
   const { resources: marsResources, productionRates: marsProduction } = usePlanetResources('Mars', marsBuildings);
   
@@ -2793,6 +2795,42 @@ const EarthVisualization = () => {
     console.log('Use scroll wheel to zoom out');
   };
 
+  // Flight Control Panel handlers
+  const handleUpdateShip = (shipName: string, updates: Partial<typeof builtSpheres[0]>) => {
+    setBuiltSpheres(prev => prev.map(ship =>
+      ship.name === shipName ? { ...ship, ...updates } : ship
+    ));
+  };
+
+  const handleLaunchShipFromControl = (shipName: string) => {
+    const ship = builtSpheres.find(s => s.name === shipName);
+    if (!ship || !ship.destination) return;
+
+    // Update the ship's location to 'preparing' which triggers the launch sequence
+    setBuiltSpheres(prev => prev.map(s =>
+      s.name === shipName ? { ...s, location: 'preparing' } : s
+    ));
+
+    // Add CO2 event only for Earth launches
+    if (ship.location === 'earth') {
+      addCO2Event('ship_launch', `Launched ${shipName} from Earth`);
+    }
+
+    console.log(`Initiating launch sequence for ${shipName}`);
+  };
+
+  const handleColonizePlanet = (shipName: string, planet: string) => {
+    const ship = builtSpheres.find(s => s.name === shipName);
+    if (!ship || ship.type !== 'colony') return;
+
+    // Set destination to 'colonize' which will trigger the colonization
+    setBuiltSpheres(prev => prev.map(s =>
+      s.name === shipName ? { ...s, destination: 'colonize' } : s
+    ));
+
+    console.log(`Colonizing ${planet} with ${shipName}`);
+  };
+
   return (
     <div className="relative w-full h-screen overflow-hidden" style={{
       background: 'radial-gradient(ellipse at center, #1a1f3a 0%, #0f0f23 50%, #000 100%)',
@@ -2851,6 +2889,15 @@ const EarthVisualization = () => {
               aria-label="Toggle Operations Panel"
             >
               <Settings className="w-5 h-5" />
+            </button>
+            
+            {/* Flight Control Panel Toggle */}
+            <button
+              onClick={() => setShowFlightControl(!showFlightControl)}
+              className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
+              aria-label="Toggle Flight Control"
+            >
+              <Rocket className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -3808,6 +3855,26 @@ const EarthVisualization = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Flight Control Panel */}
+      {showFlightControl && (
+        <div className="absolute bottom-4 left-4 right-4 z-10 max-w-6xl mx-auto">
+          <FlightControlPanel
+            ships={builtSpheres}
+            onUpdateShip={handleUpdateShip}
+            onLaunchShip={handleLaunchShipFromControl}
+            onColonizePlanet={handleColonizePlanet}
+            availableResources={{
+              fuel: getCurrentResources().fuel,
+              metal: getCurrentResources().metal,
+              food: getCurrentResources().food,
+            }}
+            onSpendResource={(resourceType, amount) => {
+              return spendEarthResource(resourceType, amount);
+            }}
+          />
         </div>
       )}
 
