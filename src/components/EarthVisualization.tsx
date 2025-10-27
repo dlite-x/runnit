@@ -3258,7 +3258,7 @@ const EarthVisualization = () => {
                   <div 
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
-                      console.log('Refinery clicked!');
+                      console.log('Refine clicked!');
                       const upgradeCost = 200;
                       if (spendCredits(upgradeCost)) {
                         getCurrentUpgradeFunction()('refinery');
@@ -3268,7 +3268,7 @@ const EarthVisualization = () => {
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
                         <Factory className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                        <span className="text-sm text-slate-400">Refinery</span>
+                        <span className="text-sm text-slate-400">Refine</span>
                       </div>
                       <span className="text-sm font-bold text-slate-200 ml-auto">
                         {getCurrentBuildings().refinery}

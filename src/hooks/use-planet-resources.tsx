@@ -49,7 +49,7 @@ export function usePlanetResources(planet: string, buildingLevels: BuildingLevel
         // Production rates are per hour, so divide by 3600 to get per-second increment
         const newResources = {
           food: prev.food + (buildingLevels.farm / 3600),      // Farm level = food production rate per hour
-          fuel: prev.fuel + (buildingLevels.refinery / 3600),  // Refinery level = fuel production rate per hour
+          fuel: prev.fuel + (buildingLevels.refinery / 3600),  // Refine level = fuel production rate per hour
           metal: prev.metal + (buildingLevels.mine / 3600),    // Mine level = metal production rate per hour
           power: prev.power + (buildingLevels.power / 3600),   // Power level = power production rate per hour
         };
