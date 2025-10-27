@@ -2595,21 +2595,18 @@ const EarthVisualization = () => {
   const { buildingLevels: moonBuildings, upgradeBuilding: upgradeMoonBuilding } = useBuildingLevels('Moon');
   const { buildingLevels: marsBuildings, upgradeBuilding: upgradeMarsBuilding } = useBuildingLevels('Mars');
   
-  // Planet resources for each planet (need to get these first)
+  // Planet resources for each planet (need to get these first with temp population)
   const tempEarthResources = usePlanetResources('Earth', earthBuildings, temperature, 100);
   const tempMoonResources = usePlanetResources('Moon', moonBuildings);
   const tempMarsResources = usePlanetResources('Mars', marsBuildings);
-  
-  // Use Earth resources and spendResource for Market
-  const { resources, spendResource, addResource } = tempEarthResources;
   
   // Planet populations (depends on food stock)
   const { population: earthPopulation, growthRatePerHour: earthGrowthRate } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
   const { population: moonPopulation, growthRatePerHour: moonGrowthRate } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.resources.food);
   const { population: marsPopulation, growthRatePerHour: marsGrowthRate } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
   
-  // Now get resources again with actual population
-  const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
+  // Now get resources again with actual population - THIS IS THE SINGLE SOURCE OF TRUTH
+  const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource, addResource: addEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
   const { resources: moonResources, productionRates: moonProduction } = usePlanetResources('Moon', moonBuildings);
   const { resources: marsResources, productionRates: marsProduction } = usePlanetResources('Mars', marsBuildings);
   
@@ -4544,9 +4541,9 @@ const EarthVisualization = () => {
         credits={credits}
         spendCredits={spendCredits}
         setCredits={setCredits}
-        resources={resources}
-        spendResource={spendResource}
-        addResources={addResource}
+        resources={earthResources}
+        spendResource={spendEarthResource}
+        addResources={addEarthResource}
       />
     </div>
   );
