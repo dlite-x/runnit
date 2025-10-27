@@ -164,7 +164,6 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12"></TableHead>
-                <TableHead>Type</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Destination</TableHead>
                 <TableHead>Fuel</TableHead>
@@ -189,9 +188,6 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                       ) : (
                         <Package className="w-5 h-5 text-orange-400" />
                       )}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {ship.type === 'colony' ? 'Colony' : 'Cargo'}
                     </TableCell>
                     <TableCell className="font-medium">{ship.name}</TableCell>
                     <TableCell>
