@@ -2367,6 +2367,7 @@ const EarthVisualization = () => {
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(false);
+  const [gameTime, setGameTime] = useState(0); // Game time in seconds
   const [flyMode, setFlyMode] = useState(false);
   const [fighterDronesBuilt, setFighterDronesBuilt] = useState(false);
   const [alienShipActive, setAlienShipActive] = useState(false);
@@ -2507,6 +2508,22 @@ const EarthVisualization = () => {
   
   // Keyboard state
   const keysPressed = useRef<Set<string>>(new Set());
+
+  // Game time tracker
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGameTime(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Format game time as HH:MM:SS
+  const formatGameTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Click handlers
   const handleShipClick = () => {
@@ -2663,13 +2680,13 @@ const EarthVisualization = () => {
           {/* Left side - Game info */}
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-blue-400">Expanse v0.1</h1>
+              <h1 className="text-xl font-bold text-blue-400">Expanse</h1>
               <span className="text-slate-400">|</span>
               <span className="text-emerald-400 font-semibold">Terran Corp</span>
             </div>
             <div className="flex items-center gap-4 text-sm">
               <span className="text-slate-300">Level <span className="text-blue-400 font-bold">1</span></span>
-              <span className="text-slate-300">Time <span className="text-emerald-400 font-mono">5:44:03</span></span>
+              <span className="text-slate-300">Time <span className="text-emerald-400 font-mono">{formatGameTime(gameTime)}</span></span>
             </div>
           </div>
           
