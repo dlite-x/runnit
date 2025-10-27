@@ -4,10 +4,13 @@ import { OrbitControls, Stars, Text, Html } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, ArrowUp, ArrowDown, Flag } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 import marsTexture from '@/assets/mars-texture-2k.jpg';
@@ -2416,6 +2419,14 @@ const formatTime = (timeInSeconds: number): string => {
   }
 };
 
+// Fuel requirements for each destination
+const FUEL_REQUIREMENTS: Record<string, number> = {
+  moon: 10,
+  mars: 50,
+  earth: 10,
+  eml1: 20,
+};
+
 // Countdown timer component for traveling ships
 const CountdownTimer = ({ 
   departureTime, 
@@ -2472,6 +2483,7 @@ const EarthVisualization = () => {
     totalTravelTime?: number,
     destination?: string,
     cargo?: { metal: number, fuel: number, food: number },
+    fuel?: number, // Add fuel property for ships
     // New fields for static positioning
     staticPosition?: [number, number, number],
     travelProgress?: number,
@@ -2561,6 +2573,11 @@ const EarthVisualization = () => {
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showFlightControl, setShowFlightControl] = useState(false);
+  
+  // Cargo loading modal state
+  const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
+  const [selectedShipForCargo, setSelectedShipForCargo] = useState<typeof builtSpheres[0] | null>(null);
+  const [cargoInputs, setCargoInputs] = useState({ food: 0, fuel: 0, metal: 0 });
   
   // Moon colonization state
   const [isMoonColonized, setIsMoonColonized] = useState(false);
@@ -2829,6 +2846,76 @@ const EarthVisualization = () => {
     ));
 
     console.log(`Colonizing ${planet} with ${shipName}`);
+  };
+
+  // Fuel management handler
+  const handleTopUpFuel = (ship: typeof builtSpheres[0]) => {
+    if (!ship.destination) return;
+    
+    const requiredFuel = FUEL_REQUIREMENTS[ship.destination] || 0;
+    const currentFuel = ship.fuel || 0;
+    const fuelNeeded = Math.max(0, requiredFuel - currentFuel);
+    const fuelToAdd = Math.min(fuelNeeded, earthResources.fuel);
+    
+    if (fuelToAdd > 0 && spendEarthResource('fuel', fuelToAdd)) {
+      setBuiltSpheres(prev => prev.map(s =>
+        s.name === ship.name ? { ...s, fuel: currentFuel + fuelToAdd } : s
+      ));
+    }
+  };
+
+  // Cargo management handlers
+  const handleOpenCargoDialog = (ship: typeof builtSpheres[0]) => {
+    setSelectedShipForCargo(ship);
+    setCargoInputs({ food: 0, fuel: 0, metal: 0 });
+    setCargoDialogOpen(true);
+  };
+
+  const handleLoadCargo = () => {
+    if (!selectedShipForCargo) return;
+
+    const maxCapacity = selectedShipForCargo.type === 'colony' ? 6 : 10;
+    const currentCargo = selectedShipForCargo.cargo || { metal: 0, fuel: 0, food: 0 };
+    const currentTotal = currentCargo.metal + currentCargo.fuel + currentCargo.food;
+    const requestedTotal = cargoInputs.metal + cargoInputs.fuel + cargoInputs.food;
+
+    if (currentTotal + requestedTotal > maxCapacity) {
+      alert(`Cargo capacity exceeded! Max: ${maxCapacity}, Current: ${currentTotal}, Requested: ${requestedTotal}`);
+      return;
+    }
+
+    // Check and spend resources
+    if (cargoInputs.food > earthResources.food || 
+        cargoInputs.fuel > earthResources.fuel || 
+        cargoInputs.metal > earthResources.metal) {
+      alert('Insufficient resources!');
+      return;
+    }
+
+    if (spendEarthResource('food', cargoInputs.food) &&
+        spendEarthResource('fuel', cargoInputs.fuel) &&
+        spendEarthResource('metal', cargoInputs.metal)) {
+      setBuiltSpheres(prev => prev.map(s =>
+        s.name === selectedShipForCargo.name ? {
+          ...s,
+          cargo: {
+            metal: currentCargo.metal + cargoInputs.metal,
+            fuel: currentCargo.fuel + cargoInputs.fuel,
+            food: currentCargo.food + cargoInputs.food,
+          }
+        } : s
+      ));
+      setCargoDialogOpen(false);
+    }
+  };
+
+  const handleOffloadCargo = (ship: typeof builtSpheres[0]) => {
+    if (!ship.cargo) return;
+    
+    // Return cargo to Earth resources (simplified - just reset cargo)
+    setBuiltSpheres(prev => prev.map(s =>
+      s.name === ship.name ? { ...s, cargo: { metal: 0, fuel: 0, food: 0 } } : s
+    ));
   };
 
   return (
@@ -3545,8 +3632,14 @@ const EarthVisualization = () => {
                       No ships in solar system
                     </div>
                   ) : (
-                    builtSpheres.map((ship, index) => (
-                    <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto] gap-3 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20 relative">
+                    builtSpheres.map((ship, index) => {
+                      const requiredFuel = ship.destination ? (FUEL_REQUIREMENTS[ship.destination] || 0) : 0;
+                      const currentFuel = ship.fuel || 0;
+                      const cargo = ship.cargo || { metal: 0, fuel: 0, food: 0 };
+                      const isArrived = ship.location !== 'traveling' && ship.location !== 'earth' && ship.location !== 'preparing';
+                      
+                      return (
+                    <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto_auto] gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20 relative">
                       <div className="flex items-center gap-2 min-w-0">
                         {ship.type === 'colony' ? (
                           <Home className="w-4 h-4 text-blue-400 flex-shrink-0" />
@@ -3556,7 +3649,7 @@ const EarthVisualization = () => {
                         <span className="text-sm text-slate-300 whitespace-nowrap">{ship.name}</span>
                       </div>
                       <Select 
-                        defaultValue="moon"
+                        value={ship.destination || 'moon'}
                         onValueChange={(destination) => {
                           setBuiltSpheres(prev => prev.map(s => 
                             s.name === ship.name ? { ...s, destination } : s
@@ -3575,17 +3668,60 @@ const EarthVisualization = () => {
                           {ship.type === 'colony' && ship.location === 'earth' && (
                             <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML-1</SelectItem>
                           )}
-                          {ship.type === 'cargo' && (
-                            <>
-                              <SelectItem value="offload" className="text-slate-300 hover:bg-slate-700">Offload</SelectItem>
-                              <SelectItem value="land" className="text-slate-300 hover:bg-slate-700">Land</SelectItem>
-                            </>
-                          )}
-                          {ship.type === 'colony' && (
-                            <SelectItem value="colonize" className="text-slate-300 hover:bg-slate-700">Colonize</SelectItem>
-                          )}
                         </SelectContent>
                       </Select>
+                      
+                      {/* Fuel column */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-slate-300">
+                          {currentFuel}/{requiredFuel || '-'}
+                        </span>
+                        {ship.destination && ship.location !== 'traveling' && ship.location !== 'preparing' && (
+                          <button
+                            className="h-5 w-5 p-0 hover:bg-slate-600/50 rounded flex items-center justify-center"
+                            onClick={() => handleTopUpFuel(ship)}
+                            disabled={currentFuel >= requiredFuel || earthResources.fuel === 0}
+                          >
+                            <Fuel className="w-3 h-3 text-orange-400" />
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Cargo column */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-slate-300">
+                          {cargo.food}/{cargo.fuel}/{cargo.metal}
+                        </span>
+                        {ship.location !== 'traveling' && ship.location !== 'preparing' && (
+                          <div className="flex gap-0.5">
+                            <button
+                              className="h-5 w-5 p-0 hover:bg-slate-600/50 rounded flex items-center justify-center"
+                              onClick={() => handleOpenCargoDialog(ship)}
+                            >
+                              <ArrowUp className="w-3 h-3 text-green-400" />
+                            </button>
+                            <button
+                              className="h-5 w-5 p-0 hover:bg-slate-600/50 rounded flex items-center justify-center"
+                              onClick={() => handleOffloadCargo(ship)}
+                              disabled={cargo.food === 0 && cargo.fuel === 0 && cargo.metal === 0}
+                            >
+                              <ArrowDown className="w-3 h-3 text-blue-400" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Status */}
+                      <span className="text-xs text-slate-300">
+                        {ship.location === 'earth' ? 'Ready' : 
+                         ship.location === 'preparing' ? 'Prep' :
+                         ship.location === 'traveling' ? 'Transit' : 
+                         ship.location === 'moon' ? 'Moon' :
+                         ship.location === 'eml1' ? 'EML-1' :
+                         ship.location === 'mars' ? 'Mars' : 'Ready'}
+                      </span>
+                      
+                      {/* Time/ETA */}
                       {ship.location === 'traveling' && ship.departureTime && ship.totalTravelTime ? (
                         <CountdownTimer
                           departureTime={ship.departureTime}
@@ -3648,7 +3784,7 @@ const EarthVisualization = () => {
                           }}
                         />
                       ) : (
-                        <span className="text-sm text-slate-300 italic">
+                        <span className="text-xs text-slate-300 italic">
                           {formatTime(calculateTravelTimeSeconds(
                             ship.location === 'mars' ? 'mars' : 
                             ship.location === 'moon' ? 'moon' : 
@@ -3657,70 +3793,72 @@ const EarthVisualization = () => {
                           ))}
                         </span>
                       )}
-                      <div className="text-sm flex items-center gap-0.5">
-                        <span className="text-green-400">{ship.cargo?.metal !== undefined ? ship.cargo.metal : (ship.type === 'colony' ? 2 : 10)}</span>
-                        <span className="text-slate-400">/</span>
-                        <span className="text-orange-400">{ship.cargo?.fuel !== undefined ? ship.cargo.fuel : (ship.type === 'colony' ? 2 : 10)}</span>
-                        <span className="text-slate-400">/</span>
-                        <span className="text-gray-300">{ship.cargo?.food !== undefined ? ship.cargo.food : (ship.type === 'colony' ? 2 : 10)}</span>
+                      
+                      {/* Actions */}
+                      <div className="flex gap-1">
+                        {ship.type === 'colony' && isArrived ? (
+                          <button
+                            className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors flex items-center gap-1"
+                            onClick={() => handleColonizePlanet(ship.name, ship.location)}
+                          >
+                            <Flag className="w-3 h-3" />
+                          </button>
+                        ) : ship.location !== 'traveling' && ship.location !== 'preparing' ? (
+                          <button 
+                            className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                            disabled={!ship.destination || currentFuel < requiredFuel}
+                            onClick={() => {
+                              if (ship.location !== 'traveling' && ship.location !== 'preparing') {
+                                // Launch with static positioning system
+                                const currentPlanet = ship.location as 'earth' | 'moon' | 'mars' | 'eml1';
+                                // Determine target planet based on destination
+                                let targetPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
+                                if (ship.destination === 'mars') {
+                                  targetPlanet = 'mars';
+                                } else if (ship.destination === 'eml1') {
+                                  targetPlanet = 'eml1';
+                                } else if (ship.destination === 'moon') {
+                                  targetPlanet = 'moon';
+                                } else {
+                                  targetPlanet = 'earth';
+                                }
+                                const startPos = ship.staticPosition || ship.position;
+                                // Count ships that will be at destination to determine proper landing spot
+                                const shipsAtTargetDestination = builtSpheres.filter(s => s.location === targetPlanet || (s.location === 'traveling' && (s.destination === targetPlanet || (s.destination === 'moon' && targetPlanet === 'moon') || (s.destination === 'earth' && targetPlanet === 'earth') || (s.destination === 'mars' && targetPlanet === 'mars')))).length;
+                                const endPos = getStaticPositionNearPlanet(targetPlanet, shipsAtTargetDestination);
+                                const travelTime = calculateTravelTimeSeconds(currentPlanet, targetPlanet);
+                                
+                                setBuiltSpheres(prev => prev.map(s => 
+                                  s.name === ship.name ? { 
+                                    ...s, 
+                                    location: 'traveling',
+                                    startPosition: startPos,
+                                    endPosition: endPos,
+                                    departureTime: Date.now(),
+                                    totalTravelTime: travelTime,
+                                    staticPosition: undefined // Clear static position during travel
+                                  } : s
+                                ));
+                                console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`, {
+                                  startPos,
+                                  endPos,
+                                  departureTime: Date.now(),
+                                  totalTravelTime: travelTime
+                                });
+                              }
+                            }}
+                          >
+                            launch
+                          </button>
+                        ) : (
+                          <span className="text-xs text-slate-400 px-2">
+                            {ship.location === 'traveling' ? 'flying' : 'prep'}
+                          </span>
+                        )}
                       </div>
-                      <span className="text-sm text-green-400">
-                        {ship.location === 'earth' ? 'Ready' : 
-                         ship.location === 'preparing' ? 'Preparing' :
-                         ship.location === 'traveling' ? 'En route' : 
-                         ship.location === 'moon' ? 'At Moon' :
-                         ship.location === 'eml1' ? 'At EML-1' :
-                         ship.location === 'mars' ? 'At Mars' : 'Ready'}
-                      </span>
-                      <button 
-                        className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-                        disabled={ship.location === 'traveling' || ship.location === 'preparing'}
-                        onClick={() => {
-                          if (ship.location !== 'traveling' && ship.location !== 'preparing') {
-                            // Launch with static positioning system
-                            const currentPlanet = ship.location as 'earth' | 'moon' | 'mars' | 'eml1';
-                            // Determine target planet based on destination
-                            let targetPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
-                            if (ship.destination === 'mars') {
-                              targetPlanet = 'mars';
-                            } else if (ship.destination === 'eml1') {
-                              targetPlanet = 'eml1';
-                            } else if (ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land') {
-                              targetPlanet = 'moon';
-                            } else {
-                              targetPlanet = 'earth';
-                            }
-                            const startPos = ship.staticPosition || ship.position;
-                            // Count ships that will be at destination to determine proper landing spot
-                            const shipsAtTargetDestination = builtSpheres.filter(s => s.location === targetPlanet || (s.location === 'traveling' && (s.destination === targetPlanet || (s.destination === 'moon' && targetPlanet === 'moon') || (s.destination === 'earth' && targetPlanet === 'earth') || (s.destination === 'mars' && targetPlanet === 'mars')))).length;
-                            const endPos = getStaticPositionNearPlanet(targetPlanet, shipsAtTargetDestination);
-                            const travelTime = calculateTravelTimeSeconds(currentPlanet, targetPlanet);
-                            
-                            setBuiltSpheres(prev => prev.map(s => 
-                              s.name === ship.name ? { 
-                                ...s, 
-                                location: 'traveling',
-                                startPosition: startPos,
-                                endPosition: endPos,
-                                departureTime: Date.now(),
-                                totalTravelTime: travelTime,
-                                staticPosition: undefined // Clear static position during travel
-                              } : s
-                            ));
-                            console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`, {
-                              startPos,
-                              endPos,
-                              departureTime: Date.now(),
-                              totalTravelTime: travelTime
-                            });
-                          }
-                        }}
-                      >
-                        {ship.location === 'traveling' ? 'flying' : 
-                         ship.location === 'preparing' ? 'prep' : 'launch'}
-                      </button>
                     </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </ScrollArea>
@@ -4208,6 +4346,68 @@ const EarthVisualization = () => {
             eml1Population: 0, // TODO: Add EML1 population tracking
           }}
         />
+
+      {/* Cargo Loading Dialog */}
+      <Dialog open={cargoDialogOpen} onOpenChange={setCargoDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Load Cargo - {selectedShipForCargo?.name}</DialogTitle>
+            <DialogDescription>
+              Max capacity: {selectedShipForCargo?.type === 'colony' ? 6 : 10} units total
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="food">Food</Label>
+              <Input
+                id="food"
+                type="number"
+                min="0"
+                max={earthResources.food}
+                value={cargoInputs.food}
+                onChange={(e) => setCargoInputs({ ...cargoInputs, food: parseInt(e.target.value) || 0 })}
+              />
+              <p className="text-xs text-muted-foreground">Available: {earthResources.food}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="fuel">Fuel</Label>
+              <Input
+                id="fuel"
+                type="number"
+                min="0"
+                max={earthResources.fuel}
+                value={cargoInputs.fuel}
+                onChange={(e) => setCargoInputs({ ...cargoInputs, fuel: parseInt(e.target.value) || 0 })}
+              />
+              <p className="text-xs text-muted-foreground">Available: {earthResources.fuel}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="metal">Metal</Label>
+              <Input
+                id="metal"
+                type="number"
+                min="0"
+                max={earthResources.metal}
+                value={cargoInputs.metal}
+                onChange={(e) => setCargoInputs({ ...cargoInputs, metal: parseInt(e.target.value) || 0 })}
+              />
+              <p className="text-xs text-muted-foreground">Available: {earthResources.metal}</p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setCargoDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleLoadCargo}>
+              Load Cargo
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
