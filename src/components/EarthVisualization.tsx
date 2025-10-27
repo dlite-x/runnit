@@ -2776,7 +2776,8 @@ const EarthVisualization = () => {
     localStorage.removeItem('planet_resources');
     localStorage.removeItem('user_credits');
     localStorage.removeItem('planet_population');
-    localStorage.removeItem('earth_climate');
+    localStorage.removeItem('earth_co2_ppm');
+    localStorage.removeItem('earth_co2_events');
     
     // Reload the page to reinitialize everything
     window.location.reload();
