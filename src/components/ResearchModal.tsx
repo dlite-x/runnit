@@ -32,16 +32,8 @@ const ResearchModal = ({ isOpen, onOpenChange }: ResearchModalProps) => {
   ];
 
   const ResearchCard = ({ item }: { item: ResearchItem }) => (
-    <Card className="p-4 bg-card border-border min-w-[160px]">
-      <div className="text-sm font-medium text-card-foreground mb-2">{item.name}</div>
-      <div className="text-xs text-muted-foreground mb-3">Cost: {item.cost} credits</div>
-      <Button 
-        size="sm" 
-        disabled={!item.unlocked}
-        className="w-full"
-      >
-        {item.unlocked ? <Lock className="w-4 h-4" /> : 'Research'}
-      </Button>
+    <Card className="p-3 bg-card border-border min-w-[140px]">
+      <div className="text-sm font-medium text-card-foreground">{item.name}</div>
     </Card>
   );
 
