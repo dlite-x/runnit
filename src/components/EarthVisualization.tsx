@@ -2981,7 +2981,7 @@ const EarthVisualization = () => {
                       <span className="text-base font-bold text-slate-200">15.2°C</span>
                     </div>
                   </>
-                ) : (
+                ) : activeBuildingTab === 'moon' ? (
                   <>
                     {isMoonColonized ? (
                       <>
@@ -3012,6 +3012,40 @@ const EarthVisualization = () => {
                     ) : (
                       <div className="text-center py-6 text-slate-400 text-sm">
                         Moon not yet colonized
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {isMarsColonized ? (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-green-400" />
+                            <span className="text-base text-slate-400">Population</span>
+                          </div>
+                          <span className="text-base font-bold text-slate-200">25</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
+                              <span className="text-sm font-bold text-slate-900">₵</span>
+                            </div>
+                            <span className="text-base text-slate-400">Credits</span>
+                          </div>
+                          <span className="text-lg font-bold text-green-400">+0</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-red-400" />
+                            <span className="text-base text-slate-400">Temperature</span>
+                          </div>
+                          <span className="text-base font-bold text-slate-200">-63°C</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-6 text-slate-400 text-sm">
+                        Mars not yet colonized
                       </div>
                     )}
                   </>
