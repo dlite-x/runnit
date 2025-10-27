@@ -2986,7 +2986,7 @@ const EarthVisualization = () => {
                         <Users className="w-4 h-4 text-emerald-400" />
                         <span className="text-base text-slate-400">Pop. Growth</span>
                       </div>
-                      <span className="text-base font-bold text-emerald-400">+0/hr</span>
+                      <span className="text-base font-bold text-emerald-400">+1/hr</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
