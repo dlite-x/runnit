@@ -2963,7 +2963,7 @@ const EarthVisualization = () => {
                         <Users className="w-4 h-4 text-green-400" />
                         <span className="text-base text-slate-400">Population</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200">7.8B</span>
+                      <span className="text-base font-bold text-slate-200">100</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
