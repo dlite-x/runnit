@@ -12,6 +12,7 @@ import moonTexture from '@/assets/moon-texture-2k.jpg';
 import marsTexture from '@/assets/mars-texture-2k.jpg';
 import ShipLaunchModal from './ShipLaunchModal';
 import { useCredits } from '@/hooks/use-credits';
+import { useBuildingLevels } from '@/hooks/use-building-levels';
 
 interface EarthProps {
   autoRotate: boolean;
@@ -2460,6 +2461,24 @@ const EarthVisualization = () => {
   const [isMarsColonized, setIsMarsColonized] = useState(false);
   const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon' | 'mars'>('earth');
   
+  // Building levels for each planet
+  const { buildingLevels: earthBuildings, upgradeBuilding: upgradeEarthBuilding } = useBuildingLevels('Earth');
+  const { buildingLevels: moonBuildings, upgradeBuilding: upgradeMoonBuilding } = useBuildingLevels('Moon');
+  const { buildingLevels: marsBuildings, upgradeBuilding: upgradeMarsBuilding } = useBuildingLevels('Mars');
+  
+  // Get current planet's building levels and upgrade function
+  const getCurrentBuildings = () => {
+    if (activeBuildingTab === 'earth') return earthBuildings;
+    if (activeBuildingTab === 'moon') return moonBuildings;
+    return marsBuildings;
+  };
+  
+  const getCurrentUpgradeFunction = () => {
+    if (activeBuildingTab === 'earth') return upgradeEarthBuilding;
+    if (activeBuildingTab === 'moon') return upgradeMoonBuilding;
+    return upgradeMarsBuilding;
+  };
+  
   // Ship state
   const [shipPosition, setShipPosition] = useState<[number, number, number]>([12, 2, 4]);
   const [shipRotation, setShipRotation] = useState<[number, number, number]>([0, 0, 0]);
@@ -2947,10 +2966,13 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Lab clicked!');
-                      if (spendCredits(200)) {
-                        setModalContent('Lab Building - Constructed! Cost: ₵ 200');
+                      const upgradeCost = 200;
+                      if (spendCredits(upgradeCost)) {
+                        getCurrentUpgradeFunction()('lab');
+                        const newLevel = getCurrentBuildings().lab + 1;
+                        setModalContent(`Lab Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
                       } else {
-                        setModalContent('Lab Building - Insufficient Credits! Need: ₵ 200');
+                        setModalContent(`Lab Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
                       setShowModal(true);
                     }}
@@ -2961,7 +2983,7 @@ const EarthVisualization = () => {
                         <span className="text-base text-slate-400">Lab</span>
                       </div>
                       <span className="text-base font-bold text-slate-200 ml-auto">
-                        {activeBuildingTab === 'earth' ? '2' : (isMoonColonized ? '0' : '0')}
+                        {getCurrentBuildings().lab}
                       </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -2978,10 +3000,13 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Farm clicked!');
-                      if (spendCredits(200)) {
-                        setModalContent('Farm Building - Constructed! Cost: ₵ 200');
+                      const upgradeCost = 200;
+                      if (spendCredits(upgradeCost)) {
+                        getCurrentUpgradeFunction()('farm');
+                        const newLevel = getCurrentBuildings().farm + 1;
+                        setModalContent(`Farm Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
                       } else {
-                        setModalContent('Farm Building - Insufficient Credits! Need: ₵ 200');
+                        setModalContent(`Farm Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
                       setShowModal(true);
                     }}
@@ -2992,7 +3017,7 @@ const EarthVisualization = () => {
                         <span className="text-base text-slate-400">Farm</span>
                       </div>
                       <span className="text-base font-bold text-slate-200 ml-auto">
-                        {activeBuildingTab === 'earth' ? '5' : (isMoonColonized ? '0' : '0')}
+                        {getCurrentBuildings().farm}
                       </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -3009,10 +3034,13 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Mine clicked!');
-                      if (spendCredits(200)) {
-                        setModalContent('Mine Building - Constructed! Cost: ₵ 200');
+                      const upgradeCost = 200;
+                      if (spendCredits(upgradeCost)) {
+                        getCurrentUpgradeFunction()('mine');
+                        const newLevel = getCurrentBuildings().mine + 1;
+                        setModalContent(`Mine Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
                       } else {
-                        setModalContent('Mine Building - Insufficient Credits! Need: ₵ 200');
+                        setModalContent(`Mine Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
                       setShowModal(true);
                     }}
@@ -3023,7 +3051,7 @@ const EarthVisualization = () => {
                         <span className="text-sm text-slate-400">Mine</span>
                       </div>
                       <span className="text-sm font-bold text-slate-200 ml-auto">
-                        {activeBuildingTab === 'earth' ? '3' : (isMoonColonized ? '0' : '0')}
+                        {getCurrentBuildings().mine}
                       </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -3040,10 +3068,13 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Power clicked!');
-                      if (spendCredits(200)) {
-                        setModalContent('Power Building - Constructed! Cost: ₵ 200');
+                      const upgradeCost = 200;
+                      if (spendCredits(upgradeCost)) {
+                        getCurrentUpgradeFunction()('power');
+                        const newLevel = getCurrentBuildings().power + 1;
+                        setModalContent(`Power Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
                       } else {
-                        setModalContent('Power Building - Insufficient Credits! Need: ₵ 200');
+                        setModalContent(`Power Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
                       setShowModal(true);
                     }}
@@ -3054,7 +3085,7 @@ const EarthVisualization = () => {
                         <span className="text-sm text-slate-400">Power</span>
                       </div>
                       <span className="text-sm font-bold text-slate-200 ml-auto">
-                        {activeBuildingTab === 'earth' ? '4' : (isMoonColonized ? '1' : '0')}
+                        {getCurrentBuildings().power}
                       </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -3071,10 +3102,13 @@ const EarthVisualization = () => {
                     className="flex items-center justify-between cursor-pointer hover:bg-slate-700/50 px-2 py-0.5 rounded transition-colors group relative z-[9999] min-w-0"
                     onClick={() => {
                       console.log('Refinery clicked!');
-                      if (spendCredits(200)) {
-                        setModalContent('Refinery Building - Constructed! Cost: ₵ 200');
+                      const upgradeCost = 200;
+                      if (spendCredits(upgradeCost)) {
+                        getCurrentUpgradeFunction()('refinery');
+                        const newLevel = getCurrentBuildings().refinery + 1;
+                        setModalContent(`Refinery Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
                       } else {
-                        setModalContent('Refinery Building - Insufficient Credits! Need: ₵ 200');
+                        setModalContent(`Refinery Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
                       setShowModal(true);
                     }}
@@ -3085,7 +3119,7 @@ const EarthVisualization = () => {
                         <span className="text-sm text-slate-400">Refinery</span>
                       </div>
                       <span className="text-sm font-bold text-slate-200 ml-auto">
-                        {activeBuildingTab === 'earth' ? '1' : (isMoonColonized ? '0' : '0')}
+                        {getCurrentBuildings().refinery}
                       </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-1">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
