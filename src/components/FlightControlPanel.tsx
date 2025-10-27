@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Package, ArrowUp, ArrowDown, Flag, Fuel } from 'lucide-react';
+import { Home, Package, ArrowUp, ArrowDown, Flag, Fuel, ArrowRight } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -275,11 +275,12 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                       ) : ship.location !== 'traveling' ? (
                         <Button
                           size="sm"
-                          className="h-8"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
                           onClick={() => onLaunchShip(ship.name)}
                           disabled={!canLaunch(ship)}
                         >
-                          Launch
+                          <ArrowRight className={`w-5 h-5 ${canLaunch(ship) ? 'text-green-400' : 'text-muted-foreground'}`} />
                         </Button>
                       ) : null}
                     </TableCell>
