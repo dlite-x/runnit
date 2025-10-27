@@ -41,6 +41,18 @@ const ResearchModal = ({ isOpen, onOpenChange }: ResearchModalProps) => {
     </Card>
   );
 
+  const Arrow = () => (
+    <div className="relative w-8 h-px bg-border flex items-center">
+      <div className="absolute right-0 w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-l-border" />
+    </div>
+  );
+
+  const VerticalArrow = () => (
+    <div className="relative h-12 w-px bg-border flex justify-center">
+      <div className="absolute bottom-0 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-border" />
+    </div>
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
@@ -52,24 +64,23 @@ const ResearchModal = ({ isOpen, onOpenChange }: ResearchModalProps) => {
           {/* Ship Speed Chain */}
           <div className="flex items-center gap-4 mb-12">
             <ResearchCard item={researchItems[0]} />
-            <div className="h-px w-8 bg-border" />
+            <Arrow />
             <ResearchCard item={researchItems[1]} />
-            <div className="h-px w-8 bg-border" />
+            <Arrow />
             <ResearchCard item={researchItems[2]} />
-            <div className="h-px w-8 bg-border" />
+            <Arrow />
             <ResearchCard item={researchItems[3]} />
           </div>
 
           {/* Branch to Proxima Scout */}
           <div className="flex items-start gap-4 mb-12 ml-[340px]">
             <div className="flex flex-col items-center">
-              <div className="h-12 w-px bg-border" />
-              <div className="h-px w-8 bg-border" />
+              <VerticalArrow />
             </div>
             <ResearchCard item={researchItems[4]} />
-            <div className="h-px w-8 bg-border mt-12" />
+            <Arrow />
             <ResearchCard item={researchItems[5]} />
-            <div className="h-px w-8 bg-border mt-12" />
+            <Arrow />
             <ResearchCard item={researchItems[6]} />
           </div>
 
@@ -77,18 +88,17 @@ const ResearchModal = ({ isOpen, onOpenChange }: ResearchModalProps) => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <ResearchCard item={researchItems[7]} />
-              <div className="h-px w-8 bg-border" />
+              <Arrow />
               <ResearchCard item={researchItems[8]} />
             </div>
             
             {/* Sunshade Branch */}
             <div className="flex items-start gap-4 ml-[80px]">
               <div className="flex flex-col items-center">
-                <div className="h-12 w-px bg-border" />
-                <div className="h-px w-8 bg-border" />
+                <VerticalArrow />
               </div>
               <ResearchCard item={researchItems[9]} />
-              <div className="h-px w-8 bg-border mt-12" />
+              <Arrow />
               <ResearchCard item={researchItems[10]} />
             </div>
           </div>
