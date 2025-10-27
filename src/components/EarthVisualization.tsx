@@ -2771,7 +2771,14 @@ const EarthVisualization = () => {
   }, []);
 
   const handleReset = () => {
-    // Reset will be handled by makeDefault OrbitControls
+    // Clear all localStorage game state
+    localStorage.removeItem('planet_buildings');
+    localStorage.removeItem('planet_resources');
+    localStorage.removeItem('user_credits');
+    localStorage.removeItem('planet_population');
+    localStorage.removeItem('earth_climate');
+    
+    // Reload the page to reinitialize everything
     window.location.reload();
   };
 

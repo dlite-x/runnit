@@ -8,7 +8,7 @@ export function useCredits() {
   const [credits, setCredits] = useState<number>(() => {
     // Load initial credits from localStorage
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? parseInt(stored, 10) : 5000;
+    return stored ? parseInt(stored, 10) : 10000;
   });
 
   useEffect(() => {

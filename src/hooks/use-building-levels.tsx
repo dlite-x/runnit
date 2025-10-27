@@ -15,10 +15,10 @@ interface PlanetBuildings {
 const STORAGE_KEY = 'planet_buildings';
 
 const DEFAULT_EARTH_LEVELS: BuildingLevels = {
-  lab: 2,
-  farm: 5,
-  power: 4,
-  mine: 3,
+  lab: 1,
+  farm: 1,
+  power: 1,
+  mine: 1,
   refinery: 1,
 };
 

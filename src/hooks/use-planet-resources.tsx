@@ -16,10 +16,10 @@ const STORAGE_KEY = 'planet_resources';
 const UPDATE_INTERVAL = 1000; // Update every 1 second
 
 const DEFAULT_EARTH_STOCK: ResourceStock = {
-  food: 100,
-  fuel: 80,
-  metal: 60,
-  power: 100,
+  food: 1,
+  fuel: 1,
+  metal: 1,
+  power: 1,
 };
 
 export function usePlanetResources(
