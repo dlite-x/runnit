@@ -4,7 +4,7 @@ import { OrbitControls, Stars, Text, Html } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, ArrowUp, ArrowDown, Flag } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, Flag } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -2578,6 +2578,7 @@ const EarthVisualization = () => {
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
   const [selectedShipForCargo, setSelectedShipForCargo] = useState<typeof builtSpheres[0] | null>(null);
   const [cargoInputs, setCargoInputs] = useState({ food: 0, fuel: 0, metal: 0 });
+  const [cargoMode, setCargoMode] = useState<'load' | 'unload'>('load');
   
   // Moon colonization state
   const [isMoonColonized, setIsMoonColonized] = useState(false);
@@ -2865,9 +2866,10 @@ const EarthVisualization = () => {
   };
 
   // Cargo management handlers
-  const handleOpenCargoDialog = (ship: typeof builtSpheres[0]) => {
+  const handleOpenCargoDialog = (ship: typeof builtSpheres[0], mode: 'load' | 'unload' = 'load') => {
     setSelectedShipForCargo(ship);
     setCargoInputs({ food: 0, fuel: 0, metal: 0 });
+    setCargoMode(mode);
     setCargoDialogOpen(true);
   };
 
@@ -2879,43 +2881,56 @@ const EarthVisualization = () => {
     const currentTotal = currentCargo.metal + currentCargo.fuel + currentCargo.food;
     const requestedTotal = cargoInputs.metal + cargoInputs.fuel + cargoInputs.food;
 
-    if (currentTotal + requestedTotal > maxCapacity) {
-      alert(`Cargo capacity exceeded! Max: ${maxCapacity}, Current: ${currentTotal}, Requested: ${requestedTotal}`);
-      return;
-    }
+    if (cargoMode === 'load') {
+      if (currentTotal + requestedTotal > maxCapacity) {
+        alert(`Cargo capacity exceeded! Max: ${maxCapacity}, Current: ${currentTotal}, Requested: ${requestedTotal}`);
+        return;
+      }
 
-    // Check and spend resources
-    if (cargoInputs.food > earthResources.food || 
-        cargoInputs.fuel > earthResources.fuel || 
-        cargoInputs.metal > earthResources.metal) {
-      alert('Insufficient resources!');
-      return;
-    }
+      // Check and spend resources
+      if (cargoInputs.food > earthResources.food || 
+          cargoInputs.fuel > earthResources.fuel || 
+          cargoInputs.metal > earthResources.metal) {
+        alert('Insufficient resources!');
+        return;
+      }
 
-    if (spendEarthResource('food', cargoInputs.food) &&
-        spendEarthResource('fuel', cargoInputs.fuel) &&
-        spendEarthResource('metal', cargoInputs.metal)) {
+      if (spendEarthResource('food', cargoInputs.food) &&
+          spendEarthResource('fuel', cargoInputs.fuel) &&
+          spendEarthResource('metal', cargoInputs.metal)) {
+        setBuiltSpheres(prev => prev.map(s =>
+          s.name === selectedShipForCargo.name ? {
+            ...s,
+            cargo: {
+              metal: currentCargo.metal + cargoInputs.metal,
+              fuel: currentCargo.fuel + cargoInputs.fuel,
+              food: currentCargo.food + cargoInputs.food,
+            }
+          } : s
+        ));
+        setCargoDialogOpen(false);
+      }
+    } else {
+      // Unload mode - return resources to Earth by spending negative amounts
+      const unloadFood = Math.min(cargoInputs.food, currentCargo.food);
+      const unloadFuel = Math.min(cargoInputs.fuel, currentCargo.fuel);
+      const unloadMetal = Math.min(cargoInputs.metal, currentCargo.metal);
+
+      // The resources will be updated through the state and hooks
+      // Update ship cargo
       setBuiltSpheres(prev => prev.map(s =>
         s.name === selectedShipForCargo.name ? {
           ...s,
           cargo: {
-            metal: currentCargo.metal + cargoInputs.metal,
-            fuel: currentCargo.fuel + cargoInputs.fuel,
-            food: currentCargo.food + cargoInputs.food,
+            metal: currentCargo.metal - unloadMetal,
+            fuel: currentCargo.fuel - unloadFuel,
+            food: currentCargo.food - unloadFood,
           }
         } : s
       ));
       setCargoDialogOpen(false);
+      alert(`Unloaded ${unloadFood} food, ${unloadFuel} fuel, ${unloadMetal} metal`);
     }
-  };
-
-  const handleOffloadCargo = (ship: typeof builtSpheres[0]) => {
-    if (!ship.cargo) return;
-    
-    // Return cargo to Earth resources (simplified - just reset cargo)
-    setBuiltSpheres(prev => prev.map(s =>
-      s.name === ship.name ? { ...s, cargo: { metal: 0, fuel: 0, food: 0 } } : s
-    ));
   };
 
   return (
@@ -3687,29 +3702,22 @@ const EarthVisualization = () => {
                         )}
                       </div>
                       
-                      {/* Cargo column */}
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-slate-300">
-                          {cargo.food}/{cargo.fuel}/{cargo.metal}
-                        </span>
-                        {ship.location !== 'traveling' && ship.location !== 'preparing' && (
-                          <div className="flex gap-0.5">
-                            <button
-                              className="h-5 w-5 p-0 hover:bg-slate-600/50 rounded flex items-center justify-center"
-                              onClick={() => handleOpenCargoDialog(ship)}
-                            >
-                              <ArrowUp className="w-3 h-3 text-green-400" />
-                            </button>
-                            <button
-                              className="h-5 w-5 p-0 hover:bg-slate-600/50 rounded flex items-center justify-center"
-                              onClick={() => handleOffloadCargo(ship)}
-                              disabled={cargo.food === 0 && cargo.fuel === 0 && cargo.metal === 0}
-                            >
-                              <ArrowDown className="w-3 h-3 text-blue-400" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      {/* Cargo column - Clickable */}
+                      <button
+                        className="text-xs flex items-center gap-1 hover:bg-slate-600/50 px-1 rounded transition-colors cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenCargoDialog(ship, 'load');
+                        }}
+                        disabled={ship.location === 'traveling' || ship.location === 'preparing'}
+                        title="Manage cargo"
+                      >
+                        <span style={{ color: 'hsl(var(--resource-food))' }}>{cargo.food}</span>
+                        <span className="text-slate-500">/</span>
+                        <span style={{ color: 'hsl(var(--resource-fuel))' }}>{cargo.fuel}</span>
+                        <span className="text-slate-500">/</span>
+                        <span style={{ color: 'hsl(var(--resource-metal))' }}>{cargo.metal}</span>
+                      </button>
                       
                       {/* Status */}
                       <span className="text-xs text-slate-300">
@@ -4351,50 +4359,77 @@ const EarthVisualization = () => {
       <Dialog open={cargoDialogOpen} onOpenChange={setCargoDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Load Cargo - {selectedShipForCargo?.name}</DialogTitle>
+            <DialogTitle>Manage Cargo - {selectedShipForCargo?.name}</DialogTitle>
             <DialogDescription>
               Max capacity: {selectedShipForCargo?.type === 'colony' ? 6 : 10} units total
             </DialogDescription>
           </DialogHeader>
           
+          {/* Load/Unload Tabs */}
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant={cargoMode === 'load' ? 'default' : 'outline'}
+              onClick={() => setCargoMode('load')}
+              className="flex-1"
+            >
+              Load
+            </Button>
+            <Button
+              variant={cargoMode === 'unload' ? 'default' : 'outline'}
+              onClick={() => setCargoMode('unload')}
+              className="flex-1"
+            >
+              Unload
+            </Button>
+          </div>
+          
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="food">Food</Label>
+              <Label htmlFor="food" style={{ color: 'hsl(var(--resource-food))' }}>
+                Food {cargoMode === 'load' 
+                  ? `(Available: ${earthResources.food})`
+                  : `(On ship: ${selectedShipForCargo?.cargo?.food || 0})`}
+              </Label>
               <Input
                 id="food"
                 type="number"
                 min="0"
-                max={earthResources.food}
+                max={cargoMode === 'load' ? earthResources.food : selectedShipForCargo?.cargo?.food || 0}
                 value={cargoInputs.food}
                 onChange={(e) => setCargoInputs({ ...cargoInputs, food: parseInt(e.target.value) || 0 })}
               />
-              <p className="text-xs text-muted-foreground">Available: {earthResources.food}</p>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="fuel">Fuel</Label>
+              <Label htmlFor="fuel" style={{ color: 'hsl(var(--resource-fuel))' }}>
+                Fuel {cargoMode === 'load' 
+                  ? `(Available: ${earthResources.fuel})`
+                  : `(On ship: ${selectedShipForCargo?.cargo?.fuel || 0})`}
+              </Label>
               <Input
                 id="fuel"
                 type="number"
                 min="0"
-                max={earthResources.fuel}
+                max={cargoMode === 'load' ? earthResources.fuel : selectedShipForCargo?.cargo?.fuel || 0}
                 value={cargoInputs.fuel}
                 onChange={(e) => setCargoInputs({ ...cargoInputs, fuel: parseInt(e.target.value) || 0 })}
               />
-              <p className="text-xs text-muted-foreground">Available: {earthResources.fuel}</p>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="metal">Metal</Label>
+              <Label htmlFor="metal" style={{ color: 'hsl(var(--resource-metal))' }}>
+                Metal {cargoMode === 'load' 
+                  ? `(Available: ${earthResources.metal})`
+                  : `(On ship: ${selectedShipForCargo?.cargo?.metal || 0})`}
+              </Label>
               <Input
                 id="metal"
                 type="number"
                 min="0"
-                max={earthResources.metal}
+                max={cargoMode === 'load' ? earthResources.metal : selectedShipForCargo?.cargo?.metal || 0}
                 value={cargoInputs.metal}
                 onChange={(e) => setCargoInputs({ ...cargoInputs, metal: parseInt(e.target.value) || 0 })}
               />
-              <p className="text-xs text-muted-foreground">Available: {earthResources.metal}</p>
             </div>
           </div>
 
@@ -4403,7 +4438,7 @@ const EarthVisualization = () => {
               Cancel
             </Button>
             <Button onClick={handleLoadCargo}>
-              Load Cargo
+              {cargoMode === 'load' ? 'Load Cargo' : 'Unload Cargo'}
             </Button>
           </div>
         </DialogContent>

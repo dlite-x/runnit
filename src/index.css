@@ -33,6 +33,11 @@
     --accent: 140 65% 45%;
     --accent-foreground: 220 35% 8%;
 
+    /* Resource colors */
+    --resource-food: 140 65% 45%;
+    --resource-fuel: 30 100% 60%;
+    --resource-metal: 220 10% 55%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
