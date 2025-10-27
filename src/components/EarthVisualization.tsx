@@ -2969,12 +2969,7 @@ const EarthVisualization = () => {
                       const upgradeCost = 200;
                       if (spendCredits(upgradeCost)) {
                         getCurrentUpgradeFunction()('lab');
-                        const newLevel = getCurrentBuildings().lab + 1;
-                        setModalContent(`Lab Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
-                      } else {
-                        setModalContent(`Lab Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
-                      setShowModal(true);
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -3003,12 +2998,7 @@ const EarthVisualization = () => {
                       const upgradeCost = 200;
                       if (spendCredits(upgradeCost)) {
                         getCurrentUpgradeFunction()('farm');
-                        const newLevel = getCurrentBuildings().farm + 1;
-                        setModalContent(`Farm Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
-                      } else {
-                        setModalContent(`Farm Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
-                      setShowModal(true);
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -3037,12 +3027,7 @@ const EarthVisualization = () => {
                       const upgradeCost = 200;
                       if (spendCredits(upgradeCost)) {
                         getCurrentUpgradeFunction()('mine');
-                        const newLevel = getCurrentBuildings().mine + 1;
-                        setModalContent(`Mine Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
-                      } else {
-                        setModalContent(`Mine Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
-                      setShowModal(true);
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -3071,12 +3056,7 @@ const EarthVisualization = () => {
                       const upgradeCost = 200;
                       if (spendCredits(upgradeCost)) {
                         getCurrentUpgradeFunction()('power');
-                        const newLevel = getCurrentBuildings().power + 1;
-                        setModalContent(`Power Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
-                      } else {
-                        setModalContent(`Power Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
-                      setShowModal(true);
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -3105,12 +3085,7 @@ const EarthVisualization = () => {
                       const upgradeCost = 200;
                       if (spendCredits(upgradeCost)) {
                         getCurrentUpgradeFunction()('refinery');
-                        const newLevel = getCurrentBuildings().refinery + 1;
-                        setModalContent(`Refinery Building - Upgraded to Level ${newLevel}! Cost: ₵ ${upgradeCost}`);
-                      } else {
-                        setModalContent(`Refinery Building - Insufficient Credits! Need: ₵ ${upgradeCost}`);
                       }
-                      setShowModal(true);
                     }}
                   >
                     <div className="flex items-center gap-3">
