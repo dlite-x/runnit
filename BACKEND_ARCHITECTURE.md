@@ -6,11 +6,13 @@ This document explains the backend implementation for the Space Colonization Gam
 
 ## Architecture Design
 
-The backend uses a **hook-based architecture** with three core custom hooks that manage different aspects of the game state:
+The backend uses a **hook-based architecture** with five core custom hooks that manage different aspects of the game state:
 
 1. `use-building-levels.tsx` - Building construction and upgrades
 2. `use-planet-resources.tsx` - Resource production and consumption
 3. `use-credits.tsx` - Currency management
+4. `use-planet-population.tsx` - Population growth and management
+5. `use-earth-climate.tsx` - CO2 emissions and temperature tracking
 
 All game state is persisted to the browser's localStorage, allowing players to resume their progress across sessions.
 
@@ -163,6 +165,106 @@ setCredits(10000);
 
 ---
 
+### 4. Planet Population Hook (`use-planet-population.tsx`)
+
+**Purpose**: Manages population growth and decline based on food availability.
+
+**Key Features**:
+- Stores population per planet in localStorage under key `planet_population`
+- Population grows when food stock > 0, declines when food stock <= 0
+- Growth/decline rate: 1% per hour (population × 1/360,000 per second)
+- Earth starts with 100 population, other planets start at 0
+
+**Data Structure**:
+```typescript
+interface PlanetPopulation {
+  [planet: string]: number;
+}
+```
+
+**Population Dynamics**:
+```
+Growth rate (with food) = population × (1/360,000) per second
+Decline rate (no food) = population × (1/360,000) per second
+```
+
+**Usage**:
+```typescript
+const { population, growthRatePerHour, adjustPopulation } = usePlanetPopulation('Earth', true, foodStock);
+
+// Manually adjust population
+adjustPopulation(50); // Add 50 people
+adjustPopulation(-20); // Remove 20 people
+```
+
+**Storage Format**:
+```json
+{
+  "Earth": 100,
+  "Mars": 0,
+  "Moon": 0
+}
+```
+
+---
+
+### 5. Earth Climate Hook (`use-earth-climate.tsx`)
+
+**Purpose**: Tracks CO2 emissions and calculates global temperature based on player actions.
+
+**Key Features**:
+- Stores CO2 levels in localStorage under key `earth_co2_ppm`
+- Stores CO2 events log in localStorage under key `earth_co2_events`
+- Starting CO2: 400 ppm
+- Temperature calculation: `0.0125 × CO2ppm - 5`
+- Each building construction adds +1 ppm CO2
+
+**Data Structure**:
+```typescript
+interface CO2Event {
+  timestamp: number;
+  action: 'building' | 'ship_construct' | 'ship_launch';
+  description: string;
+  co2Added: number;
+  totalCO2: number;
+}
+```
+
+**Temperature Examples**:
+- At 400 ppm: 0°C
+- At 800 ppm: 5°C (farming efficiency drops to 0%)
+- At 200 ppm: -2.5°C
+
+**Usage**:
+```typescript
+const { co2ppm, temperature, co2Events, addCO2Event } = useEarthClimate();
+
+// Log a CO2 event
+addCO2Event('building', 'Farm constructed on Earth');
+
+// Check current conditions
+console.log(`CO2: ${co2ppm} ppm, Temp: ${temperature.toFixed(1)}°C`);
+```
+
+**Storage Format**:
+```json
+// CO2 level
+"415"
+
+// CO2 events
+[
+  {
+    "timestamp": 1730000000000,
+    "action": "building",
+    "description": "Farm constructed on Earth",
+    "co2Added": 1,
+    "totalCO2": 401
+  }
+]
+```
+
+---
+
 ## Integration with Main Component
 
 The hooks are integrated into `EarthVisualization.tsx` as follows:
@@ -171,18 +273,36 @@ The hooks are integrated into `EarthVisualization.tsx` as follows:
 // 1. Get building levels for the active planet
 const { buildingLevels, upgradeBuilding } = useBuildingLevels(activePlanet);
 
-// 2. Get resources based on building levels
-const { resources, productionRates, spendResource } = usePlanetResources(activePlanet, buildingLevels);
+// 2. Get climate data for Earth
+const { co2ppm, temperature, co2Events, addCO2Event } = useEarthClimate();
 
-// 3. Get credits
+// 3. Get resources based on building levels and temperature
+const { resources, productionRates, spendResource } = usePlanetResources(
+  activePlanet, 
+  buildingLevels, 
+  temperature, // Affects farm production on Earth
+  population    // Affects food consumption
+);
+
+// 4. Get population with growth/decline based on food
+const { population, growthRatePerHour, adjustPopulation } = usePlanetPopulation(
+  activePlanet,
+  isColonized,
+  resources.food
+);
+
+// 5. Get credits
 const { credits, spendCredits } = useCredits();
 ```
 
 The component then uses these hooks to:
 - Display current resource stocks and production rates
-- Handle building upgrades (which increase production)
+- Handle building upgrades (which increase production and CO2)
 - Process resource spending for ship construction or other actions
 - Manage the credit economy
+- Track population growth/decline
+- Monitor climate impact on food production
+- Log CO2 emissions from player actions
 
 ---
 
@@ -206,6 +326,9 @@ All game state persists to **localStorage** immediately upon change:
 1. **Building Upgrades**: Saved instantly when `upgradeBuilding()` is called
 2. **Resource Changes**: Saved every second as resources accumulate
 3. **Credit Changes**: Saved every second as credits increment
+4. **Population Changes**: Saved every second as population grows/declines
+5. **Climate Data**: Saved immediately when CO2 events occur
+6. **CO2 Events Log**: Saved immediately to event history
 
 **Advantages**:
 - No server required for basic gameplay
@@ -225,10 +348,11 @@ All game state persists to **localStorage** immediately upon change:
 
 For multiplayer or cloud-save functionality, the current localStorage implementation can be replaced with Supabase:
 
-1. Create tables: `building_levels`, `planet_resources`, `user_credits`
+1. Create tables: `building_levels`, `planet_resources`, `user_credits`, `planet_population`, `climate_data`, `co2_events`
 2. Replace localStorage calls with Supabase queries
 3. Add Row Level Security (RLS) policies for user-specific data
 4. Implement real-time subscriptions for live updates
+5. Add server-side validation for game rules (e.g., CO2 emissions, population limits)
 
 The hook interfaces can remain unchanged, making the transition seamless.
 
@@ -283,9 +407,12 @@ To verify the backend is working correctly:
 ## Conclusion
 
 This hook-based backend architecture provides:
-- ✅ Persistent game state
-- ✅ Real-time resource production
+- ✅ Persistent game state across all systems
+- ✅ Real-time resource production and consumption
 - ✅ Per-planet building management
+- ✅ Population dynamics with food-based growth/decline
+- ✅ Climate simulation with CO2 tracking and temperature effects
+- ✅ Integrated feedback loops (climate ↔ food production ↔ population)
 - ✅ Scalable foundation for future features
 - ✅ Clean separation of concerns
 

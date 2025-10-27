@@ -17,9 +17,22 @@ A 3D interactive space colonization and exploration game built with React and Th
 ```
 src/
 ├── components/
-│   ├── EarthVisualization.tsx    # Main game component (3200+ lines)
+│   ├── EarthVisualization.tsx    # Main game component
+│   ├── CO2LogModal.tsx           # CO2 emissions history viewer
+│   ├── FlightControlPanel.tsx    # Ship management interface
+│   ├── InvestmentModal.tsx       # Investment/market systems
+│   ├── MarketModal.tsx           # Resource trading
+│   ├── MissionsModal.tsx         # Mission system
+│   ├── ResearchModal.tsx         # Research tree interface
 │   ├── ShipLaunchModal.tsx       # Ship launch interface
 │   └── ui/                       # shadcn/ui components
+├── hooks/
+│   ├── use-building-levels.tsx   # Building construction/upgrades
+│   ├── use-credits.tsx           # Currency management
+│   ├── use-earth-climate.tsx     # CO2 and temperature tracking
+│   ├── use-investment.tsx        # Investment system
+│   ├── use-planet-population.tsx # Population growth/decline
+│   └── use-planet-resources.tsx  # Resource production/consumption
 ├── pages/
 │   ├── Index.tsx                 # Main entry page
 │   └── NotFound.tsx              # 404 page
@@ -44,45 +57,39 @@ src/
 
 **Responsibilities**:
 - Renders 3D visualizations of Earth, Moon, and Mars using Three.js
-- Manages all game state (buildings, resources, ships, research, events)
+- Integrates custom hooks for game state management
 - Handles celestial body orbital mechanics and rotation
-- Controls building construction and upgrades
-- Manages ship launches and interplanetary travel
-- Implements research tree progression
-- Handles random events system
-- Manages resource production and consumption
+- Manages ship launches and interplanetary travel via FlightControlPanel
+- Opens modal dialogs for various game systems
+- Displays resource stocks, production rates, and climate data
+- Coordinates between different game systems (resources, population, climate)
 
-**Key State Variables**:
+**Key State (managed via hooks)**:
 ```typescript
-// Celestial Bodies
-- selectedPlanet: 'earth' | 'moon' | 'mars'
-- isMoonColonized: boolean
+// Building levels (use-building-levels.tsx)
+- buildingLevels: { lab, farm, power, mine, refinery }
+
+// Resources (use-planet-resources.tsx)
+- resources: { food, fuel, metal, power }
+- productionRates: { food, fuel, metal, power }
+
+// Population (use-planet-population.tsx)
+- population: number
+- growthRatePerHour: number
+
+// Climate (use-earth-climate.tsx, Earth only)
+- co2ppm: number
+- temperature: number (calculated from CO2)
+- co2Events: CO2Event[]
+
+// Credits (use-credits.tsx)
+- credits: number (global currency)
+
+// UI State
+- selectedPlanet: 'Earth' | 'Mars' | 'Moon'
 - isMarsColonized: boolean
-
-// Resources
-- totalBudget: number (global currency)
-- globalPopulation: number
-- globalFood: number
-- globalWater: number
-- globalEnergy: number
-
-// Buildings (per planet)
-- earthBuildings: Building[]
-- moonBuildings: Building[]
-- marsBuildings: Building[]
-
-// Ships & Travel
-- ships: Ship[]
-- activeShipTab: 'earth' | 'moon' | 'mars'
-
-// Research
-- completedResearch: string[]
-- activeResearch: string | null
-- researchProgress: number
-
-// Events
-- activeEvent: Event | null
-- eventHistory: Event[]
+- isMoonColonized: boolean
+- Modal states (research, ships, market, etc.)
 ```
 
 ### 2. Building System
@@ -204,17 +211,39 @@ interface Event {
 ### 6. Resource Management
 
 **Resource Production**:
-- Each building type produces specific resources
-- Production rate = base_rate × building_level × number_of_buildings
-- Resources consumed by population over time
-- Balance between production and consumption critical
+- Farm → Food production (affected by temperature on Earth)
+- Refinery → Fuel production
+- Mine → Metal production
+- Power Plant → Power production
+- Production rate = building_level per hour
+- Per-second increment = building_level / 3600
+
+**Resource Consumption** (Earth only):
+- Population consumes food: population / 100 per hour
+- Food shortage causes population decline
 
 **Resource Types**:
-1. **Budget** - Global currency for all purchases
-2. **Population** - Citizens across all colonies
-3. **Food** - Required for population survival
-4. **Water** - Required for population survival
-5. **Energy** - Powers all facilities
+1. **Credits** - Universal currency for all purchases (+3/sec base rate)
+2. **Food** - Required for population growth, affected by climate on Earth
+3. **Fuel** - Required for ship travel and operations
+4. **Metal** - Required for building construction and ship building
+5. **Power** - Powers all facilities and operations
+
+### 7. Climate System (Earth Only)
+
+**CO2 Emissions**:
+- Each building constructed: +1 ppm CO2
+- Events are logged with timestamp and description
+
+**Temperature Effects**:
+- Temperature = 0.0125 × CO2ppm - 5
+- Farm efficiency = 1 - temperature × 0.20
+- At 0°C: 100% efficiency (optimal)
+- At 5°C: 0% efficiency (farming collapse)
+- At -5°C: 200% efficiency (cold climate bonus)
+
+**Feedback Loop**:
+- More buildings → Higher CO2 → Higher temperature → Lower farm efficiency → Food shortage → Population decline
 
 ## Game Flow
 
@@ -341,27 +370,36 @@ interface Event {
 ### Known Issues
 1. **Ship ownership transition**: Recently fixed - ships now correctly remain under Earth control until Moon/Mars is colonized
 
-### Technical Debt
-1. **EarthVisualization.tsx is monolithic**: 3200+ lines in single file
-   - All game logic in one component
-   - All state management in one place
-   - Difficult to maintain and extend
+### Technical Improvements Made
+1. **Hook-based state management**: Game state now managed via custom hooks
+   - `use-building-levels.tsx` - Building construction
+   - `use-planet-resources.tsx` - Resource production/consumption
+   - `use-planet-population.tsx` - Population dynamics
+   - `use-earth-climate.tsx` - Climate simulation
+   - `use-credits.tsx` - Currency management
 
-2. **No backend separation**: All game logic runs in frontend
-   - Economic calculations done in React component
+2. **Modal-based UI**: Major systems separated into modal components
+   - ResearchModal - Research tree interface
+   - FlightControlPanel - Ship management
+   - CO2LogModal - Climate event history
+   - MarketModal, InvestmentModal, MissionsModal
+
+### Remaining Technical Debt
+1. **No backend separation**: All game logic still runs in frontend
+   - Economic calculations done in React hooks
    - No server-side validation
-   - No persistent game state (except research in localStorage)
+   - State persisted to localStorage only
 
-3. **No centralized configuration**: Game constants scattered throughout code
-   - Building costs hard-coded
-   - Research times hard-coded
-   - Travel times hard-coded
+2. **No centralized configuration**: Game constants scattered throughout code
+   - Building costs hard-coded in components
+   - Research tree hard-coded in ResearchModal
+   - Travel times hard-coded in ship system
 
-4. **Limited scalability**: Current architecture not suitable for:
-   - Complex economic simulations
-   - Advanced AI/automation
+3. **Limited scalability**: Current architecture not suitable for:
    - Multiplayer features
-   - Server-side game logic
+   - Server-side validation
+   - Cloud save synchronization
+   - Advanced analytics
 
 ## Recommended Architecture for Backend Integration
 
@@ -402,12 +440,15 @@ interface Event {
 
 ### Example API Endpoints Needed
 ```
-POST /api/building/construct - Start building construction
-POST /api/building/upgrade - Upgrade existing building
+POST /api/building/construct - Start building construction (adds CO2)
+POST /api/building/upgrade - Upgrade existing building (adds CO2)
 POST /api/ship/launch - Launch ship to destination
+POST /api/ship/build - Build new ship (adds CO2)
 POST /api/research/start - Begin research project
-GET /api/gamestate - Get current game state
+GET /api/gamestate - Get current game state (all planets)
 POST /api/colonize - Colonize new planet
+GET /api/climate - Get Earth climate data (CO2, temperature, events)
+POST /api/population/adjust - Manually adjust population
 ```
 
 ## Next Steps for Backend Integration
@@ -433,16 +474,17 @@ POST /api/colonize - Colonize new planet
 - Currently minimal backend usage
 - Database schema not yet defined for game state
 
-## File Size Warning
-`EarthVisualization.tsx` is the largest file at 3200+ lines and contains:
-- All game state (50+ useState hooks)
-- All game logic functions
-- All UI rendering
-- All 3D scene setup
-- This should be refactored into smaller, focused modules
+## Recent Improvements
+
+1. **State Management Refactored**: Game state now managed via custom React hooks instead of monolithic component state
+2. **Modular Components**: Major features extracted into modal components (Research, Ships, Market, etc.)
+3. **Climate System Implemented**: Full CO2 tracking with temperature effects on food production
+4. **Population Dynamics**: Food-based growth/decline with proper feedback loops
+5. **localStorage Persistence**: All game state persists across sessions
 
 ---
 
 **Last Updated**: Current session
-**Status**: Functional prototype, ready for backend integration
-**Primary Goal**: Separate frontend (UI/3D) from backend (game logic/calculations)
+**Status**: Functional single-player game with climate simulation
+**Architecture**: Hook-based state management with localStorage persistence
+**Primary Goal**: Continue modularization and prepare for backend integration
