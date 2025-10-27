@@ -2560,7 +2560,6 @@ const EarthVisualization = () => {
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
-  const [showFlightControl, setShowFlightControl] = useState(false);
   
   // Moon colonization state
   const [isMoonColonized, setIsMoonColonized] = useState(false);
@@ -2890,15 +2889,6 @@ const EarthVisualization = () => {
             >
               <Settings className="w-5 h-5" />
             </button>
-            
-            {/* Flight Control Panel Toggle */}
-            <button
-              onClick={() => setShowFlightControl(!showFlightControl)}
-              className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
-              aria-label="Toggle Flight Control"
-            >
-              <Rocket className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </div>
@@ -3020,7 +3010,7 @@ const EarthVisualization = () => {
         </button>
         
         <div className={`p-2 h-full relative z-[9999] transition-opacity duration-300 ${isPanelCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.8fr 0.75fr 0.595fr 1.7fr' }}>
+          <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.72fr 0.75fr 0.595fr 1.8fr' }}>
             {/* Planets Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
@@ -3528,202 +3518,16 @@ const EarthVisualization = () => {
               </div>
             </div>
 
-            {/* Flight Control Section - Universal Solar System Control */}
+            {/* Flight Control Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Satellite className="w-4 h-4 text-purple-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-200">Flight Control <span className="text-sm text-slate-400">(Solar System)</span></h3>
-              </div>
-              
-              {/* Table Content with Scrolling */}
-              <ScrollArea className="h-[180px] w-full" type="always">
-                <div className="space-y-1 pr-2">
-                  {builtSpheres.length === 0 ? (
-                    <div className="text-center py-4 text-slate-400 text-sm">
-                      No ships in solar system
-                    </div>
-                  ) : (
-                    builtSpheres.map((ship, index) => (
-                    <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto] gap-3 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20 relative">
-                      <div className="flex items-center gap-2 min-w-0">
-                        {ship.type === 'colony' ? (
-                          <Home className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                        ) : (
-                          <Package className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                        )}
-                        <span className="text-sm text-slate-300 whitespace-nowrap">{ship.name}</span>
-                      </div>
-                      <Select 
-                        defaultValue="moon"
-                        onValueChange={(destination) => {
-                          setBuiltSpheres(prev => prev.map(s => 
-                            s.name === ship.name ? { ...s, destination } : s
-                          ));
-                        }}
-                      >
-                        <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
-                          {ship.location !== 'earth' && (
-                            <SelectItem value="earth" className="text-slate-300 hover:bg-slate-700">Earth</SelectItem>
-                          )}
-                          <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
-                          <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
-                          {ship.type === 'colony' && ship.location === 'earth' && (
-                            <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML-1</SelectItem>
-                          )}
-                          {ship.type === 'cargo' && (
-                            <>
-                              <SelectItem value="offload" className="text-slate-300 hover:bg-slate-700">Offload</SelectItem>
-                              <SelectItem value="land" className="text-slate-300 hover:bg-slate-700">Land</SelectItem>
-                            </>
-                          )}
-                          {ship.type === 'colony' && (
-                            <SelectItem value="colonize" className="text-slate-300 hover:bg-slate-700">Colonize</SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      {ship.location === 'traveling' && ship.departureTime && ship.totalTravelTime ? (
-                        <CountdownTimer
-                          departureTime={ship.departureTime}
-                          totalTravelTime={ship.totalTravelTime}
-                          onArrival={() => {
-                            // Special case: Colony ships with "colonize" destination get consumed
-                            if (ship.type === 'colony' && ship.destination === 'colonize') {
-                              setBuiltSpheres(prev => prev.filter(s => s.name !== ship.name));
-                              console.log(`${ship.name} has been consumed while colonizing`);
-                            } 
-                            // Special case: Cargo ships with "offload" destination reset cargo to 0/0/0
-                            else if (ship.type === 'cargo' && ship.destination === 'offload') {
-                              const arrivalPlanet = ship.destination === 'offload' ? 'moon' : (ship.destination === 'earth' ? 'earth' : 'moon');
-                              // Count ships already at destination for proper spacing
-                              const shipsAtDestination = builtSpheres.filter(s => s.location === arrivalPlanet).length;
-                              const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
-                              setBuiltSpheres(prev => prev.map(s => 
-                                s.name === ship.name ? { 
-                                  ...s, 
-                                  location: arrivalPlanet,
-                                  staticPosition: arrivalPosition,
-                                  position: arrivalPosition,
-                                  cargo: { metal: 0, fuel: 0, food: 0 },
-                                  startPosition: undefined,
-                                  endPosition: undefined,
-                                  departureTime: undefined,
-                                  totalTravelTime: undefined
-                                } : s
-                              ));
-                              console.log(`${ship.name} has offloaded all cargo at ${arrivalPlanet}`);
-                            } else {
-                              // Normal arrival behavior - set to static position at destination with proper spacing
-                              let arrivalPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
-                              if (ship.destination === 'mars') {
-                                arrivalPlanet = 'mars';
-                              } else if (ship.destination === 'eml1') {
-                                arrivalPlanet = 'eml1';
-                              } else if (ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land') {
-                                arrivalPlanet = 'moon';
-                              } else {
-                                arrivalPlanet = 'earth';
-                              }
-                              // Count ships already at destination to determine spacing index
-                              const shipsAtDestination = builtSpheres.filter(s => s.location === arrivalPlanet).length;
-                              const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
-                              setBuiltSpheres(prev => prev.map(s => 
-                                s.name === ship.name ? { 
-                                  ...s, 
-                                  location: arrivalPlanet,
-                                  staticPosition: arrivalPosition,
-                                  position: arrivalPosition,
-                                  startPosition: undefined,
-                                  endPosition: undefined,
-                                  departureTime: undefined,
-                                  totalTravelTime: undefined
-                                } : s
-                              ));
-                              console.log(`✅ ${ship.name} arrived at ${arrivalPlanet} and positioned statically`);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <span className="text-sm text-slate-300 italic">
-                          {formatTime(calculateTravelTimeSeconds(
-                            ship.location === 'mars' ? 'mars' : 
-                            ship.location === 'moon' ? 'moon' : 
-                            ship.location === 'eml1' ? 'eml1' : 'earth', 
-                            ship.destination || 'moon'
-                          ))}
-                        </span>
-                      )}
-                      <div className="text-sm flex items-center gap-0.5">
-                        <span className="text-green-400">{ship.cargo?.metal !== undefined ? ship.cargo.metal : (ship.type === 'colony' ? 2 : 10)}</span>
-                        <span className="text-slate-400">/</span>
-                        <span className="text-orange-400">{ship.cargo?.fuel !== undefined ? ship.cargo.fuel : (ship.type === 'colony' ? 2 : 10)}</span>
-                        <span className="text-slate-400">/</span>
-                        <span className="text-gray-300">{ship.cargo?.food !== undefined ? ship.cargo.food : (ship.type === 'colony' ? 2 : 10)}</span>
-                      </div>
-                      <span className="text-sm text-green-400">
-                        {ship.location === 'earth' ? 'Ready' : 
-                         ship.location === 'preparing' ? 'Preparing' :
-                         ship.location === 'traveling' ? 'En route' : 
-                         ship.location === 'moon' ? 'At Moon' :
-                         ship.location === 'eml1' ? 'At EML-1' :
-                         ship.location === 'mars' ? 'At Mars' : 'Ready'}
-                      </span>
-                      <button 
-                        className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-                        disabled={ship.location === 'traveling' || ship.location === 'preparing'}
-                        onClick={() => {
-                          if (ship.location !== 'traveling' && ship.location !== 'preparing') {
-                            // Launch with static positioning system
-                            const currentPlanet = ship.location as 'earth' | 'moon' | 'mars' | 'eml1';
-                            // Determine target planet based on destination
-                            let targetPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
-                            if (ship.destination === 'mars') {
-                              targetPlanet = 'mars';
-                            } else if (ship.destination === 'eml1') {
-                              targetPlanet = 'eml1';
-                            } else if (ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land') {
-                              targetPlanet = 'moon';
-                            } else {
-                              targetPlanet = 'earth';
-                            }
-                            const startPos = ship.staticPosition || ship.position;
-                            // Count ships that will be at destination to determine proper landing spot
-                            const shipsAtTargetDestination = builtSpheres.filter(s => s.location === targetPlanet || (s.location === 'traveling' && (s.destination === targetPlanet || (s.destination === 'moon' && targetPlanet === 'moon') || (s.destination === 'earth' && targetPlanet === 'earth') || (s.destination === 'mars' && targetPlanet === 'mars')))).length;
-                            const endPos = getStaticPositionNearPlanet(targetPlanet, shipsAtTargetDestination);
-                            const travelTime = calculateTravelTimeSeconds(currentPlanet, targetPlanet);
-                            
-                            setBuiltSpheres(prev => prev.map(s => 
-                              s.name === ship.name ? { 
-                                ...s, 
-                                location: 'traveling',
-                                startPosition: startPos,
-                                endPosition: endPos,
-                                departureTime: Date.now(),
-                                totalTravelTime: travelTime,
-                                staticPosition: undefined // Clear static position during travel
-                              } : s
-                            ));
-                            console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`, {
-                              startPos,
-                              endPos,
-                              departureTime: Date.now(),
-                              totalTravelTime: travelTime
-                            });
-                          }
-                        }}
-                      >
-                        {ship.location === 'traveling' ? 'flying' : 
-                         ship.location === 'preparing' ? 'prep' : 'launch'}
-                      </button>
-                    </div>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
+              <FlightControlPanel
+                ships={builtSpheres}
+                onUpdateShip={handleUpdateShip}
+                onLaunchShip={handleLaunchShipFromControl}
+                onColonizePlanet={handleColonizePlanet}
+                availableResources={getCurrentResources()}
+                onSpendResource={spendEarthResource}
+              />
             </div>
           </div>
         </div>
@@ -3855,26 +3659,6 @@ const EarthVisualization = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Flight Control Panel */}
-      {showFlightControl && (
-        <div className="fixed bottom-[270px] left-4 right-4 z-[10000] max-w-6xl mx-auto">
-          <FlightControlPanel
-            ships={builtSpheres}
-            onUpdateShip={handleUpdateShip}
-            onLaunchShip={handleLaunchShipFromControl}
-            onColonizePlanet={handleColonizePlanet}
-            availableResources={{
-              fuel: getCurrentResources().fuel,
-              metal: getCurrentResources().metal,
-              food: getCurrentResources().food,
-            }}
-            onSpendResource={(resourceType, amount) => {
-              return spendEarthResource(resourceType, amount);
-            }}
-          />
         </div>
       )}
 
