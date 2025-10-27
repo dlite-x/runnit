@@ -13,6 +13,7 @@ import marsTexture from '@/assets/mars-texture-2k.jpg';
 import ShipLaunchModal from './ShipLaunchModal';
 import { useCredits } from '@/hooks/use-credits';
 import { useBuildingLevels } from '@/hooks/use-building-levels';
+import { usePlanetResources } from '@/hooks/use-planet-resources';
 
 interface EarthProps {
   autoRotate: boolean;
@@ -2466,6 +2467,11 @@ const EarthVisualization = () => {
   const { buildingLevels: moonBuildings, upgradeBuilding: upgradeMoonBuilding } = useBuildingLevels('Moon');
   const { buildingLevels: marsBuildings, upgradeBuilding: upgradeMarsBuilding } = useBuildingLevels('Mars');
   
+  // Planet resources for each planet
+  const { resources: earthResources, productionRates: earthProduction } = usePlanetResources('Earth', earthBuildings);
+  const { resources: moonResources, productionRates: moonProduction } = usePlanetResources('Moon', moonBuildings);
+  const { resources: marsResources, productionRates: marsProduction } = usePlanetResources('Mars', marsBuildings);
+  
   // Get current planet's building levels and upgrade function
   const getCurrentBuildings = () => {
     if (activeBuildingTab === 'earth') return earthBuildings;
@@ -2477,6 +2483,18 @@ const EarthVisualization = () => {
     if (activeBuildingTab === 'earth') return upgradeEarthBuilding;
     if (activeBuildingTab === 'moon') return upgradeMoonBuilding;
     return upgradeMarsBuilding;
+  };
+  
+  const getCurrentResources = () => {
+    if (activeBuildingTab === 'earth') return earthResources;
+    if (activeBuildingTab === 'moon') return moonResources;
+    return marsResources;
+  };
+  
+  const getCurrentProduction = () => {
+    if (activeBuildingTab === 'earth') return earthProduction;
+    if (activeBuildingTab === 'moon') return moonProduction;
+    return marsProduction;
   };
   
   // Ship state
@@ -2900,10 +2918,10 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {activeBuildingTab === 'earth' ? '500' : (isMoonColonized ? '50' : '0')}
+                      {getCurrentResources().food}
                     </span>
                     <span className="text-base text-green-400">
-                      {activeBuildingTab === 'earth' ? '+7' : (isMoonColonized ? '+1' : '+0')}
+                      +{getCurrentProduction().food}
                     </span>
                   </div>
                 </div>
@@ -2914,10 +2932,10 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {activeBuildingTab === 'earth' ? '200' : (isMoonColonized ? '30' : '0')}
+                      {getCurrentResources().fuel}
                     </span>
                     <span className="text-base text-green-400">
-                      {activeBuildingTab === 'earth' ? '+3' : (isMoonColonized ? '+1' : '+0')}
+                      +{getCurrentProduction().fuel}
                     </span>
                   </div>
                 </div>
@@ -2928,10 +2946,10 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {activeBuildingTab === 'earth' ? '800' : (isMoonColonized ? '100' : '0')}
+                      {getCurrentResources().metal}
                     </span>
                     <span className="text-base text-green-400">
-                      {activeBuildingTab === 'earth' ? '+9' : (isMoonColonized ? '+2' : '+0')}
+                      +{getCurrentProduction().metal}
                     </span>
                   </div>
                 </div>
@@ -2942,10 +2960,10 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {activeBuildingTab === 'earth' ? '100' : (isMoonColonized ? '20' : '0')}
+                      {getCurrentResources().power}
                     </span>
                     <span className="text-base text-green-400">
-                      {activeBuildingTab === 'earth' ? '+5' : (isMoonColonized ? '+1' : '+0')}
+                      +{getCurrentProduction().power}
                     </span>
                   </div>
                 </div>
