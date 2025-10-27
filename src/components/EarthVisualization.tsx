@@ -2973,6 +2973,13 @@ const EarthVisualization = () => {
                 <Coins className="w-4 h-4 text-green-400" />
                 <span className="font-medium">Invest</span>
               </button>
+              <button
+                onClick={() => setShowMarketModal(true)}
+                className="px-3 py-1.5 rounded-md bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600/50 transition-all flex items-center gap-2"
+              >
+                <ShoppingCart className="w-4 h-4 text-blue-400" />
+                <span className="font-medium">Market</span>
+              </button>
             </div>
           </div>
           
