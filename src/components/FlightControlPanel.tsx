@@ -157,7 +157,7 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
   return (
     <>
       <div className="w-full bg-background/95 backdrop-blur-sm border rounded-lg p-2">
-        <h2 className="text-lg font-bold text-foreground mb-2 px-2">Flight Control</h2>
+        <h2 className="text-lg font-bold text-foreground mb-2 px-2">Flight Control (Dev)</h2>
         
         <div className="overflow-x-auto">
           <Table>
