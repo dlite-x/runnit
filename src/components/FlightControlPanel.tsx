@@ -156,21 +156,21 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
 
   return (
     <>
-      <div className="w-full bg-background/95 backdrop-blur-sm border rounded-lg p-4">
-        <h2 className="text-xl font-bold text-foreground mb-4">Flight Control</h2>
+      <div className="w-full bg-background/95 backdrop-blur-sm border rounded-lg p-2">
+        <h2 className="text-lg font-bold text-foreground mb-2 px-2">Flight Control</h2>
         
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12"></TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Destination</TableHead>
-                <TableHead>Fuel</TableHead>
-                <TableHead>Cargo (F/Fu/M)</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>ETA</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-8 px-1"></TableHead>
+                <TableHead className="px-2">Name</TableHead>
+                <TableHead className="px-2">Dest</TableHead>
+                <TableHead className="px-2">Fuel</TableHead>
+                <TableHead className="px-2">Cargo</TableHead>
+                <TableHead className="px-2">Status</TableHead>
+                <TableHead className="px-2">ETA</TableHead>
+                <TableHead className="text-right px-2">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -182,24 +182,24 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
 
                 return (
                   <TableRow key={ship.name}>
-                    <TableCell>
+                    <TableCell className="px-1">
                       {ship.type === 'colony' ? (
-                        <Home className="w-5 h-5 text-blue-400" />
+                        <Home className="w-4 h-4 text-blue-400" />
                       ) : (
-                        <Package className="w-5 h-5 text-orange-400" />
+                        <Package className="w-4 h-4 text-orange-400" />
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">{ship.name}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium text-sm px-2">{ship.name}</TableCell>
+                    <TableCell className="px-2">
                       {ship.location === 'traveling' ? (
-                        <span className="text-sm text-muted-foreground">{ship.destination}</span>
+                        <span className="text-xs text-muted-foreground">{ship.destination}</span>
                       ) : (
                         <Select
                           value={ship.destination || ''}
                           onValueChange={(value) => handleDestinationChange(ship.name, value)}
                         >
-                          <SelectTrigger className="w-32 h-8">
-                            <SelectValue placeholder="Select" />
+                          <SelectTrigger className="w-20 h-7 text-xs">
+                            <SelectValue placeholder="-" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="moon">Moon</SelectItem>
@@ -210,77 +210,77 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                         </Select>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">
+                    <TableCell className="px-2">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs">
                           {currentFuel}/{requiredFuel || '-'}
                         </span>
                         {ship.destination && ship.location !== 'traveling' && (
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0"
+                            className="h-5 w-5 p-0"
                             onClick={() => handleTopUpFuel(ship)}
                             disabled={currentFuel >= requiredFuel || availableResources.fuel === 0}
                           >
-                            <Fuel className="w-4 h-4" />
+                            <Fuel className="w-3 h-3" />
                           </Button>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">
+                    <TableCell className="px-2">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs">
                           {cargo.food}/{cargo.fuel}/{cargo.metal}
                         </span>
                         {ship.location !== 'traveling' && (
-                          <div className="flex gap-1">
+                          <div className="flex gap-0.5">
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-6 w-6 p-0"
+                              className="h-5 w-5 p-0"
                               onClick={() => handleOpenCargoDialog(ship)}
                             >
-                              <ArrowUp className="w-4 h-4" />
+                              <ArrowUp className="w-3 h-3" />
                             </Button>
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-6 w-6 p-0"
+                              className="h-5 w-5 p-0"
                               onClick={() => handleOffloadCargo(ship)}
                               disabled={cargo.food === 0 && cargo.fuel === 0 && cargo.metal === 0}
                             >
-                              <ArrowDown className="w-4 h-4" />
+                              <ArrowDown className="w-3 h-3" />
                             </Button>
                           </div>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <span className="text-sm">{getStatus(ship)}</span>
+                    <TableCell className="px-2">
+                      <span className="text-xs">{getStatus(ship)}</span>
                     </TableCell>
-                    <TableCell>
-                      <span className="text-sm">{getETA(ship)}</span>
+                    <TableCell className="px-2">
+                      <span className="text-xs">{getETA(ship)}</span>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right px-2">
                       {ship.type === 'colony' && isArrived ? (
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0"
+                          className="h-6 w-6 p-0"
                           onClick={() => onColonizePlanet(ship.name, ship.location)}
                         >
-                          <Flag className="w-4 h-4 text-green-400" />
+                          <Flag className="w-3.5 h-3.5 text-green-400" />
                         </Button>
                       ) : ship.location !== 'traveling' ? (
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0"
+                          className="h-6 w-6 p-0"
                           onClick={() => onLaunchShip(ship.name)}
                           disabled={!canLaunch(ship)}
                         >
-                          <ArrowRight className={`w-5 h-5 ${canLaunch(ship) ? 'text-green-400' : 'text-muted-foreground'}`} />
+                          <ArrowRight className={`w-4 h-4 ${canLaunch(ship) ? 'text-green-400' : 'text-muted-foreground'}`} />
                         </Button>
                       ) : null}
                     </TableCell>
