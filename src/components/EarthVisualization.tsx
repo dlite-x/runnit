@@ -1354,8 +1354,8 @@ function EML1Station({ onEML1StationDoubleClick }: { onEML1StationDoubleClick?: 
   return (
     <group ref={stationRef} position={[16, 2.5, 5.3]}>
       {/* Lower vertical spine */}
-      <mesh position={[0, -1.5, 0]}>
-        <cylinderGeometry args={[0.08, 0.12, 3, 8]} />
+      <mesh position={[0, -0.45, 0]}>
+        <cylinderGeometry args={[0.08, 0.12, 0.9, 8]} />
         <meshStandardMaterial 
           color="#4A90E2" 
           metalness={0.85} 
@@ -1366,8 +1366,8 @@ function EML1Station({ onEML1StationDoubleClick }: { onEML1StationDoubleClick?: 
       </mesh>
 
       {/* Upper vertical spine */}
-      <mesh position={[0, 1.5, 0]}>
-        <cylinderGeometry args={[0.12, 0.08, 3, 8]} />
+      <mesh position={[0, 0.45, 0]}>
+        <cylinderGeometry args={[0.12, 0.08, 0.9, 8]} />
         <meshStandardMaterial 
           color="#4A90E2" 
           metalness={0.85} 
@@ -1434,7 +1434,7 @@ function EML1Station({ onEML1StationDoubleClick }: { onEML1StationDoubleClick?: 
       ))}
 
       {/* Top communication array */}
-      <mesh position={[0, 3.2, 0]}>
+      <mesh position={[0, 1.35, 0]}>
         <sphereGeometry args={[0.15, 12, 12]} />
         <meshStandardMaterial 
           color="#FFFFFF" 
@@ -1446,7 +1446,7 @@ function EML1Station({ onEML1StationDoubleClick }: { onEML1StationDoubleClick?: 
       </mesh>
 
       {/* Top antenna */}
-      <mesh position={[0, 3.6, 0]}>
+      <mesh position={[0, 1.75, 0]}>
         <cylinderGeometry args={[0.02, 0.02, 0.8, 6]} />
         <meshStandardMaterial 
           color="#C0C0C0" 
@@ -1458,7 +1458,7 @@ function EML1Station({ onEML1StationDoubleClick }: { onEML1StationDoubleClick?: 
       </mesh>
 
       {/* Bottom docking port */}
-      <mesh position={[0, -3.2, 0]}>
+      <mesh position={[0, -1.35, 0]}>
         <cylinderGeometry args={[0.2, 0.15, 0.4, 8]} />
         <meshStandardMaterial 
           color="#6BB5F5" 
