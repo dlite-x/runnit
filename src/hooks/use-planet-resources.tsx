@@ -89,8 +89,9 @@ export function usePlanetResources(
     if (resources[resourceType] >= amount) {
       const newResources = {
         ...resources,
-        [resourceType]: resources[resourceType] - amount,
+        [resourceType]: resources[resourceType] - amount
       };
+      
       setResources(newResources);
       
       // Save to localStorage
@@ -102,6 +103,21 @@ export function usePlanetResources(
       return true;
     }
     return false;
+  };
+
+  const addResource = (resourceType: keyof ResourceStock, amount: number): void => {
+    const newResources = {
+      ...resources,
+      [resourceType]: resources[resourceType] + amount
+    };
+    
+    setResources(newResources);
+    
+    // Save to localStorage
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const allPlanets: PlanetResources = stored ? JSON.parse(stored) : {};
+    allPlanets[planet] = newResources;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allPlanets));
   };
 
   // Calculate production rates based on building levels
@@ -125,6 +141,7 @@ export function usePlanetResources(
   return { 
     resources, 
     productionRates,
-    spendResource
+    spendResource,
+    addResource
   };
 }

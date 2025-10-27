@@ -17,6 +17,7 @@ interface MarketModalProps {
     power: number;
   };
   spendResource: (resourceType: 'food' | 'fuel' | 'metal' | 'power', amount: number) => boolean;
+  addResources: (resourceType: 'food' | 'fuel' | 'metal', amount: number) => void;
 }
 
 const BUY_PRICE = 120;
@@ -29,58 +30,56 @@ export function MarketModal({
   spendCredits, 
   setCredits,
   resources,
-  spendResource
+  spendResource,
+  addResources
 }: MarketModalProps) {
-  const [buyAmounts, setBuyAmounts] = useState({ food: '', metal: '', fuel: '' });
-  const [sellAmounts, setSellAmounts] = useState({ food: '', metal: '', fuel: '' });
+  const [quantities, setQuantities] = useState({ food: 1, metal: 1, fuel: 1 });
 
   const handleBuy = (resource: 'food' | 'fuel' | 'metal') => {
-    const amount = parseFloat(buyAmounts[resource]);
-    if (isNaN(amount) || amount <= 0) {
-      toast.error('Please enter a valid amount');
+    const quantity = quantities[resource];
+    if (quantity <= 0) {
+      toast.error('Please enter a valid quantity');
       return;
     }
 
-    const cost = amount * BUY_PRICE;
+    const cost = quantity * BUY_PRICE;
     if (spendCredits(cost)) {
-      // Add to resources - we need to manually update since spendResource only removes
-      toast.success(`Bought ${amount} ${resource} for ${cost.toFixed(2)} credits`);
-      setBuyAmounts({ ...buyAmounts, [resource]: '' });
+      addResources(resource, quantity);
+      toast.success(`Bought ${quantity} ${resource} for ${cost.toFixed(2)} credits`);
     } else {
       toast.error('Not enough credits');
     }
   };
 
   const handleSell = (resource: 'food' | 'fuel' | 'metal') => {
-    const amount = parseFloat(sellAmounts[resource]);
-    if (isNaN(amount) || amount <= 0) {
-      toast.error('Please enter a valid amount');
+    const quantity = quantities[resource];
+    if (quantity <= 0) {
+      toast.error('Please enter a valid quantity');
       return;
     }
 
-    if (resources[resource] < amount) {
+    if (resources[resource] < quantity) {
       toast.error(`Not enough ${resource}`);
       return;
     }
 
-    if (spendResource(resource, amount)) {
-      const earnings = amount * SELL_PRICE;
+    if (spendResource(resource, quantity)) {
+      const earnings = quantity * SELL_PRICE;
       setCredits(credits + earnings);
-      toast.success(`Sold ${amount} ${resource} for ${earnings.toFixed(2)} credits`);
-      setSellAmounts({ ...sellAmounts, [resource]: '' });
+      toast.success(`Sold ${quantity} ${resource} for ${earnings.toFixed(2)} credits`);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle className="text-2xl">Market</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="text-sm text-muted-foreground">
-            Available Credits: {credits.toFixed(2)}
+            Available Credits: <span className="font-semibold text-foreground">{credits.toFixed(2)}</span>
           </div>
 
           <div className="border rounded-lg overflow-hidden">
@@ -88,70 +87,64 @@ export function MarketModal({
               <thead className="bg-muted">
                 <tr>
                   <th className="p-3 text-left font-semibold">Resource</th>
-                  <th className="p-3 text-center font-semibold">Units</th>
+                  <th className="p-3 text-center font-semibold">Quantity</th>
                   <th className="p-3 text-center font-semibold" colSpan={2}>Price</th>
                 </tr>
-                <tr className="bg-muted/50">
+                <tr className="bg-muted/50 border-t">
                   <th className="p-2"></th>
                   <th className="p-2"></th>
-                  <th className="p-2 text-center text-sm">Buy</th>
-                  <th className="p-2 text-center text-sm">Sell</th>
+                  <th className="p-2 text-center text-sm font-medium">Buy</th>
+                  <th className="p-2 text-center text-sm font-medium">Sell</th>
                 </tr>
               </thead>
               <tbody>
                 {(['food', 'metal', 'fuel'] as const).map((resource) => (
-                  <tr key={resource} className="border-t">
-                    <td className="p-3 font-medium capitalize">{resource}</td>
-                    <td className="p-3 text-center">{resources[resource].toFixed(1)}</td>
-                    <td className="p-3 text-center">{BUY_PRICE}</td>
-                    <td className="p-3 text-center">{SELL_PRICE}</td>
+                  <tr key={resource} className="border-t hover:bg-muted/30 transition-colors">
+                    <td className="p-4">
+                      <div className="font-medium capitalize text-lg">{resource}</div>
+                      <div className="text-xs text-muted-foreground">Available: {resources[resource].toFixed(1)}</div>
+                    </td>
+                    <td className="p-4">
+                      <Input
+                        type="number"
+                        min="1"
+                        value={quantities[resource]}
+                        onChange={(e) => setQuantities({ ...quantities, [resource]: Math.max(1, parseInt(e.target.value) || 1) })}
+                        className="w-24 text-center mx-auto"
+                      />
+                    </td>
+                    <td className="p-4 text-center">
+                      <Button
+                        onClick={() => handleBuy(resource)}
+                        variant="default"
+                        className="w-full"
+                      >
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs opacity-70">Buy for</span>
+                          <span className="font-bold">{(quantities[resource] * BUY_PRICE).toFixed(0)}</span>
+                        </div>
+                      </Button>
+                    </td>
+                    <td className="p-4 text-center">
+                      <Button
+                        onClick={() => handleSell(resource)}
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs opacity-70">Sell for</span>
+                          <span className="font-bold">{(quantities[resource] * SELL_PRICE).toFixed(0)}</span>
+                        </div>
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-            {(['food', 'metal', 'fuel'] as const).map((resource) => (
-              <div key={resource} className="space-y-3 border rounded-lg p-4">
-                <h4 className="font-semibold capitalize">{resource}</h4>
-                
-                <div className="space-y-2">
-                  <label className="text-sm text-muted-foreground">Buy</label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      placeholder="Amount"
-                      value={buyAmounts[resource]}
-                      onChange={(e) => setBuyAmounts({ ...buyAmounts, [resource]: e.target.value })}
-                      min="0"
-                      step="0.1"
-                    />
-                    <Button onClick={() => handleBuy(resource)} size="sm">
-                      Buy
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm text-muted-foreground">Sell</label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      placeholder="Amount"
-                      value={sellAmounts[resource]}
-                      onChange={(e) => setSellAmounts({ ...sellAmounts, [resource]: e.target.value })}
-                      min="0"
-                      step="0.1"
-                      max={resources[resource]}
-                    />
-                    <Button onClick={() => handleSell(resource)} variant="secondary" size="sm">
-                      Sell
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="text-xs text-muted-foreground text-center">
+            Unit prices: Buy @ {BUY_PRICE} credits | Sell @ {SELL_PRICE} credits
           </div>
         </div>
       </DialogContent>

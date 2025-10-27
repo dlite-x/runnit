@@ -2601,7 +2601,7 @@ const EarthVisualization = () => {
   const tempMarsResources = usePlanetResources('Mars', marsBuildings);
   
   // Use Earth resources and spendResource for Market
-  const { resources, spendResource } = tempEarthResources;
+  const { resources, spendResource, addResource } = tempEarthResources;
   
   // Planet populations (depends on food stock)
   const { population: earthPopulation, growthRatePerHour: earthGrowthRate } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
@@ -4546,6 +4546,7 @@ const EarthVisualization = () => {
         setCredits={setCredits}
         resources={resources}
         spendResource={spendResource}
+        addResources={addResource}
       />
     </div>
   );
