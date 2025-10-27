@@ -2941,7 +2941,7 @@ const EarthVisualization = () => {
         </button>
         
         <div className={`p-2 h-full relative z-[9999] transition-opacity duration-300 ${isPanelCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.89fr 0.75fr 0.595fr 1.6fr' }}>
+          <div className="grid gap-4 h-full" style={{ gridTemplateColumns: '0.71fr 0.8fr 0.75fr 0.595fr 1.7fr' }}>
             {/* Planets Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center gap-3 mb-4">
@@ -3392,8 +3392,8 @@ const EarthVisualization = () => {
               </div>
               
               {/* Table Content with Scrolling */}
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-1 pr-3">
+              <ScrollArea className="h-[380px] w-full">
+                <div className="space-y-1 pr-4">
                   {builtSpheres.length === 0 ? (
                     <div className="text-center py-4 text-slate-400 text-sm">
                       No ships in solar system
