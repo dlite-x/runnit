@@ -72,16 +72,12 @@ export function MarketModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">Market</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
-          <div className="text-sm text-muted-foreground">
-            Available Credits: <span className="font-semibold text-foreground">{credits.toFixed(2)}</span>
-          </div>
-
+        <div className="space-y-4">
           <div className="border rounded-lg overflow-hidden">
             <table className="w-full">
               <thead className="bg-muted">
@@ -116,8 +112,7 @@ export function MarketModal({
                     <td className="p-4 text-center">
                       <Button
                         onClick={() => handleBuy(resource)}
-                        variant="default"
-                        className="w-full"
+                        className="w-full bg-red-200 hover:bg-red-300 text-red-900"
                       >
                         <div className="flex flex-col items-center">
                           <span className="text-xs opacity-70">Buy for</span>
@@ -128,8 +123,7 @@ export function MarketModal({
                     <td className="p-4 text-center">
                       <Button
                         onClick={() => handleSell(resource)}
-                        variant="secondary"
-                        className="w-full"
+                        className="w-full bg-green-200 hover:bg-green-300 text-green-900"
                       >
                         <div className="flex flex-col items-center">
                           <span className="text-xs opacity-70">Sell for</span>
