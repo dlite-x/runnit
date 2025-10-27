@@ -3392,7 +3392,7 @@ const EarthVisualization = () => {
               </div>
               
               {/* Table Content with Scrolling */}
-              <ScrollArea className="h-[380px] w-full">
+              <ScrollArea className="h-[280px] w-full">
                 <div className="space-y-1 pr-4">
                   {builtSpheres.length === 0 ? (
                     <div className="text-center py-4 text-slate-400 text-sm">
