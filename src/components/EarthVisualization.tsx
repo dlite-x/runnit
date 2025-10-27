@@ -3722,12 +3722,12 @@ const EarthVisualization = () => {
                       
                       {/* Status */}
                       <span className="text-xs text-slate-300">
-                        {ship.location === 'earth' ? 'Ready' : 
+                        {ship.location === 'earth' ? 'at Earth' : 
                          ship.location === 'preparing' ? 'Prep' :
-                         ship.location === 'traveling' ? 'Transit' : 
-                         ship.location === 'moon' ? 'Moon' :
-                         ship.location === 'eml1' ? 'EML-1' :
-                         ship.location === 'mars' ? 'Mars' : 'Ready'}
+                         ship.location === 'traveling' ? `to ${ship.destination ? ship.destination.charAt(0).toUpperCase() + ship.destination.slice(1) : ''}` : 
+                         ship.location === 'moon' ? 'at Moon' :
+                         ship.location === 'eml1' ? 'at EML-1' :
+                         ship.location === 'mars' ? 'at Mars' : 'at Earth'}
                       </span>
                       
                       {/* Time/ETA */}
