@@ -3542,7 +3542,7 @@ const EarthVisualization = () => {
                            name: `Colony ${newColonyCount}`, 
                            location: activeBuildingTab, 
                            destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
-                           cargo: { metal: 2, fuel: 2, food: 2 }
+                           cargo: { metal: 0, fuel: 0, food: 0 }
                          }]);
                          // Add CO2 event only for Earth
                          if (activeBuildingTab === 'earth') {
@@ -3580,7 +3580,7 @@ const EarthVisualization = () => {
                             name: `Cargo ${newCargoCount}`, 
                             location: activeBuildingTab, 
                             destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
-                            cargo: { metal: 10, fuel: 10, food: 10 }
+                            cargo: { metal: 0, fuel: 0, food: 0 }
                           }]);
                           // Add CO2 event only for Earth
                           if (activeBuildingTab === 'earth') {
