@@ -2572,7 +2572,7 @@ const EarthVisualization = () => {
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
-  const [showFlightControl, setShowFlightControl] = useState(false);
+  const [showTravelGuide, setShowTravelGuide] = useState(false);
   
   // Cargo loading modal state
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
@@ -2994,11 +2994,11 @@ const EarthVisualization = () => {
               <Settings className="w-5 h-5" />
             </button>
             
-            {/* Flight Control Panel Toggle */}
+            {/* Travel Guide Toggle */}
             <button
-              onClick={() => setShowFlightControl(!showFlightControl)}
+              onClick={() => setShowTravelGuide(!showTravelGuide)}
               className="p-2 bg-slate-700/80 hover:bg-slate-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105"
-              aria-label="Toggle Flight Control"
+              aria-label="Toggle Travel Guide"
             >
               <Rocket className="w-5 h-5" />
             </button>
@@ -4007,26 +4007,6 @@ const EarthVisualization = () => {
         </div>
       )}
 
-      {/* Flight Control Panel */}
-      {showFlightControl && (
-        <div className="fixed bottom-[270px] left-4 right-4 z-[10000] max-w-6xl mx-auto">
-          <FlightControlPanel
-            ships={builtSpheres}
-            onUpdateShip={handleUpdateShip}
-            onLaunchShip={handleLaunchShipFromControl}
-            onColonizePlanet={handleColonizePlanet}
-            availableResources={{
-              fuel: getCurrentResources().fuel,
-              metal: getCurrentResources().metal,
-              food: getCurrentResources().food,
-            }}
-            onSpendResource={(resourceType, amount) => {
-              return spendEarthResource(resourceType, amount);
-            }}
-          />
-        </div>
-      )}
-
       {/* 3D Canvas - Full Screen */}
       <div className="absolute inset-0" style={{
         background: 'radial-gradient(circle at center, rgba(74, 144, 226, 0.05) 0%, transparent 70%)',
@@ -4357,6 +4337,79 @@ const EarthVisualization = () => {
             eml1Population: 0, // TODO: Add EML1 population tracking
           }}
         />
+
+      {/* Travel Guide Modal */}
+      <Dialog open={showTravelGuide} onOpenChange={setShowTravelGuide}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Travel Guide</DialogTitle>
+            <DialogDescription>
+              Fuel costs and travel times between destinations
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="border border-slate-600 bg-slate-700/50 p-2 text-left text-sm font-medium text-slate-300">
+                    From \ To
+                  </th>
+                  <th className="border border-slate-600 bg-slate-700/50 p-2 text-center text-sm font-medium text-slate-300">
+                    Earth
+                  </th>
+                  <th className="border border-slate-600 bg-slate-700/50 p-2 text-center text-sm font-medium text-slate-300">
+                    Moon
+                  </th>
+                  <th className="border border-slate-600 bg-slate-700/50 p-2 text-center text-sm font-medium text-slate-300">
+                    Mars
+                  </th>
+                  <th className="border border-slate-600 bg-slate-700/50 p-2 text-center text-sm font-medium text-slate-300">
+                    EML-1
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {['earth', 'moon', 'mars', 'eml1'].map((origin) => (
+                  <tr key={origin}>
+                    <td className="border border-slate-600 bg-slate-700/30 p-2 text-sm font-medium text-slate-300 capitalize">
+                      {origin === 'eml1' ? 'EML-1' : origin}
+                    </td>
+                    {['earth', 'moon', 'mars', 'eml1'].map((dest) => {
+                      const fuel = FUEL_REQUIREMENTS[dest] || 0;
+                      const time = TRAVEL_TIMES[origin]?.[dest];
+                      const isSame = origin === dest;
+                      
+                      return (
+                        <td 
+                          key={dest} 
+                          className={`border border-slate-600 p-2 text-center text-xs ${
+                            isSame ? 'bg-slate-800/50' : 'bg-slate-700/20'
+                          }`}
+                        >
+                          {isSame ? (
+                            <span className="text-slate-500">—</span>
+                          ) : (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-center gap-1">
+                                <Fuel className="w-3 h-3 text-orange-400" />
+                                <span className="text-slate-300">{fuel}</span>
+                              </div>
+                              <div className="text-slate-400">
+                                {time ? formatTime(time) : '—'}
+                              </div>
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Cargo Loading Dialog */}
       <Dialog open={cargoDialogOpen} onOpenChange={setCargoDialogOpen}>
