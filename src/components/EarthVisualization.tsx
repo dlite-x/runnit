@@ -4,7 +4,7 @@ import { OrbitControls, Stars, Text, Html } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, Flag, ShoppingCart } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, Flag, ShoppingCart, Beaker } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,6 +20,7 @@ import CO2LogModal from './CO2LogModal';
 import { MissionsModal } from './MissionsModal';
 import { InvestmentModal } from './InvestmentModal';
 import { MarketModal } from './MarketModal';
+import ResearchModal from './ResearchModal';
 import { useCredits } from '@/hooks/use-credits';
 import { useBuildingLevels } from '@/hooks/use-building-levels';
 import { usePlanetResources } from '@/hooks/use-planet-resources';
@@ -2578,6 +2579,7 @@ const EarthVisualization = () => {
   const [showTravelGuide, setShowTravelGuide] = useState(false);
   const [showInvestModal, setShowInvestModal] = useState(false);
   const [showMarketModal, setShowMarketModal] = useState(false);
+  const [showResearchModal, setShowResearchModal] = useState(false);
   
   // Cargo loading modal state
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
@@ -3014,6 +3016,13 @@ const EarthVisualization = () => {
               >
                 <ShoppingCart className="w-4 h-4 text-blue-400" />
                 <span className="font-medium">Market</span>
+              </button>
+              <button
+                onClick={() => setShowResearchModal(true)}
+                className="px-3 py-1.5 rounded-md bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600/50 transition-all flex items-center gap-2"
+              >
+                <Beaker className="w-4 h-4 text-purple-400" />
+                <span className="font-medium">Research</span>
               </button>
             </div>
           </div>
@@ -4569,6 +4578,12 @@ const EarthVisualization = () => {
         resources={earthResources}
         spendResource={spendEarthResource}
         addResources={addEarthResource}
+      />
+
+      {/* Research Modal */}
+      <ResearchModal
+        isOpen={showResearchModal}
+        onOpenChange={setShowResearchModal}
       />
     </div>
   );
