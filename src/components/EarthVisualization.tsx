@@ -294,7 +294,7 @@ function StaticShip({
   ship: { 
     type: 'colony' | 'cargo';
     name: string;
-    location: 'earth' | 'moon' | 'mars' | 'preparing' | 'traveling';
+    location: 'earth' | 'moon' | 'mars' | 'eml1' | 'preparing' | 'traveling';
     staticPosition?: [number, number, number];
     travelProgress?: number;
     startPosition?: [number, number, number];
@@ -2302,7 +2302,7 @@ const calculateTravelTimeSeconds = (origin: string, destination: string): number
     earth: [0, 0, 0],
     moon: [24, 4, 8],
     mars: [60, 10, 20],
-    eml1: [36, 6, 12]
+    eml1: [16, 2.5, 5.3]
   };
 
   const originPos = positions[origin as keyof typeof positions] || positions.earth;
@@ -2380,7 +2380,7 @@ const EarthVisualization = () => {
     type: 'colony' | 'cargo', 
     position?: [number, number, number], // Optional for legacy spheres
     name: string, 
-    location: 'earth' | 'moon' | 'mars' | 'preparing' | 'traveling',
+    location: 'earth' | 'moon' | 'mars' | 'eml1' | 'preparing' | 'traveling',
     departureTime?: number,
     totalTravelTime?: number,
     destination?: string,
@@ -2393,7 +2393,7 @@ const EarthVisualization = () => {
   }>>([]);
 
   // Helper functions for static positioning
-  const getStaticPositionNearPlanet = (planet: 'earth' | 'moon' | 'mars', index: number): [number, number, number] => {
+  const getStaticPositionNearPlanet = (planet: 'earth' | 'moon' | 'mars' | 'eml1', index: number): [number, number, number] => {
     if (planet === 'earth') {
       // Position ships around Earth in a wider formation
       const angle = (index * Math.PI * 2) / 6; // 6 ships per ring
@@ -2417,6 +2417,18 @@ const EarthVisualization = () => {
         moonBase[1] + height,
         moonBase[2] + Math.sin(angle) * radius
       ];
+    } else if (planet === 'eml1') {
+      // Position ships around EML-1 (Lagrange Point 1 between Earth and Moon)
+      const eml1Base = [16, 2.5, 5.3]; // Approximately 85% of the way from Earth to Moon
+      const angle = (index * Math.PI * 2) / 6;
+      const ring = Math.floor(index / 6);
+      const radius = 2.5 + ring * 1.2;
+      const height = Math.sin(angle) * 0.8 + ring * 0.5;
+      return [
+        eml1Base[0] + Math.cos(angle) * radius,
+        eml1Base[1] + height,
+        eml1Base[2] + Math.sin(angle) * radius
+      ];
     } else {
       // Position ships around Mars in formation
       const marsBase = [60, 10, 20];
@@ -2432,11 +2444,13 @@ const EarthVisualization = () => {
     }
   };
 
-  const getDestinationPosition = (destination: 'earth' | 'moon' | 'mars'): [number, number, number] => {
+  const getDestinationPosition = (destination: 'earth' | 'moon' | 'mars' | 'eml1'): [number, number, number] => {
     if (destination === 'earth') {
       return [3, 1, 2]; // Static position near Earth
     } else if (destination === 'moon') {
       return [26, 5, 10]; // Static position near Moon
+    } else if (destination === 'eml1') {
+      return [16, 2.5, 5.3]; // EML-1 position (between Earth and Moon)
     } else {
       return [64, 11, 23]; // Static position near Mars
     }
@@ -2461,6 +2475,7 @@ const EarthVisualization = () => {
   // Moon colonization state
   const [isMoonColonized, setIsMoonColonized] = useState(false);
   const [isMarsColonized, setIsMarsColonized] = useState(false);
+  const [isEML1Colonized, setIsEML1Colonized] = useState(false);
   const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon' | 'mars'>('earth');
   
   // Building levels for each planet
@@ -2577,13 +2592,16 @@ const EarthVisualization = () => {
             ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling') {
           console.log(`${ship.name} consumed after colonizing at ${ship.location}`);
           
-          // Check if colonizing the Moon or Mars
+          // Check if colonizing the Moon, Mars, or EML-1
           if (ship.location === 'moon') {
             setIsMoonColonized(true);
             console.log('Moon has been colonized!');
           } else if (ship.location === 'mars') {
             setIsMarsColonized(true);
             console.log('Mars has been colonized!');
+          } else if (ship.location === 'eml1') {
+            setIsEML1Colonized(true);
+            console.log('EML-1 has been colonized!');
           }
           
           hasChanges = true;
@@ -2757,12 +2775,14 @@ const EarthVisualization = () => {
           
           <div className="flex items-center gap-3 p-1 hover:bg-slate-800/30 transition-all duration-200 cursor-pointer group">
             <div className="w-4 h-4 rounded-full" style={{
-              backgroundColor: '#a855f7',
-              boxShadow: '0 0 4px rgba(168, 85, 247, 0.2)',
-              filter: 'drop-shadow(0 0 2px rgba(168, 85, 247, 0.1))'
+              backgroundColor: isEML1Colonized ? '#a855f7' : '#555',
+              boxShadow: isEML1Colonized ? '0 0 4px rgba(168, 85, 247, 0.2)' : 'none',
+              filter: isEML1Colonized ? 'drop-shadow(0 0 2px rgba(168, 85, 247, 0.1))' : 'none'
             }}></div>
-            <span className="text-blue-300 font-medium group-hover:text-blue-200 transition-colors">
-              EML 1
+            <span className={`font-medium group-hover:text-blue-200 transition-colors ${isEML1Colonized ? 'text-blue-300' : 'text-gray-500'}`} style={{
+              textShadow: isEML1Colonized ? '0 0 6px rgba(147, 197, 253, 0.3)' : 'none'
+            }}>
+              EML-1
             </span>
           </div>
           
@@ -3327,7 +3347,9 @@ const EarthVisualization = () => {
                           )}
                           <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
                           <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
-                          <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML1</SelectItem>
+                          {ship.type === 'colony' && ship.location === 'earth' && (
+                            <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML-1</SelectItem>
+                          )}
                           {ship.type === 'cargo' && (
                             <>
                               <SelectItem value="offload" className="text-slate-300 hover:bg-slate-700">Offload</SelectItem>
@@ -3371,9 +3393,11 @@ const EarthVisualization = () => {
                               console.log(`${ship.name} has offloaded all cargo at ${arrivalPlanet}`);
                             } else {
                               // Normal arrival behavior - set to static position at destination with proper spacing
-                              let arrivalPlanet: 'earth' | 'moon' | 'mars';
+                              let arrivalPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
                               if (ship.destination === 'mars') {
                                 arrivalPlanet = 'mars';
+                              } else if (ship.destination === 'eml1') {
+                                arrivalPlanet = 'eml1';
                               } else if (ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land') {
                                 arrivalPlanet = 'moon';
                               } else {
@@ -3400,7 +3424,12 @@ const EarthVisualization = () => {
                         />
                       ) : (
                         <span className="text-sm text-slate-300 italic">
-                          {formatTime(calculateTravelTimeSeconds(ship.location === 'mars' ? 'mars' : (ship.location === 'moon' ? 'moon' : 'earth'), ship.destination || 'moon'))}
+                          {formatTime(calculateTravelTimeSeconds(
+                            ship.location === 'mars' ? 'mars' : 
+                            ship.location === 'moon' ? 'moon' : 
+                            ship.location === 'eml1' ? 'eml1' : 'earth', 
+                            ship.destination || 'moon'
+                          ))}
                         </span>
                       )}
                       <div className="text-sm flex items-center gap-0.5">
@@ -3414,7 +3443,9 @@ const EarthVisualization = () => {
                         {ship.location === 'earth' ? 'Ready' : 
                          ship.location === 'preparing' ? 'Preparing' :
                          ship.location === 'traveling' ? 'En route' : 
-                         ship.location === 'moon' ? 'At Moon' : 'Ready'}
+                         ship.location === 'moon' ? 'At Moon' :
+                         ship.location === 'eml1' ? 'At EML-1' :
+                         ship.location === 'mars' ? 'At Mars' : 'Ready'}
                       </span>
                       <button 
                         className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
@@ -3424,9 +3455,11 @@ const EarthVisualization = () => {
                             // Launch with static positioning system
                             const currentPlanet = activeBuildingTab;
                             // Determine target planet based on destination
-                            let targetPlanet: 'earth' | 'moon' | 'mars';
+                            let targetPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
                             if (ship.destination === 'mars') {
                               targetPlanet = 'mars';
+                            } else if (ship.destination === 'eml1') {
+                              targetPlanet = 'eml1';
                             } else if (ship.destination === 'moon' || ship.destination === 'colonize' || ship.destination === 'offload' || ship.destination === 'land') {
                               targetPlanet = 'moon';
                             } else {
