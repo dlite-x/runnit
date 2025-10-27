@@ -4,7 +4,7 @@ import { OrbitControls, Stars, Text, Html } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, Flag } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, Flag, ShoppingCart } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,6 +19,7 @@ import FlightControlPanel from './FlightControlPanel';
 import CO2LogModal from './CO2LogModal';
 import { MissionsModal } from './MissionsModal';
 import { InvestmentModal } from './InvestmentModal';
+import { MarketModal } from './MarketModal';
 import { useCredits } from '@/hooks/use-credits';
 import { useBuildingLevels } from '@/hooks/use-building-levels';
 import { usePlanetResources } from '@/hooks/use-planet-resources';
@@ -2575,6 +2576,7 @@ const EarthVisualization = () => {
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showTravelGuide, setShowTravelGuide] = useState(false);
   const [showInvestModal, setShowInvestModal] = useState(false);
+  const [showMarketModal, setShowMarketModal] = useState(false);
   
   // Cargo loading modal state
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
@@ -2597,6 +2599,9 @@ const EarthVisualization = () => {
   const tempEarthResources = usePlanetResources('Earth', earthBuildings, temperature, 100);
   const tempMoonResources = usePlanetResources('Moon', moonBuildings);
   const tempMarsResources = usePlanetResources('Mars', marsBuildings);
+  
+  // Use Earth resources and spendResource for Market
+  const { resources, spendResource } = tempEarthResources;
   
   // Planet populations (depends on food stock)
   const { population: earthPopulation, growthRatePerHour: earthGrowthRate } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
@@ -4523,6 +4528,17 @@ const EarthVisualization = () => {
         credits={credits}
         spendCredits={spendCredits}
         setCredits={setCredits}
+      />
+
+      {/* Market Modal */}
+      <MarketModal
+        open={showMarketModal}
+        onOpenChange={setShowMarketModal}
+        credits={credits}
+        spendCredits={spendCredits}
+        setCredits={setCredits}
+        resources={resources}
+        spendResource={spendResource}
       />
     </div>
   );
