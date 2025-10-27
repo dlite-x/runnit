@@ -4357,7 +4357,7 @@ const EarthVisualization = () => {
 
       {/* Cargo Loading Dialog */}
       <Dialog open={cargoDialogOpen} onOpenChange={setCargoDialogOpen}>
-        <DialogContent className="top-[15%]">
+        <DialogContent className="top-[calc(50%-50px)]">
           <DialogHeader>
             <DialogTitle>Manage Cargo - {selectedShipForCargo?.name}</DialogTitle>
             <DialogDescription>
