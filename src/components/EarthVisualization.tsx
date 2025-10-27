@@ -3404,10 +3404,17 @@ const EarthVisualization = () => {
                       } else {
                         // After colonization: ships show in their current location's flight control
                         if (activeBuildingTab === 'earth') {
-                          // Earth shows: ships that started from Earth (destination moon/mars/etc)
-                          return ship.location === 'earth' || 
-                                 ship.location === 'preparing' || 
-                                 (ship.location === 'traveling' && ship.destination !== 'earth');
+                          // Earth shows: ships at earth, preparing, or traveling to destinations
+                          // BUT ships traveling to uncolonized destinations stay in Earth's control
+                          const isAtOrPreparingAtEarth = ship.location === 'earth' || ship.location === 'preparing';
+                          const isTravelingToMoon = ship.location === 'traveling' && (ship.destination === 'moon' || ship.destination === 'offload' || ship.destination === 'land');
+                          const isTravelingToMars = ship.location === 'traveling' && (ship.destination === 'mars' || ship.destination === 'colonize');
+                          
+                          // Show ships traveling to uncolonized planets in Earth's control
+                          const shouldShowMoonShip = isTravelingToMoon && !isMoonColonized;
+                          const shouldShowMarsShip = isTravelingToMars && !isMarsColonized;
+                          
+                          return isAtOrPreparingAtEarth || shouldShowMoonShip || shouldShowMarsShip;
                         } else if (activeBuildingTab === 'moon') {
                           // Moon shows: ships at moon + ships traveling FROM moon to elsewhere (only if Moon is colonized)
                           // If Moon is not colonized, ships stay in Earth's control even when arriving
