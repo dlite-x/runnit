@@ -2979,7 +2979,14 @@ const EarthVisualization = () => {
                         <Zap className="w-4 h-4 text-red-400" />
                         <span className="text-base text-slate-400">Temperature</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200">15.2°C</span>
+                      <span className="text-base font-bold text-slate-200">+0°C</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-orange-400" />
+                        <span className="text-base text-slate-400">CO2 ppm</span>
+                      </div>
+                      <span className="text-base font-bold text-slate-200">400</span>
                     </div>
                   </>
                 ) : activeBuildingTab === 'moon' ? (
