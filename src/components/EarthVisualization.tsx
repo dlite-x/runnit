@@ -2995,7 +2995,7 @@ const EarthVisualization = () => {
                         <Users className="w-4 h-4 text-green-400" />
                         <span className="text-base text-slate-400">Population</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200">{earthPopulation}</span>
+                      <span className="text-base font-bold text-slate-200">{earthPopulation.toFixed(1)}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -3039,7 +3039,7 @@ const EarthVisualization = () => {
                             <Users className="w-4 h-4 text-green-400" />
                             <span className="text-base text-slate-400">Population</span>
                           </div>
-                          <span className="text-base font-bold text-slate-200">{moonPopulation}</span>
+                          <span className="text-base font-bold text-slate-200">{moonPopulation.toFixed(1)}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -3082,7 +3082,7 @@ const EarthVisualization = () => {
                             <Users className="w-4 h-4 text-green-400" />
                             <span className="text-base text-slate-400">Population</span>
                           </div>
-                          <span className="text-base font-bold text-slate-200">{marsPopulation}</span>
+                          <span className="text-base font-bold text-slate-200">{marsPopulation.toFixed(1)}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -3136,7 +3136,7 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {Math.floor(getCurrentResources().food)}
+                      {getCurrentResources().food.toFixed(1)}
                     </span>
                     <span className="text-base text-green-400">
                       +{getCurrentProduction().food}/h

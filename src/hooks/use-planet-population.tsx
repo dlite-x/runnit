@@ -62,7 +62,7 @@ export function usePlanetPopulation(
   const growthRatePerHour = Math.round(growthRatePerSecond * 3600);
 
   return { 
-    population: Math.floor(population),
+    population,
     growthRatePerHour
   };
 }
