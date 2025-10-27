@@ -3807,6 +3807,7 @@ const EarthVisualization = () => {
 
         {/* Controls - now enabled in both modes with target following in fly mode */}
         <OrbitControls
+          key="main-orbit-controls"
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
