@@ -2486,6 +2486,7 @@ const EarthVisualization = () => {
     destination?: string,
     cargo?: { metal: number, fuel: number, food: number },
     fuel?: number, // Add fuel property for ships
+    people?: number, // Number of people on colony ships (max 50)
     // New fields for static positioning
     staticPosition?: [number, number, number],
     travelProgress?: number,
@@ -2581,7 +2582,7 @@ const EarthVisualization = () => {
   // Cargo loading modal state
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
   const [selectedShipForCargo, setSelectedShipForCargo] = useState<typeof builtSpheres[0] | null>(null);
-  const [cargoInputs, setCargoInputs] = useState({ food: 0, fuel: 0, metal: 0 });
+  const [cargoInputs, setCargoInputs] = useState({ food: 0, fuel: 0, metal: 0, people: 0 });
   const [cargoMode, setCargoMode] = useState<'load' | 'unload'>('load');
   
   // Moon colonization state
@@ -2872,7 +2873,7 @@ const EarthVisualization = () => {
   // Cargo management handlers
   const handleOpenCargoDialog = (ship: typeof builtSpheres[0], mode: 'load' | 'unload' = 'load') => {
     setSelectedShipForCargo(ship);
-    setCargoInputs({ food: 0, fuel: 0, metal: 0 });
+    setCargoInputs({ food: 0, fuel: 0, metal: 0, people: 0 });
     setCargoMode(mode);
     setCargoDialogOpen(true);
   };
@@ -2889,6 +2890,12 @@ const EarthVisualization = () => {
     if (cargoMode === 'load') {
       if (currentTotal + requestedTotal > maxCapacity) {
         alert(`Cargo capacity exceeded! Max: ${maxCapacity}, Current (including fuel): ${currentTotal.toFixed(1)}, Requested: ${requestedTotal}`);
+        return;
+      }
+
+      // Check people limit for colony ships
+      if (selectedShipForCargo.type === 'colony' && cargoInputs.people > 50) {
+        alert('Colony ships can only carry up to 50 people!');
         return;
       }
 
@@ -2910,7 +2917,8 @@ const EarthVisualization = () => {
               metal: currentCargo.metal + cargoInputs.metal,
               fuel: currentCargo.fuel + cargoInputs.fuel,
               food: currentCargo.food + cargoInputs.food,
-            }
+            },
+            people: s.type === 'colony' ? (s.people || 0) + cargoInputs.people : s.people
           } : s
         ));
         setCargoDialogOpen(false);
@@ -2920,6 +2928,7 @@ const EarthVisualization = () => {
       const unloadFood = Math.min(cargoInputs.food, currentCargo.food);
       const unloadFuel = Math.min(cargoInputs.fuel, currentCargo.fuel);
       const unloadMetal = Math.min(cargoInputs.metal, currentCargo.metal);
+      const unloadPeople = selectedShipForCargo.type === 'colony' ? Math.min(cargoInputs.people, selectedShipForCargo.people || 0) : 0;
 
       // The resources will be updated through the state and hooks
       // Update ship cargo
@@ -2930,11 +2939,12 @@ const EarthVisualization = () => {
             metal: currentCargo.metal - unloadMetal,
             fuel: currentCargo.fuel - unloadFuel,
             food: currentCargo.food - unloadFood,
-          }
+          },
+          people: s.type === 'colony' ? (s.people || 0) - unloadPeople : s.people
         } : s
       ));
       setCargoDialogOpen(false);
-      alert(`Unloaded ${unloadFood} food, ${unloadFuel} fuel, ${unloadMetal} metal`);
+      alert(`Unloaded ${unloadFood} food, ${unloadFuel} fuel, ${unloadMetal} metal${selectedShipForCargo.type === 'colony' ? `, ${unloadPeople} people` : ''}`);
     }
   };
 
@@ -4434,6 +4444,24 @@ const EarthVisualization = () => {
           </div>
           
           <div className="space-y-4 py-4">
+            {selectedShipForCargo?.type === 'colony' && (
+              <div className="space-y-2">
+                <Label htmlFor="people" className="text-blue-400">
+                  People {cargoMode === 'load' 
+                    ? `(Max: 50)`
+                    : `(On ship: ${selectedShipForCargo?.people || 0})`}
+                </Label>
+                <Input
+                  id="people"
+                  type="number"
+                  min="0"
+                  max={cargoMode === 'load' ? 50 : selectedShipForCargo?.people || 0}
+                  value={cargoInputs.people}
+                  onChange={(e) => setCargoInputs({ ...cargoInputs, people: Math.min(50, parseInt(e.target.value) || 0) })}
+                />
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="food" style={{ color: 'hsl(var(--resource-food))' }}>
                 Food {cargoMode === 'load' 
