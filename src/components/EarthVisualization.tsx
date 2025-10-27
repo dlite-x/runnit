@@ -1389,18 +1389,6 @@ function EML1Station({ onEML1StationDoubleClick }: { onEML1StationDoubleClick?: 
           document.body.style.cursor = 'default';
         }}
       >
-        <torusGeometry args={[1.2, 0.15, 12, 32]} />
-        <meshStandardMaterial 
-          color="#5AA0E8" 
-          metalness={0.8} 
-          roughness={0.25}
-          emissive="#3D7AB8"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
-
-      {/* Inner ring detail */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.9, 0.08, 8, 24]} />
         <meshStandardMaterial 
           color="#6BB5F5" 
@@ -1411,72 +1399,14 @@ function EML1Station({ onEML1StationDoubleClick }: { onEML1StationDoubleClick?: 
         />
       </mesh>
 
-      {/* Ring connectors (4 spokes) */}
-      {[0, 1, 2, 3].map((i) => (
-        <mesh 
-          key={i} 
-          rotation={[Math.PI / 2, 0, (i * Math.PI) / 2]}
-          position={[
-            Math.cos((i * Math.PI) / 2) * 0.6,
-            0,
-            Math.sin((i * Math.PI) / 2) * 0.6
-          ]}
-        >
-          <cylinderGeometry args={[0.04, 0.04, 1.2, 6]} />
-          <meshStandardMaterial 
-            color="#87CEEB" 
-            metalness={0.75} 
-            roughness={0.3}
-            emissive="#5AA0E8"
-            emissiveIntensity={0.15}
-          />
-        </mesh>
-      ))}
-
-      {/* Top communication array */}
-      <mesh position={[0, 1.35, 0]}>
-        <sphereGeometry args={[0.15, 12, 12]} />
-        <meshStandardMaterial 
-          color="#FFFFFF" 
-          metalness={0.6}
-          roughness={0.2}
-          emissive="#AADDFF"
-          emissiveIntensity={0.4}
-        />
-      </mesh>
-
-      {/* Top antenna */}
-      <mesh position={[0, 1.75, 0]}>
-        <cylinderGeometry args={[0.02, 0.02, 0.8, 6]} />
-        <meshStandardMaterial 
-          color="#C0C0C0" 
-          metalness={0.9}
-          roughness={0.1}
-          emissive="#FFFFFF"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
-
-      {/* Bottom docking port */}
-      <mesh position={[0, -1.35, 0]}>
-        <cylinderGeometry args={[0.2, 0.15, 0.4, 8]} />
-        <meshStandardMaterial 
-          color="#6BB5F5" 
-          metalness={0.8}
-          roughness={0.25}
-          emissive="#4A9FE0"
-          emissiveIntensity={0.25}
-        />
-      </mesh>
-
       {/* Station lights (4 around the ring) */}
       {[0, 1, 2, 3].map((i) => (
         <mesh 
           key={`light-${i}`}
           position={[
-            Math.cos((i * Math.PI) / 2) * 1.2,
+            Math.cos((i * Math.PI) / 2) * 0.9,
             0,
-            Math.sin((i * Math.PI) / 2) * 1.2
+            Math.sin((i * Math.PI) / 2) * 0.9
           ]}
         >
           <sphereGeometry args={[0.06, 8, 8]} />
@@ -3985,7 +3915,7 @@ const EarthVisualization = () => {
         {isEML1Colonized && (
           <SelectionRing 
             position={[16, 2.5, 5.3]} 
-            radius={1.5} 
+            radius={1.1} 
             selected={selectedObject === "eml1Station"} 
           />
         )}
