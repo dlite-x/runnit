@@ -2602,7 +2602,7 @@ const EarthVisualization = () => {
   const tempMarsResources = usePlanetResources('Mars', marsBuildings);
   
   // Planet populations (depends on food stock)
-  const { population: earthPopulation, growthRatePerHour: earthGrowthRate } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
+  const { population: earthPopulation, growthRatePerHour: earthGrowthRate, adjustPopulation: adjustEarthPopulation } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
   const { population: moonPopulation, growthRatePerHour: moonGrowthRate } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.resources.food);
   const { population: marsPopulation, growthRatePerHour: marsGrowthRate } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
   
@@ -2899,6 +2899,12 @@ const EarthVisualization = () => {
         return;
       }
 
+      // Check if enough people available on Earth
+      if (selectedShipForCargo.type === 'colony' && cargoInputs.people > earthPopulation) {
+        alert(`Not enough people on Earth! Available: ${Math.floor(earthPopulation)}`);
+        return;
+      }
+
       // Check and spend resources
       if (cargoInputs.food > earthResources.food || 
           cargoInputs.fuel > earthResources.fuel || 
@@ -2910,6 +2916,12 @@ const EarthVisualization = () => {
       if (spendEarthResource('food', cargoInputs.food) &&
           spendEarthResource('fuel', cargoInputs.fuel) &&
           spendEarthResource('metal', cargoInputs.metal)) {
+        
+        // Deduct people from Earth population if loading onto colony ship
+        if (selectedShipForCargo.type === 'colony' && cargoInputs.people > 0) {
+          adjustEarthPopulation(-cargoInputs.people);
+        }
+        
         setBuiltSpheres(prev => prev.map(s =>
           s.name === selectedShipForCargo.name ? {
             ...s,
@@ -2929,6 +2941,11 @@ const EarthVisualization = () => {
       const unloadFuel = Math.min(cargoInputs.fuel, currentCargo.fuel);
       const unloadMetal = Math.min(cargoInputs.metal, currentCargo.metal);
       const unloadPeople = selectedShipForCargo.type === 'colony' ? Math.min(cargoInputs.people, selectedShipForCargo.people || 0) : 0;
+
+      // Add people back to Earth population if unloading from colony ship
+      if (selectedShipForCargo.type === 'colony' && unloadPeople > 0) {
+        adjustEarthPopulation(unloadPeople);
+      }
 
       // The resources will be updated through the state and hooks
       // Update ship cargo

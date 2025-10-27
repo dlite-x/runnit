@@ -61,8 +61,24 @@ export function usePlanetPopulation(
   const growthRatePerSecond = foodStock > 0 ? population / 360000 : (foodStock < 0 ? -population / 360000 : 0);
   const growthRatePerHour = Math.round(growthRatePerSecond * 3600);
 
+  // Function to manually adjust population (e.g., when loading people onto ships)
+  const adjustPopulation = (amount: number) => {
+    setPopulation((prev) => {
+      const newPopulation = Math.max(0, prev + amount);
+      
+      // Save to localStorage
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const allPlanets: PlanetPopulation = stored ? JSON.parse(stored) : {};
+      allPlanets[planet] = newPopulation;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allPlanets));
+      
+      return newPopulation;
+    });
+  };
+
   return { 
     population,
-    growthRatePerHour
+    growthRatePerHour,
+    adjustPopulation
   };
 }
