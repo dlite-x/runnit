@@ -53,6 +53,20 @@ Food consumed per second = population / 100 / 3600
 - 100 population: 0.000278 food/sec (1 food/hr)
 - 1000 population: 0.00278 food/sec (10 food/hr)
 
+## Net Food Rate (Earth Only)
+
+The displayed food production rate and actual resource accumulation reflect the **net** change:
+
+```
+Net Food Rate = (Farm Level × Temperature Efficiency) - (Population / 100)
+```
+
+**Examples:**
+- 5 farms, 100 pop, 0°C: (5 × 1.0) - 1 = +4 food/hr (surplus)
+- 5 farms, 100 pop, 2.5°C: (5 × 0.5) - 1 = +1.5 food/hr (surplus)
+- 1 farm, 100 pop, 0°C: (1 × 1.0) - 1 = 0 food/hr (breaking even)
+- 0 farms, 100 pop, any temp: 0 - 1 = -1 food/hr (starvation)
+
 ## Population Dynamics
 
 Population growth or decline depends on food availability:

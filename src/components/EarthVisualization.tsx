@@ -2563,13 +2563,16 @@ const EarthVisualization = () => {
   const [isEML1Colonized, setIsEML1Colonized] = useState(false);
   const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon' | 'mars'>('earth');
   
+  // Earth population (TODO: make dynamic in future)
+  const earthPopulation = 100;
+  
   // Building levels for each planet
   const { buildingLevels: earthBuildings, upgradeBuilding: upgradeEarthBuilding } = useBuildingLevels('Earth');
   const { buildingLevels: moonBuildings, upgradeBuilding: upgradeMoonBuilding } = useBuildingLevels('Moon');
   const { buildingLevels: marsBuildings, upgradeBuilding: upgradeMarsBuilding } = useBuildingLevels('Mars');
   
   // Planet resources for each planet
-  const { resources: earthResources, productionRates: earthProduction } = usePlanetResources('Earth', earthBuildings);
+  const { resources: earthResources, productionRates: earthProduction } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
   const { resources: moonResources, productionRates: moonProduction } = usePlanetResources('Moon', moonBuildings);
   const { resources: marsResources, productionRates: marsProduction } = usePlanetResources('Mars', marsBuildings);
   

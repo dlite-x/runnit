@@ -22,7 +22,12 @@ const DEFAULT_EARTH_STOCK: ResourceStock = {
   power: 100,
 };
 
-export function usePlanetResources(planet: string, buildingLevels: BuildingLevels) {
+export function usePlanetResources(
+  planet: string, 
+  buildingLevels: BuildingLevels,
+  temperature?: number,
+  population?: number
+) {
   const [resources, setResources] = useState<ResourceStock>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -46,9 +51,22 @@ export function usePlanetResources(planet: string, buildingLevels: BuildingLevel
   useEffect(() => {
     const interval = setInterval(() => {
       setResources((prev) => {
+        // Calculate food production with temperature penalty (Earth only)
+        let foodProduction = buildingLevels.farm / 3600; // per second
+        
+        if (planet === 'Earth' && temperature !== undefined && population !== undefined) {
+          // Apply temperature penalty: (1 - temperature * 0.20) per farm level per hour
+          const tempPenalty = 1 - temperature * 0.20;
+          foodProduction = (buildingLevels.farm * tempPenalty) / 3600;
+          
+          // Subtract population consumption: population / 100 / 3600 per second
+          const foodConsumption = population / 100 / 3600;
+          foodProduction -= foodConsumption;
+        }
+        
         // Production rates are per hour, so divide by 3600 to get per-second increment
         const newResources = {
-          food: prev.food + (buildingLevels.farm / 3600),      // Farm level = food production rate per hour
+          food: prev.food + foodProduction,                     // Net food (production - consumption)
           fuel: prev.fuel + (buildingLevels.refinery / 3600),  // Refine level = fuel production rate per hour
           metal: prev.metal + (buildingLevels.mine / 3600),    // Mine level = metal production rate per hour
           power: prev.power + (buildingLevels.power / 3600),   // Power level = power production rate per hour
@@ -65,7 +83,7 @@ export function usePlanetResources(planet: string, buildingLevels: BuildingLevel
     }, UPDATE_INTERVAL);
 
     return () => clearInterval(interval);
-  }, [planet, buildingLevels.farm, buildingLevels.refinery, buildingLevels.mine, buildingLevels.power]);
+  }, [planet, buildingLevels.farm, buildingLevels.refinery, buildingLevels.mine, buildingLevels.power, temperature, population]);
 
   const spendResource = (resourceType: keyof ResourceStock, amount: number): boolean => {
     if (resources[resourceType] >= amount) {
@@ -87,8 +105,18 @@ export function usePlanetResources(planet: string, buildingLevels: BuildingLevel
   };
 
   // Calculate production rates based on building levels
+  let foodRate = buildingLevels.farm;
+  
+  // For Earth, calculate net food rate (production with temp penalty - consumption)
+  if (planet === 'Earth' && temperature !== undefined && population !== undefined) {
+    const tempPenalty = 1 - temperature * 0.20;
+    const foodProduction = buildingLevels.farm * tempPenalty;
+    const foodConsumption = population / 100;
+    foodRate = foodProduction - foodConsumption;
+  }
+  
   const productionRates = {
-    food: buildingLevels.farm,
+    food: foodRate,
     fuel: buildingLevels.refinery,
     metal: buildingLevels.mine,
     power: buildingLevels.power,
