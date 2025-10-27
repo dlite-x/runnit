@@ -4357,7 +4357,7 @@ const EarthVisualization = () => {
 
       {/* Cargo Loading Dialog */}
       <Dialog open={cargoDialogOpen} onOpenChange={setCargoDialogOpen}>
-        <DialogContent>
+        <DialogContent className="top-[15%]">
           <DialogHeader>
             <DialogTitle>Manage Cargo - {selectedShipForCargo?.name}</DialogTitle>
             <DialogDescription>
@@ -4387,8 +4387,8 @@ const EarthVisualization = () => {
             <div className="space-y-2">
               <Label htmlFor="food" style={{ color: 'hsl(var(--resource-food))' }}>
                 Food {cargoMode === 'load' 
-                  ? `(Available: ${earthResources.food})`
-                  : `(On ship: ${selectedShipForCargo?.cargo?.food || 0})`}
+                  ? `(Available: ${earthResources.food.toFixed(1)})`
+                  : `(On ship: ${(selectedShipForCargo?.cargo?.food || 0).toFixed(1)})`}
               </Label>
               <Input
                 id="food"
@@ -4403,8 +4403,8 @@ const EarthVisualization = () => {
             <div className="space-y-2">
               <Label htmlFor="fuel" style={{ color: 'hsl(var(--resource-fuel))' }}>
                 Fuel {cargoMode === 'load' 
-                  ? `(Available: ${earthResources.fuel})`
-                  : `(On ship: ${selectedShipForCargo?.cargo?.fuel || 0})`}
+                  ? `(Available: ${earthResources.fuel.toFixed(1)})`
+                  : `(On ship: ${(selectedShipForCargo?.cargo?.fuel || 0).toFixed(1)})`}
               </Label>
               <Input
                 id="fuel"
@@ -4419,8 +4419,8 @@ const EarthVisualization = () => {
             <div className="space-y-2">
               <Label htmlFor="metal" style={{ color: 'hsl(var(--resource-metal))' }}>
                 Metal {cargoMode === 'load' 
-                  ? `(Available: ${earthResources.metal})`
-                  : `(On ship: ${selectedShipForCargo?.cargo?.metal || 0})`}
+                  ? `(Available: ${earthResources.metal.toFixed(1)})`
+                  : `(On ship: ${(selectedShipForCargo?.cargo?.metal || 0).toFixed(1)})`}
               </Label>
               <Input
                 id="metal"
