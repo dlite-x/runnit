@@ -18,6 +18,7 @@ import { useCredits } from '@/hooks/use-credits';
 import { useBuildingLevels } from '@/hooks/use-building-levels';
 import { usePlanetResources } from '@/hooks/use-planet-resources';
 import { useEarthClimate } from '@/hooks/use-earth-climate';
+import { usePlanetPopulation } from '@/hooks/use-planet-population';
 
 interface EarthProps {
   autoRotate: boolean;
@@ -2565,13 +2566,15 @@ const EarthVisualization = () => {
   const [isEML1Colonized, setIsEML1Colonized] = useState(false);
   const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon' | 'mars'>('earth');
   
-  // Earth population (TODO: make dynamic in future)
-  const earthPopulation = 100;
-  
   // Building levels for each planet
   const { buildingLevels: earthBuildings, upgradeBuilding: upgradeEarthBuilding } = useBuildingLevels('Earth');
   const { buildingLevels: moonBuildings, upgradeBuilding: upgradeMoonBuilding } = useBuildingLevels('Moon');
   const { buildingLevels: marsBuildings, upgradeBuilding: upgradeMarsBuilding } = useBuildingLevels('Mars');
+  
+  // Planet populations
+  const { population: earthPopulation, growthRatePerHour: earthGrowthRate } = usePlanetPopulation('Earth', true);
+  const { population: moonPopulation, growthRatePerHour: moonGrowthRate } = usePlanetPopulation('Moon', isMoonColonized);
+  const { population: marsPopulation, growthRatePerHour: marsGrowthRate } = usePlanetPopulation('Mars', isMarsColonized);
   
   // Planet resources for each planet
   const { resources: earthResources, productionRates: earthProduction } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
@@ -2979,14 +2982,14 @@ const EarthVisualization = () => {
                         <Users className="w-4 h-4 text-green-400" />
                         <span className="text-base text-slate-400">Population</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200">100</span>
+                      <span className="text-base font-bold text-slate-200">{earthPopulation}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-emerald-400" />
                         <span className="text-base text-slate-400">Pop. Growth</span>
                       </div>
-                      <span className="text-base font-bold text-emerald-400">+1/hr</span>
+                      <span className="text-base font-bold text-emerald-400">+{earthGrowthRate}/hr</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -3021,14 +3024,14 @@ const EarthVisualization = () => {
                             <Users className="w-4 h-4 text-green-400" />
                             <span className="text-base text-slate-400">Population</span>
                           </div>
-                          <span className="text-base font-bold text-slate-200">50</span>
+                          <span className="text-base font-bold text-slate-200">{moonPopulation}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-emerald-400" />
                             <span className="text-base text-slate-400">Pop. Growth</span>
                           </div>
-                          <span className="text-base font-bold text-emerald-400">+0/hr</span>
+                          <span className="text-base font-bold text-emerald-400">+{moonGrowthRate}/hr</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -3062,14 +3065,14 @@ const EarthVisualization = () => {
                             <Users className="w-4 h-4 text-green-400" />
                             <span className="text-base text-slate-400">Population</span>
                           </div>
-                          <span className="text-base font-bold text-slate-200">25</span>
+                          <span className="text-base font-bold text-slate-200">{marsPopulation}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-emerald-400" />
                             <span className="text-base text-slate-400">Pop. Growth</span>
                           </div>
-                          <span className="text-base font-bold text-emerald-400">+0/hr</span>
+                          <span className="text-base font-bold text-emerald-400">+{marsGrowthRate}/hr</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
