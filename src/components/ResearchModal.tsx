@@ -27,9 +27,33 @@ interface ActiveResearch {
 }
 
 const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProps) => {
+  const researchItems: ResearchItem[] = [
+    { id: 'ship-speed-1', name: 'Ship Speed 1', unlocked: false, cost: 2, level: 10 },
+    { id: 'ship-speed-2', name: 'Ship Speed 2', unlocked: false, cost: 3, level: 20 },
+    { id: 'ship-speed-3', name: 'Ship Speed 3', unlocked: false, cost: 5, level: 35 },
+    { id: 'ship-speed-4', name: 'Ship Speed 4', unlocked: false, cost: 7, level: 50 },
+    { id: 'proxima-scout', name: 'Proxima Scout', unlocked: false, cost: 8, level: 60 },
+    { id: 'alpha-centauri-map', name: 'Alpha Centauri Map', unlocked: false, cost: 9, level: 80 },
+    { id: 'proxima-map', name: 'Proxima Map', unlocked: false, cost: 10, level: 100 },
+    { id: 'efficient-manufacturing', name: 'Efficient Manufacturing', unlocked: false, cost: 4, level: 25 },
+    { id: 'lunar-telescope', name: 'Lunar Telescope', unlocked: false, cost: 6, level: 40 },
+    { id: 'sunshade-1', name: 'Sunshade 1', unlocked: false, cost: 7, level: 45 },
+    { id: 'sunshade-2', name: 'Sunshade 2', unlocked: false, cost: 9, level: 70 },
+  ];
+
   const [activeResearch, setActiveResearch] = useState<ActiveResearch | null>(() => {
     const stored = localStorage.getItem('active_research');
-    return stored ? JSON.parse(stored) : null;
+    if (!stored) return null;
+    
+    const parsed = JSON.parse(stored);
+    // Migrate old research costs to new values
+    const item = researchItems.find(r => r.id === parsed.id);
+    if (item && parsed.cost !== item.cost) {
+      const migrated = { ...parsed, cost: item.cost };
+      localStorage.setItem('active_research', JSON.stringify(migrated));
+      return migrated;
+    }
+    return parsed;
   });
 
   const [completedResearch, setCompletedResearch] = useState<string[]>(() => {
@@ -67,19 +91,6 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
     return () => clearInterval(interval);
   }, [activeResearch, researchRate]);
 
-  const researchItems: ResearchItem[] = [
-    { id: 'ship-speed-1', name: 'Ship Speed 1', unlocked: false, cost: 2, level: 10 },
-    { id: 'ship-speed-2', name: 'Ship Speed 2', unlocked: false, cost: 3, level: 20 },
-    { id: 'ship-speed-3', name: 'Ship Speed 3', unlocked: false, cost: 5, level: 35 },
-    { id: 'ship-speed-4', name: 'Ship Speed 4', unlocked: false, cost: 7, level: 50 },
-    { id: 'proxima-scout', name: 'Proxima Scout', unlocked: false, cost: 8, level: 60 },
-    { id: 'alpha-centauri-map', name: 'Alpha Centauri Map', unlocked: false, cost: 9, level: 80 },
-    { id: 'proxima-map', name: 'Proxima Map', unlocked: false, cost: 10, level: 100 },
-    { id: 'efficient-manufacturing', name: 'Efficient Manufacturing', unlocked: false, cost: 4, level: 25 },
-    { id: 'lunar-telescope', name: 'Lunar Telescope', unlocked: false, cost: 6, level: 40 },
-    { id: 'sunshade-1', name: 'Sunshade 1', unlocked: false, cost: 7, level: 45 },
-    { id: 'sunshade-2', name: 'Sunshade 2', unlocked: false, cost: 9, level: 70 },
-  ];
 
   const startResearch = (item: ResearchItem) => {
     if (activeResearch || completedResearch.includes(item.id)) return;
