@@ -2813,9 +2813,13 @@ const EarthVisualization = () => {
     localStorage.removeItem('planet_buildings');
     localStorage.removeItem('planet_resources');
     localStorage.removeItem('user_credits');
+    localStorage.removeItem('user_investment_amount');
+    localStorage.removeItem('user_investment_timestamp');
     localStorage.removeItem('planet_population');
     localStorage.removeItem('earth_co2_ppm');
     localStorage.removeItem('earth_co2_events');
+    localStorage.removeItem('built_ships');
+    localStorage.removeItem('ship_id_counter');
     
     // Reload the page to reinitialize everything
     window.location.reload();
