@@ -3172,7 +3172,7 @@ const EarthVisualization = () => {
                 onClick={() => setShowResearchModal(true)}
                 className="px-3 py-1.5 rounded-md bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600/50 transition-all flex items-center gap-2"
               >
-                <Beaker className="w-4 h-4 text-purple-400" />
+                <FlaskConical className="w-4 h-4 text-purple-400" />
                 <span className="font-medium">Research</span>
               </button>
             </div>
@@ -3397,7 +3397,7 @@ const EarthVisualization = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-blue-400" />
+                        <FlaskConical className="w-4 h-4 text-blue-400" />
                         <span className="text-base text-slate-400">Research</span>
                       </div>
                       <span className="text-base font-bold text-blue-400">+{earthBuildings.lab}/h</span>
