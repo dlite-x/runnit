@@ -2899,7 +2899,7 @@ const EarthVisualization = () => {
   const handleLoadCargo = () => {
     if (!selectedShipForCargo) return;
 
-    const maxCapacity = selectedShipForCargo.type === 'colony' ? 10 : 20;
+    const maxCapacity = selectedShipForCargo.type === 'colony' ? 12 : 15;
     const currentCargo = selectedShipForCargo.cargo || { metal: 0, fuel: 0, food: 0 };
     const currentFuel = selectedShipForCargo.fuel || 0;
     const currentTotal = currentCargo.metal + currentCargo.fuel + currentCargo.food + currentFuel;
@@ -4464,7 +4464,7 @@ const EarthVisualization = () => {
           <DialogHeader>
             <DialogTitle>Manage Cargo - {selectedShipForCargo?.name}</DialogTitle>
             <DialogDescription>
-              Capacity: {((selectedShipForCargo?.cargo?.metal || 0) + (selectedShipForCargo?.cargo?.fuel || 0) + (selectedShipForCargo?.cargo?.food || 0) + (selectedShipForCargo?.fuel || 0)).toFixed(1)} / {selectedShipForCargo?.type === 'colony' ? 10 : 20} units (including fuel)
+              Capacity: {((selectedShipForCargo?.cargo?.metal || 0) + (selectedShipForCargo?.cargo?.fuel || 0) + (selectedShipForCargo?.cargo?.food || 0) + (selectedShipForCargo?.fuel || 0)).toFixed(1)} / {selectedShipForCargo?.type === 'colony' ? 12 : 15} units (including fuel)
             </DialogDescription>
           </DialogHeader>
           

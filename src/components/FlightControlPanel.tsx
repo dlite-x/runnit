@@ -84,7 +84,7 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
   const handleLoadCargo = () => {
     if (!selectedShipForCargo) return;
 
-    const maxCapacity = selectedShipForCargo.type === 'colony' ? 6 : 10;
+    const maxCapacity = selectedShipForCargo.type === 'colony' ? 12 : 15;
     const currentCargo = selectedShipForCargo.cargo || { metal: 0, fuel: 0, food: 0 };
     const currentTotal = currentCargo.metal + currentCargo.fuel + currentCargo.food;
     const requestedTotal = cargoInputs.metal + cargoInputs.fuel + cargoInputs.food;
@@ -302,7 +302,7 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
           <DialogHeader>
             <DialogTitle>Load Cargo - {selectedShipForCargo?.name}</DialogTitle>
             <DialogDescription>
-              Max capacity: {selectedShipForCargo?.type === 'colony' ? 6 : 10} units total
+              Max capacity: {selectedShipForCargo?.type === 'colony' ? 12 : 15} units total
             </DialogDescription>
           </DialogHeader>
           
