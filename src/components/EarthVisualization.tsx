@@ -3842,10 +3842,18 @@ const EarthVisualization = () => {
                           )}
                         </div>
                         {ship.type === 'colony' && (
-                          <div className="flex items-center gap-0.5">
+                          <button
+                            className="flex items-center gap-0.5 hover:bg-slate-600/50 px-1 rounded transition-colors cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenCargoDialog(ship, 'load');
+                            }}
+                            disabled={ship.location === 'traveling' || ship.location === 'preparing'}
+                            title="Manage people"
+                          >
                             <Users className="w-3 h-3 text-blue-400" />
-                            <span className="text-xs text-slate-300">100</span>
-                          </div>
+                            <span className="text-xs text-slate-300">{ship.people || 0}</span>
+                          </button>
                         )}
                       </div>
                       
