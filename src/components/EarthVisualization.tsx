@@ -23,7 +23,7 @@ import { MarketModal } from './MarketModal';
 import ResearchModal from './ResearchModal';
 import { useCredits } from '@/hooks/use-credits';
 import { useBuildingLevels } from '@/hooks/use-building-levels';
-import { usePlanetResources } from '@/hooks/use-planet-resources';
+import { usePlanetResources, ResourceStock } from '@/hooks/use-planet-resources';
 import { useEarthClimate } from '@/hooks/use-earth-climate';
 import { usePlanetPopulation } from '@/hooks/use-planet-population';
 
@@ -2638,6 +2638,33 @@ const EarthVisualization = () => {
     return marsProduction;
   };
 
+  // Helper function to get resources for a specific planet
+  const getResourcesForPlanet = (planetLocation: string) => {
+    const planetLower = planetLocation.toLowerCase();
+    if (planetLower === 'earth') return earthResources;
+    if (planetLower === 'moon') return moonResources;
+    if (planetLower === 'mars') return marsResources;
+    return earthResources; // Default fallback
+  };
+
+  // Helper function to get population for a specific planet
+  const getPopulationForPlanet = (planetLocation: string) => {
+    const planetLower = planetLocation.toLowerCase();
+    if (planetLower === 'earth') return earthPopulation;
+    if (planetLower === 'moon') return moonPopulation;
+    if (planetLower === 'mars') return marsPopulation;
+    return 0;
+  };
+
+  // Helper function to spend resources on a specific planet
+  const spendResourceOnPlanet = (planetLocation: string, resourceType: keyof ResourceStock, amount: number): boolean => {
+    const planetLower = planetLocation.toLowerCase();
+    if (planetLower === 'earth') return spendEarthResource(resourceType, amount);
+    // Moon and Mars don't have spend functions yet, but we need to check if they have enough
+    const resources = getResourcesForPlanet(planetLocation);
+    return resources[resourceType] >= amount;
+  };
+
   // Helper function to transfer cargo to a planet using the appropriate addResource function
   const transferCargoToPlanet = (planetLocation: string, cargo: { food: number; fuel: number; metal: number }) => {
     console.log(`Transferring cargo to ${planetLocation}:`, cargo);
@@ -2936,6 +2963,11 @@ const EarthVisualization = () => {
     const currentTotal = currentCargo.metal + currentCargo.fuel + currentCargo.food + currentFuel;
     const requestedTotal = cargoInputs.metal + cargoInputs.fuel + cargoInputs.food;
 
+    // Get resources for the planet where the ship is located
+    const shipLocation = selectedShipForCargo.location;
+    const planetResources = getResourcesForPlanet(shipLocation);
+    const planetPopulation = getPopulationForPlanet(shipLocation);
+
     if (cargoMode === 'load') {
       if (currentTotal + requestedTotal > maxCapacity) {
         alert(`Cargo capacity exceeded! Max: ${maxCapacity}, Current (including fuel): ${currentTotal.toFixed(1)}, Requested: ${requestedTotal}`);
@@ -2948,27 +2980,47 @@ const EarthVisualization = () => {
         return;
       }
 
-      // Check if enough people available on Earth
-      if (selectedShipForCargo.type === 'colony' && cargoInputs.people > earthPopulation) {
-        alert(`Not enough people on Earth! Available: ${Math.floor(earthPopulation)}`);
+      // Check if enough people available on the current planet
+      if (selectedShipForCargo.type === 'colony' && cargoInputs.people > planetPopulation) {
+        alert(`Not enough people on ${shipLocation}! Available: ${Math.floor(planetPopulation)}`);
         return;
       }
 
-      // Check and spend resources
-      if (cargoInputs.food > earthResources.food || 
-          cargoInputs.fuel > earthResources.fuel || 
-          cargoInputs.metal > earthResources.metal) {
-        alert('Insufficient resources!');
+      // Check and spend resources from the current planet
+      if (cargoInputs.food > planetResources.food || 
+          cargoInputs.fuel > planetResources.fuel || 
+          cargoInputs.metal > planetResources.metal) {
+        alert('Insufficient resources on this planet!');
         return;
       }
 
-      if (spendEarthResource('food', cargoInputs.food) &&
-          spendEarthResource('fuel', cargoInputs.fuel) &&
-          spendEarthResource('metal', cargoInputs.metal)) {
+      // Only Earth has a spend function; for other planets we'll deduct via transferCargoToPlanet in reverse
+      const canSpend = shipLocation.toLowerCase() === 'earth' 
+        ? (spendEarthResource('food', cargoInputs.food) &&
+           spendEarthResource('fuel', cargoInputs.fuel) &&
+           spendEarthResource('metal', cargoInputs.metal))
+        : true; // For Moon/Mars, we deduct by transferring negative amounts
+
+      if (canSpend) {
+        // For non-Earth planets, deduct resources
+        if (shipLocation.toLowerCase() !== 'earth') {
+          transferCargoToPlanet(shipLocation, {
+            food: -cargoInputs.food,
+            fuel: -cargoInputs.fuel,
+            metal: -cargoInputs.metal,
+          });
+        }
         
-        // Deduct people from Earth population if loading onto colony ship
+        // Deduct people from planet population if loading onto colony ship
         if (selectedShipForCargo.type === 'colony' && cargoInputs.people > 0) {
-          adjustEarthPopulation(-cargoInputs.people);
+          const shipLocationLower = shipLocation.toLowerCase();
+          if (shipLocationLower === 'earth') {
+            adjustEarthPopulation(-cargoInputs.people);
+          } else if (shipLocationLower === 'moon') {
+            adjustMoonPopulation(-cargoInputs.people);
+          } else if (shipLocationLower === 'mars') {
+            adjustMarsPopulation(-cargoInputs.people);
+          }
         }
         
         setBuiltSpheres(prev => prev.map(s =>
@@ -4554,14 +4606,14 @@ const EarthVisualization = () => {
             <div className="space-y-2">
               <Label htmlFor="food" style={{ color: 'hsl(var(--resource-food))' }}>
                 Food {cargoMode === 'load' 
-                  ? `(Available: ${earthResources.food.toFixed(1)})`
+                  ? `(Available: ${selectedShipForCargo ? getResourcesForPlanet(selectedShipForCargo.location).food.toFixed(1) : '0'})`
                   : `(On ship: ${(selectedShipForCargo?.cargo?.food || 0).toFixed(1)})`}
               </Label>
               <Input
                 id="food"
                 type="number"
                 min="0"
-                max={cargoMode === 'load' ? earthResources.food : selectedShipForCargo?.cargo?.food || 0}
+                max={cargoMode === 'load' ? (selectedShipForCargo ? getResourcesForPlanet(selectedShipForCargo.location).food : 0) : selectedShipForCargo?.cargo?.food || 0}
                 value={cargoInputs.food}
                 onChange={(e) => setCargoInputs({ ...cargoInputs, food: parseInt(e.target.value) || 0 })}
               />
@@ -4570,14 +4622,14 @@ const EarthVisualization = () => {
             <div className="space-y-2">
               <Label htmlFor="fuel" style={{ color: 'hsl(var(--resource-fuel))' }}>
                 Fuel {cargoMode === 'load' 
-                  ? `(Available: ${earthResources.fuel.toFixed(1)})`
+                  ? `(Available: ${selectedShipForCargo ? getResourcesForPlanet(selectedShipForCargo.location).fuel.toFixed(1) : '0'})`
                   : `(On ship: ${(selectedShipForCargo?.cargo?.fuel || 0).toFixed(1)})`}
               </Label>
               <Input
                 id="fuel"
                 type="number"
                 min="0"
-                max={cargoMode === 'load' ? earthResources.fuel : selectedShipForCargo?.cargo?.fuel || 0}
+                max={cargoMode === 'load' ? (selectedShipForCargo ? getResourcesForPlanet(selectedShipForCargo.location).fuel : 0) : selectedShipForCargo?.cargo?.fuel || 0}
                 value={cargoInputs.fuel}
                 onChange={(e) => setCargoInputs({ ...cargoInputs, fuel: parseInt(e.target.value) || 0 })}
               />
@@ -4586,14 +4638,14 @@ const EarthVisualization = () => {
             <div className="space-y-2">
               <Label htmlFor="metal" style={{ color: 'hsl(var(--resource-metal))' }}>
                 Metal {cargoMode === 'load' 
-                  ? `(Available: ${earthResources.metal.toFixed(1)})`
+                  ? `(Available: ${selectedShipForCargo ? getResourcesForPlanet(selectedShipForCargo.location).metal.toFixed(1) : '0'})`
                   : `(On ship: ${(selectedShipForCargo?.cargo?.metal || 0).toFixed(1)})`}
               </Label>
               <Input
                 id="metal"
                 type="number"
                 min="0"
-                max={cargoMode === 'load' ? earthResources.metal : selectedShipForCargo?.cargo?.metal || 0}
+                max={cargoMode === 'load' ? (selectedShipForCargo ? getResourcesForPlanet(selectedShipForCargo.location).metal : 0) : selectedShipForCargo?.cargo?.metal || 0}
                 value={cargoInputs.metal}
                 onChange={(e) => setCargoInputs({ ...cargoInputs, metal: parseInt(e.target.value) || 0 })}
               />
