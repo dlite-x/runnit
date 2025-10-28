@@ -132,7 +132,7 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto top-[calc(15%+125px)]">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto top-[calc(15%+175px)]">
         <DialogHeader>
           <DialogTitle>Research Tree</DialogTitle>
         </DialogHeader>
