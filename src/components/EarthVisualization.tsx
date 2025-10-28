@@ -3192,7 +3192,7 @@ const EarthVisualization = () => {
                 <span className="font-medium">{credits.toLocaleString()}</span>
               </div>
               <div className="flex items-center gap-1 bg-blue-600/20 px-2 py-1 rounded border border-blue-500/30">
-                <Beaker className="w-3 h-3 text-blue-400" />
+                <FlaskConical className="w-3 h-3 text-blue-400" />
                 <span className="text-blue-300 font-medium text-sm">+{earthBuildings.lab + moonBuildings.lab + marsBuildings.lab}/h</span>
               </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
