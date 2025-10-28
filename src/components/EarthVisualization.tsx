@@ -3359,18 +3359,14 @@ const EarthVisualization = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-green-400" />
-                        <span className="text-base text-slate-400">Population</span>
+                        <span className="text-base text-slate-400">Pop.</span>
                       </div>
-                      <span className="text-base font-bold text-slate-200">{earthPopulation.toFixed(1)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-emerald-400" />
-                        <span className="text-base text-slate-400">Pop. Growth</span>
+                        <span className="text-base font-bold text-slate-200">{earthPopulation.toFixed(1)}</span>
+                        <span className={`text-base ${earthGrowthRate >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {earthGrowthRate >= 0 ? '+' : ''}{earthGrowthRate}/h
+                        </span>
                       </div>
-                      <span className={`text-base font-bold ${earthGrowthRate >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {earthGrowthRate >= 0 ? '+' : ''}{earthGrowthRate}/hr
-                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -3403,18 +3399,14 @@ const EarthVisualization = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-green-400" />
-                            <span className="text-base text-slate-400">Population</span>
+                            <span className="text-base text-slate-400">Pop.</span>
                           </div>
-                          <span className="text-base font-bold text-slate-200">{moonPopulation.toFixed(1)}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-emerald-400" />
-                            <span className="text-base text-slate-400">Pop. Growth</span>
+                            <span className="text-base font-bold text-slate-200">{moonPopulation.toFixed(1)}</span>
+                            <span className={`text-base ${moonGrowthRate >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {moonGrowthRate >= 0 ? '+' : ''}{moonGrowthRate}/h
+                            </span>
                           </div>
-                          <span className={`text-base font-bold ${moonGrowthRate >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                            {moonGrowthRate >= 0 ? '+' : ''}{moonGrowthRate}/hr
-                          </span>
                         </div>
                       </>
                     ) : (
@@ -3430,18 +3422,14 @@ const EarthVisualization = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-green-400" />
-                            <span className="text-base text-slate-400">Population</span>
+                            <span className="text-base text-slate-400">Pop.</span>
                           </div>
-                          <span className="text-base font-bold text-slate-200">{marsPopulation.toFixed(1)}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-emerald-400" />
-                            <span className="text-base text-slate-400">Pop. Growth</span>
+                            <span className="text-base font-bold text-slate-200">{marsPopulation.toFixed(1)}</span>
+                            <span className={`text-base ${marsGrowthRate >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {marsGrowthRate >= 0 ? '+' : ''}{marsGrowthRate}/h
+                            </span>
                           </div>
-                          <span className={`text-base font-bold ${marsGrowthRate >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                            {marsGrowthRate >= 0 ? '+' : ''}{marsGrowthRate}/hr
-                          </span>
                         </div>
                       </>
                     ) : (
