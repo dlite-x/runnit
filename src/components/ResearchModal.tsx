@@ -68,17 +68,17 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
   }, [activeResearch, researchRate]);
 
   const researchItems: ResearchItem[] = [
-    { id: 'ship-speed-1', name: 'Ship Speed 1', unlocked: false, cost: 1000, level: 10 },
-    { id: 'ship-speed-2', name: 'Ship Speed 2', unlocked: false, cost: 2000, level: 20 },
-    { id: 'ship-speed-3', name: 'Ship Speed 3', unlocked: false, cost: 4000, level: 35 },
-    { id: 'ship-speed-4', name: 'Ship Speed 4', unlocked: false, cost: 8000, level: 50 },
-    { id: 'proxima-scout', name: 'Proxima Scout', unlocked: false, cost: 10000, level: 60 },
-    { id: 'alpha-centauri-map', name: 'Alpha Centauri Map', unlocked: false, cost: 15000, level: 80 },
-    { id: 'proxima-map', name: 'Proxima Map', unlocked: false, cost: 20000, level: 100 },
-    { id: 'efficient-manufacturing', name: 'Efficient Manufacturing', unlocked: false, cost: 3000, level: 25 },
-    { id: 'lunar-telescope', name: 'Lunar Telescope', unlocked: false, cost: 5000, level: 40 },
-    { id: 'sunshade-1', name: 'Sunshade 1', unlocked: false, cost: 6000, level: 45 },
-    { id: 'sunshade-2', name: 'Sunshade 2', unlocked: false, cost: 12000, level: 70 },
+    { id: 'ship-speed-1', name: 'Ship Speed 1', unlocked: false, cost: 2, level: 10 },
+    { id: 'ship-speed-2', name: 'Ship Speed 2', unlocked: false, cost: 3, level: 20 },
+    { id: 'ship-speed-3', name: 'Ship Speed 3', unlocked: false, cost: 5, level: 35 },
+    { id: 'ship-speed-4', name: 'Ship Speed 4', unlocked: false, cost: 7, level: 50 },
+    { id: 'proxima-scout', name: 'Proxima Scout', unlocked: false, cost: 8, level: 60 },
+    { id: 'alpha-centauri-map', name: 'Alpha Centauri Map', unlocked: false, cost: 9, level: 80 },
+    { id: 'proxima-map', name: 'Proxima Map', unlocked: false, cost: 10, level: 100 },
+    { id: 'efficient-manufacturing', name: 'Efficient Manufacturing', unlocked: false, cost: 4, level: 25 },
+    { id: 'lunar-telescope', name: 'Lunar Telescope', unlocked: false, cost: 6, level: 40 },
+    { id: 'sunshade-1', name: 'Sunshade 1', unlocked: false, cost: 7, level: 45 },
+    { id: 'sunshade-2', name: 'Sunshade 2', unlocked: false, cost: 9, level: 70 },
   ];
 
   const startResearch = (item: ResearchItem) => {
