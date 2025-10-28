@@ -27,21 +27,22 @@ interface FlightControlPanelProps {
   onSpendResource: (resourceType: 'fuel' | 'metal' | 'food', amount: number) => boolean;
 }
 
-const FUEL_REQUIREMENTS: Record<string, number> = {
-  moon: 10,
-  mars: 50,
-  earth: 10,
-  eml1: 20,
+// Fuel requirements from Earth (origin perspective)
+const FUEL_REQUIREMENTS: Record<string, Record<string, number>> = {
+  earth: { moon: 7, mars: 12, eml1: 5 },
+  moon: { earth: 7, mars: 6, eml1: 2 },
+  mars: { earth: 12, moon: 6, eml1: 2 },
+  eml1: { earth: 5, moon: 2, mars: 2 }
 };
 
 const calculateTravelTimeSeconds = (origin: string, destination: string): number => {
-  const distances: Record<string, Record<string, number>> = {
-    earth: { moon: 180, mars: 12960, eml1: 300 },
-    moon: { earth: 180, mars: 13140, eml1: 120 },
-    mars: { earth: 12960, moon: 13140, eml1: 13080 },
-    eml1: { earth: 300, moon: 120, mars: 13080 },
+  const times: Record<string, Record<string, number>> = {
+    earth: { moon: 20, mars: 60, eml1: 12 },
+    moon: { earth: 20, mars: 50, eml1: 8 },
+    mars: { earth: 60, moon: 50, eml1: 40 },
+    eml1: { earth: 12, moon: 8, mars: 40 },
   };
-  return distances[origin]?.[destination] || 300;
+  return times[origin]?.[destination] || 30;
 };
 
 const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
@@ -63,7 +64,8 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
   const handleTopUpFuel = (ship: Ship) => {
     if (!ship.destination) return;
     
-    const requiredFuel = FUEL_REQUIREMENTS[ship.destination] || 0;
+    const origin = ship.location === 'traveling' ? 'earth' : ship.location;
+    const requiredFuel = FUEL_REQUIREMENTS[origin]?.[ship.destination] || 0;
     const currentFuel = ship.fuel || 0;
     const fuelNeeded = Math.max(0, requiredFuel - currentFuel);
     const fuelToAdd = Math.min(fuelNeeded, availableResources.fuel);
@@ -149,7 +151,8 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
 
   const canLaunch = (ship: Ship): boolean => {
     if (!ship.destination) return false;
-    const requiredFuel = FUEL_REQUIREMENTS[ship.destination] || 0;
+    const origin = ship.location === 'traveling' ? 'earth' : ship.location;
+    const requiredFuel = FUEL_REQUIREMENTS[origin]?.[ship.destination] || 0;
     const currentFuel = ship.fuel || 0;
     return currentFuel >= requiredFuel && ship.location !== 'traveling';
   };
@@ -175,7 +178,8 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
             </TableHeader>
             <TableBody>
               {ships.map((ship) => {
-                const requiredFuel = ship.destination ? (FUEL_REQUIREMENTS[ship.destination] || 0) : 0;
+                const origin = ship.location === 'traveling' ? 'earth' : ship.location;
+                const requiredFuel = ship.destination ? (FUEL_REQUIREMENTS[origin]?.[ship.destination] || 0) : 0;
                 const currentFuel = ship.fuel || 0;
                 const cargo = ship.cargo || { metal: 0, fuel: 0, food: 0 };
                 const isArrived = ship.location !== 'traveling' && ship.location !== 'earth' && ship.location !== 'preparing';

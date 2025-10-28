@@ -2349,15 +2349,15 @@ function Atmosphere() {
 // Travel time matrix in seconds for predefined routes
 const TRAVEL_TIMES: Record<string, Record<string, number>> = {
   earth: {
-    moon: 40,
-    mars: 45,
+    moon: 20,
+    mars: 60,
     eml1: 12,
     offload: 4,   // Cargo operation
     land: 3,      // Landing operation
     colonize: 8   // Colony setup
   },
   moon: {
-    earth: 6,
+    earth: 20,
     mars: 50,
     eml1: 8,
     offload: 3,
@@ -2365,9 +2365,9 @@ const TRAVEL_TIMES: Record<string, Record<string, number>> = {
     colonize: 6
   },
   mars: {
-    earth: 45,
+    earth: 60,
     moon: 50,
-    eml1: 35,
+    eml1: 40,
     offload: 5,
     land: 4,
     colonize: 12
@@ -2375,7 +2375,7 @@ const TRAVEL_TIMES: Record<string, Record<string, number>> = {
   eml1: {
     earth: 12,
     moon: 8,
-    mars: 35,
+    mars: 40,
     offload: 3,
     land: 2,
     colonize: 7
@@ -2422,12 +2422,12 @@ const formatTime = (timeInSeconds: number): string => {
   }
 };
 
-// Fuel requirements for each destination
-const FUEL_REQUIREMENTS: Record<string, number> = {
-  moon: 10,
-  mars: 50,
-  earth: 10,
-  eml1: 20,
+// Fuel requirements for each destination (from origin perspective)
+const FUEL_REQUIREMENTS: Record<string, Record<string, number>> = {
+  earth: { moon: 7, mars: 12, eml1: 5 },
+  moon: { earth: 7, mars: 6, eml1: 2 },
+  mars: { earth: 12, moon: 6, eml1: 2 },
+  eml1: { earth: 5, moon: 2, mars: 2 }
 };
 
 // Countdown timer component for traveling ships
@@ -2875,7 +2875,8 @@ const EarthVisualization = () => {
   const handleTopUpFuel = (ship: typeof builtSpheres[0]) => {
     if (!ship.destination) return;
     
-    const requiredFuel = FUEL_REQUIREMENTS[ship.destination] || 0;
+    const origin = ship.location === 'traveling' ? 'earth' : ship.location;
+    const requiredFuel = FUEL_REQUIREMENTS[origin]?.[ship.destination] || 0;
     const currentFuel = ship.fuel || 0;
     const fuelNeeded = Math.max(0, requiredFuel - currentFuel);
     const fuelToAdd = Math.min(fuelNeeded, earthResources.fuel);
@@ -3689,7 +3690,8 @@ const EarthVisualization = () => {
                     </div>
                   ) : (
                     builtSpheres.map((ship, index) => {
-                      const requiredFuel = ship.destination ? (FUEL_REQUIREMENTS[ship.destination] || 0) : 0;
+                      const origin = ship.location === 'traveling' ? 'earth' : ship.location;
+                      const requiredFuel = ship.destination ? (FUEL_REQUIREMENTS[origin]?.[ship.destination] || 0) : 0;
                       const currentFuel = ship.fuel || 0;
                       const cargo = ship.cargo || { metal: 0, fuel: 0, food: 0 };
                       const isArrived = ship.location !== 'traveling' && ship.location !== 'earth' && ship.location !== 'preparing';
@@ -4421,7 +4423,7 @@ const EarthVisualization = () => {
                       {origin === 'eml1' ? 'EML-1' : origin}
                     </td>
                     {['earth', 'moon', 'mars', 'eml1'].map((dest) => {
-                      const fuel = FUEL_REQUIREMENTS[dest] || 0;
+                      const fuel = FUEL_REQUIREMENTS[origin]?.[dest] || 0;
                       const time = TRAVEL_TIMES[origin]?.[dest];
                       const isSame = origin === dest;
                       
