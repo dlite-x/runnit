@@ -36,8 +36,8 @@ export function usePlanetPopulation(
 
     const interval = setInterval(() => {
       setPopulation((prev) => {
-        // Population grows if food > 0, declines if food < 0
-        const growthDirection = foodStock > 0 ? 1 : (foodStock < 0 ? -1 : 0);
+        // Population grows if food > 0, declines if food <= 0
+        const growthDirection = foodStock > 0 ? 1 : -1;
         
         // Growth rate: population * (1/360,000) per second
         const growthRatePerSecond = (prev / 360000) * growthDirection;
@@ -58,7 +58,7 @@ export function usePlanetPopulation(
 
   // Calculate growth rate per hour for UI display
   // Growth per second * 3600 = growth per hour
-  const growthRatePerSecond = foodStock > 0 ? population / 360000 : (foodStock < 0 ? -population / 360000 : 0);
+  const growthRatePerSecond = foodStock > 0 ? population / 360000 : -population / 360000;
   const growthRatePerHour = Math.round(growthRatePerSecond * 3600);
 
   // Function to manually adjust population (e.g., when loading people onto ships)
