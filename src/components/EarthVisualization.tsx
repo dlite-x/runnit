@@ -4735,6 +4735,7 @@ const EarthVisualization = () => {
       <ResearchModal
         isOpen={showResearchModal}
         onOpenChange={setShowResearchModal}
+        researchRate={earthBuildings.lab}
       />
 
       {/* People Loading Dialog (Colony Ships Only) */}
