@@ -2728,6 +2728,24 @@ const EarthVisualization = () => {
             }
           }
           
+          // Transfer cargo resources from ship to planet
+          if (ship.cargo) {
+            const stored = localStorage.getItem('planet_resources');
+            const allPlanets = stored ? JSON.parse(stored) : {};
+            const planetKey = ship.location.charAt(0).toUpperCase() + ship.location.slice(1);
+            const currentResources = allPlanets[planetKey] || { food: 0, fuel: 0, metal: 0, power: 0 };
+            
+            allPlanets[planetKey] = {
+              ...currentResources,
+              food: currentResources.food + (ship.cargo.food || 0),
+              fuel: currentResources.fuel + (ship.cargo.fuel || 0),
+              metal: currentResources.metal + (ship.cargo.metal || 0),
+            };
+            
+            localStorage.setItem('planet_resources', JSON.stringify(allPlanets));
+            console.log(`Transferred cargo to ${planetKey}:`, ship.cargo);
+          }
+          
           // Check if colonizing the Moon, Mars, or EML-1
           if (ship.location === 'moon') {
             setIsMoonColonized(true);
@@ -2750,6 +2768,23 @@ const EarthVisualization = () => {
             ship.location !== 'earth' && ship.location !== 'preparing' && ship.location !== 'traveling' &&
             ship.cargo && (ship.cargo.metal > 0 || ship.cargo.fuel > 0 || ship.cargo.food > 0)) {
           console.log(`${ship.name} offloading cargo at ${ship.location}, current cargo:`, ship.cargo);
+          
+          // Add cargo resources to planet
+          const stored = localStorage.getItem('planet_resources');
+          const allPlanets = stored ? JSON.parse(stored) : {};
+          const planetKey = ship.location.charAt(0).toUpperCase() + ship.location.slice(1);
+          const currentResources = allPlanets[planetKey] || { food: 0, fuel: 0, metal: 0, power: 0 };
+          
+          allPlanets[planetKey] = {
+            ...currentResources,
+            food: currentResources.food + (ship.cargo.food || 0),
+            fuel: currentResources.fuel + (ship.cargo.fuel || 0),
+            metal: currentResources.metal + (ship.cargo.metal || 0),
+          };
+          
+          localStorage.setItem('planet_resources', JSON.stringify(allPlanets));
+          console.log(`Added cargo to ${planetKey}:`, ship.cargo);
+          
           hasChanges = true;
           return {
             ...ship,
@@ -3796,6 +3831,7 @@ const EarthVisualization = () => {
                                   staticPosition: arrivalPosition,
                                   position: arrivalPosition,
                                   cargo: { metal: 0, fuel: 0, food: 0 },
+                                  fuel: 0, // Consume all fuel on arrival
                                   startPosition: undefined,
                                   endPosition: undefined,
                                   departureTime: undefined,
@@ -3824,6 +3860,7 @@ const EarthVisualization = () => {
                                   location: arrivalPlanet,
                                   staticPosition: arrivalPosition,
                                   position: arrivalPosition,
+                                  fuel: 0, // Consume all fuel on arrival
                                   startPosition: undefined,
                                   endPosition: undefined,
                                   departureTime: undefined,

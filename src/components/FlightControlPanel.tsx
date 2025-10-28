@@ -119,7 +119,23 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
   const handleOffloadCargo = (ship: Ship) => {
     if (!ship.cargo) return;
     
-    // Return cargo to planet resources (this should be handled in parent)
+    // Add cargo resources to planet
+    const stored = localStorage.getItem('planet_resources');
+    const allPlanets = stored ? JSON.parse(stored) : {};
+    const planetKey = ship.location.charAt(0).toUpperCase() + ship.location.slice(1);
+    const currentResources = allPlanets[planetKey] || { food: 0, fuel: 0, metal: 0, power: 0 };
+    
+    allPlanets[planetKey] = {
+      ...currentResources,
+      food: currentResources.food + (ship.cargo.food || 0),
+      fuel: currentResources.fuel + (ship.cargo.fuel || 0),
+      metal: currentResources.metal + (ship.cargo.metal || 0),
+    };
+    
+    localStorage.setItem('planet_resources', JSON.stringify(allPlanets));
+    console.log(`Added cargo to ${planetKey}:`, ship.cargo);
+    
+    // Reset ship's cargo
     onUpdateShip(ship.name, {
       cargo: { metal: 0, fuel: 0, food: 0 }
     });
