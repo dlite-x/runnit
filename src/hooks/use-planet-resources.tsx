@@ -128,7 +128,8 @@ export function usePlanetResources(
     const tempPenalty = 1 - temperature * 0.20;
     const foodProduction = buildingLevels.farm * tempPenalty;
     const foodConsumption = population / 100;
-    foodRate = Math.round(foodProduction - foodConsumption);
+    // Keep precision - don't round to integer
+    foodRate = Number((foodProduction - foodConsumption).toFixed(2));
   }
   
   const productionRates = {
