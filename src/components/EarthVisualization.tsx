@@ -2584,8 +2584,14 @@ const EarthVisualization = () => {
   // Cargo loading modal state
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
   const [selectedShipForCargo, setSelectedShipForCargo] = useState<typeof builtSpheres[0] | null>(null);
-  const [cargoInputs, setCargoInputs] = useState({ food: 0, fuel: 0, metal: 0, people: 0 });
+  const [cargoInputs, setCargoInputs] = useState({ food: 0, fuel: 0, metal: 0 });
   const [cargoMode, setCargoMode] = useState<'load' | 'unload'>('load');
+  
+  // People loading modal state (colony ships only)
+  const [peopleDialogOpen, setPeopleDialogOpen] = useState(false);
+  const [selectedShipForPeople, setSelectedShipForPeople] = useState<typeof builtSpheres[0] | null>(null);
+  const [peopleInput, setPeopleInput] = useState(0);
+  const [peopleMode, setPeopleMode] = useState<'load' | 'unload'>('load');
   
   // Moon colonization state
   const [isMoonColonized, setIsMoonColonized] = useState(false);
@@ -2949,9 +2955,17 @@ const EarthVisualization = () => {
   // Cargo management handlers
   const handleOpenCargoDialog = (ship: typeof builtSpheres[0], mode: 'load' | 'unload' = 'load') => {
     setSelectedShipForCargo(ship);
-    setCargoInputs({ food: 0, fuel: 0, metal: 0, people: 0 });
+    setCargoInputs({ food: 0, fuel: 0, metal: 0 });
     setCargoMode(mode);
     setCargoDialogOpen(true);
+  };
+  
+  // People management handlers (colony ships only)
+  const handleOpenPeopleDialog = (ship: typeof builtSpheres[0], mode: 'load' | 'unload' = 'load') => {
+    setSelectedShipForPeople(ship);
+    setPeopleInput(0);
+    setPeopleMode(mode);
+    setPeopleDialogOpen(true);
   };
 
   const handleLoadCargo = () => {
@@ -2966,23 +2980,10 @@ const EarthVisualization = () => {
     // Get resources for the planet where the ship is located
     const shipLocation = selectedShipForCargo.location;
     const planetResources = getResourcesForPlanet(shipLocation);
-    const planetPopulation = getPopulationForPlanet(shipLocation);
 
     if (cargoMode === 'load') {
       if (currentTotal + requestedTotal > maxCapacity) {
         alert(`Cargo capacity exceeded! Max: ${maxCapacity}, Current (including fuel): ${currentTotal.toFixed(1)}, Requested: ${requestedTotal}`);
-        return;
-      }
-
-      // Check people limit for colony ships
-      if (selectedShipForCargo.type === 'colony' && cargoInputs.people > 50) {
-        alert('Colony ships can only carry up to 50 people!');
-        return;
-      }
-
-      // Check if enough people available on the current planet
-      if (selectedShipForCargo.type === 'colony' && cargoInputs.people > planetPopulation) {
-        alert(`Not enough people on ${shipLocation}! Available: ${Math.floor(planetPopulation)}`);
         return;
       }
 
@@ -3011,18 +3012,6 @@ const EarthVisualization = () => {
           });
         }
         
-        // Deduct people from planet population if loading onto colony ship
-        if (selectedShipForCargo.type === 'colony' && cargoInputs.people > 0) {
-          const shipLocationLower = shipLocation.toLowerCase();
-          if (shipLocationLower === 'earth') {
-            adjustEarthPopulation(-cargoInputs.people);
-          } else if (shipLocationLower === 'moon') {
-            adjustMoonPopulation(-cargoInputs.people);
-          } else if (shipLocationLower === 'mars') {
-            adjustMarsPopulation(-cargoInputs.people);
-          }
-        }
-        
         setBuiltSpheres(prev => prev.map(s =>
           s.name === selectedShipForCargo.name ? {
             ...s,
@@ -3030,8 +3019,7 @@ const EarthVisualization = () => {
               metal: currentCargo.metal + cargoInputs.metal,
               fuel: currentCargo.fuel + cargoInputs.fuel,
               food: currentCargo.food + cargoInputs.food,
-            },
-            people: s.type === 'colony' ? (s.people || 0) + cargoInputs.people : s.people
+            }
           } : s
         ));
         setCargoDialogOpen(false);
@@ -3041,7 +3029,6 @@ const EarthVisualization = () => {
       const unloadFood = Math.min(cargoInputs.food, currentCargo.food);
       const unloadFuel = Math.min(cargoInputs.fuel, currentCargo.fuel);
       const unloadMetal = Math.min(cargoInputs.metal, currentCargo.metal);
-      const unloadPeople = selectedShipForCargo.type === 'colony' ? Math.min(cargoInputs.people, selectedShipForCargo.people || 0) : 0;
 
       // Transfer cargo to the planet where the ship is docked
       transferCargoToPlanet(selectedShipForCargo.location, {
@@ -3049,18 +3036,6 @@ const EarthVisualization = () => {
         fuel: unloadFuel,
         metal: unloadMetal,
       });
-
-      // Add people back to the planet's population if unloading from colony ship
-      if (selectedShipForCargo.type === 'colony' && unloadPeople > 0) {
-        const shipLocation = selectedShipForCargo.location.toLowerCase();
-        if (shipLocation === 'earth') {
-          adjustEarthPopulation(unloadPeople);
-        } else if (shipLocation === 'moon') {
-          adjustMoonPopulation(unloadPeople);
-        } else if (shipLocation === 'mars') {
-          adjustMarsPopulation(unloadPeople);
-        }
-      }
 
       // Update ship cargo
       setBuiltSpheres(prev => prev.map(s =>
@@ -3070,12 +3045,87 @@ const EarthVisualization = () => {
             metal: currentCargo.metal - unloadMetal,
             fuel: currentCargo.fuel - unloadFuel,
             food: currentCargo.food - unloadFood,
-          },
-          people: s.type === 'colony' ? (s.people || 0) - unloadPeople : s.people
+          }
         } : s
       ));
       setCargoDialogOpen(false);
-      console.log(`Unloaded ${unloadFood} food, ${unloadFuel} fuel, ${unloadMetal} metal${selectedShipForCargo.type === 'colony' ? `, ${unloadPeople} people` : ''} at ${selectedShipForCargo.location}`);
+      console.log(`Unloaded ${unloadFood} food, ${unloadFuel} fuel, ${unloadMetal} metal at ${selectedShipForCargo.location}`);
+    }
+  };
+
+  const handleLoadUnloadPeople = () => {
+    if (!selectedShipForPeople || selectedShipForPeople.type !== 'colony') return;
+
+    const shipLocation = selectedShipForPeople.location;
+    const planetPopulation = getPopulationForPlanet(shipLocation);
+    const currentPeople = selectedShipForPeople.people || 0;
+
+    if (peopleMode === 'load') {
+      // Check people limit for colony ships
+      if (peopleInput > 50) {
+        alert('Colony ships can only carry up to 50 people!');
+        return;
+      }
+
+      // Check if enough people available on the current planet
+      if (peopleInput > planetPopulation) {
+        alert(`Not enough people on ${shipLocation}! Available: ${Math.floor(planetPopulation)}`);
+        return;
+      }
+
+      // Check if ship can hold more people
+      if (currentPeople + peopleInput > 50) {
+        alert(`Cannot load ${peopleInput} people! Ship capacity: 50, Current: ${currentPeople}`);
+        return;
+      }
+
+      // Deduct people from planet population
+      const shipLocationLower = shipLocation.toLowerCase();
+      if (shipLocationLower === 'earth') {
+        adjustEarthPopulation(-peopleInput);
+      } else if (shipLocationLower === 'moon') {
+        adjustMoonPopulation(-peopleInput);
+      } else if (shipLocationLower === 'mars') {
+        adjustMarsPopulation(-peopleInput);
+      }
+
+      // Add people to ship
+      setBuiltSpheres(prev => prev.map(s =>
+        s.name === selectedShipForPeople.name ? {
+          ...s,
+          people: currentPeople + peopleInput
+        } : s
+      ));
+      setPeopleDialogOpen(false);
+      console.log(`Loaded ${peopleInput} people onto ${selectedShipForPeople.name}`);
+    } else {
+      // Unload mode
+      const unloadPeople = Math.min(peopleInput, currentPeople);
+
+      if (unloadPeople === 0) {
+        alert('No people to unload!');
+        return;
+      }
+
+      // Add people back to planet population
+      const shipLocationLower = shipLocation.toLowerCase();
+      if (shipLocationLower === 'earth') {
+        adjustEarthPopulation(unloadPeople);
+      } else if (shipLocationLower === 'moon') {
+        adjustMoonPopulation(unloadPeople);
+      } else if (shipLocationLower === 'mars') {
+        adjustMarsPopulation(unloadPeople);
+      }
+
+      // Remove people from ship
+      setBuiltSpheres(prev => prev.map(s =>
+        s.name === selectedShipForPeople.name ? {
+          ...s,
+          people: currentPeople - unloadPeople
+        } : s
+      ));
+      setPeopleDialogOpen(false);
+      console.log(`Unloaded ${unloadPeople} people from ${selectedShipForPeople.name} at ${shipLocation}`);
     }
   };
 
@@ -3846,7 +3896,7 @@ const EarthVisualization = () => {
                             className="flex items-center gap-0.5 hover:bg-slate-600/50 px-1 rounded transition-colors cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleOpenCargoDialog(ship, 'load');
+                              handleOpenPeopleDialog(ship, 'load');
                             }}
                             disabled={ship.location === 'traveling' || ship.location === 'preparing'}
                             title="Manage people"
@@ -4601,24 +4651,6 @@ const EarthVisualization = () => {
           </div>
           
           <div className="space-y-4 py-4">
-            {selectedShipForCargo?.type === 'colony' && (
-              <div className="space-y-2">
-                <Label htmlFor="people" className="text-blue-400">
-                  People {cargoMode === 'load' 
-                    ? `(Max: 50)`
-                    : `(On ship: ${selectedShipForCargo?.people || 0})`}
-                </Label>
-                <Input
-                  id="people"
-                  type="number"
-                  min="0"
-                  max={cargoMode === 'load' ? 50 : selectedShipForCargo?.people || 0}
-                  value={cargoInputs.people}
-                  onChange={(e) => setCargoInputs({ ...cargoInputs, people: Math.min(50, parseInt(e.target.value) || 0) })}
-                />
-              </div>
-            )}
-            
             <div className="space-y-2">
               <Label htmlFor="food" style={{ color: 'hsl(var(--resource-food))' }}>
                 Food {cargoMode === 'load' 
@@ -4705,6 +4737,63 @@ const EarthVisualization = () => {
         isOpen={showResearchModal}
         onOpenChange={setShowResearchModal}
       />
+
+      {/* People Loading Dialog (Colony Ships Only) */}
+      <Dialog open={peopleDialogOpen} onOpenChange={setPeopleDialogOpen}>
+        <DialogContent className="top-[calc(50%-50px)]">
+          <DialogHeader>
+            <DialogTitle>Manage People - {selectedShipForPeople?.name}</DialogTitle>
+            <DialogDescription>
+              Capacity: {selectedShipForPeople?.people || 0} / 50 people
+            </DialogDescription>
+          </DialogHeader>
+          
+          {/* Load/Unload Tabs */}
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant={peopleMode === 'load' ? 'default' : 'outline'}
+              onClick={() => setPeopleMode('load')}
+              className="flex-1"
+            >
+              Load
+            </Button>
+            <Button
+              variant={peopleMode === 'unload' ? 'default' : 'outline'}
+              onClick={() => setPeopleMode('unload')}
+              className="flex-1"
+            >
+              Unload
+            </Button>
+          </div>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="people-count" className="text-blue-400">
+                People {peopleMode === 'load' 
+                  ? `(Available on ${selectedShipForPeople?.location}: ${selectedShipForPeople ? Math.floor(getPopulationForPlanet(selectedShipForPeople.location)) : 0})`
+                  : `(On ship: ${selectedShipForPeople?.people || 0})`}
+              </Label>
+              <Input
+                id="people-count"
+                type="number"
+                min="0"
+                max={peopleMode === 'load' ? 50 : selectedShipForPeople?.people || 0}
+                value={peopleInput}
+                onChange={(e) => setPeopleInput(parseInt(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setPeopleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleLoadUnloadPeople}>
+              {peopleMode === 'load' ? 'Load People' : 'Unload People'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
