@@ -44,7 +44,9 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
       setActiveResearch(prev => {
         if (!prev) return null;
         
-        const newProgress = prev.progress + researchRate;
+        // Convert RP/hour to RP/second
+        const progressPerSecond = researchRate / 3600;
+        const newProgress = prev.progress + progressPerSecond;
         
         if (newProgress >= prev.cost) {
           setCompletedResearch(completed => {
@@ -108,12 +110,11 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
         }`}
         onClick={() => !isCompleted && startResearch(item)}
       >
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-2">
           <FlaskConical className={`w-4 h-4 ${isCompleted ? 'text-green-400' : 'text-purple-400'}`} />
-          <span className="text-xs font-semibold text-muted-foreground">Lvl {item.level}</span>
+          <span className="text-sm font-semibold text-card-foreground">{item.cost}</span>
         </div>
-        <div className="text-sm font-medium text-card-foreground mb-1">{item.name}</div>
-        <div className="text-xs text-muted-foreground">{item.cost} RP</div>
+        <div className="text-sm font-medium text-card-foreground">{item.name}</div>
       </Card>
     );
   };
@@ -145,7 +146,7 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-semibold text-card-foreground">{activeResearch.name}</span>
                   <span className="text-sm text-muted-foreground">
-                    {Math.floor(activeResearch.progress)} / {activeResearch.cost} RP
+                    Progress: {activeResearch.progress.toFixed(1)} / {activeResearch.cost} RP
                   </span>
                 </div>
                 <Progress 
@@ -155,7 +156,13 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
               </div>
             </div>
             <div className="text-xs text-muted-foreground">
-              Research Rate: +{researchRate}/s • Time Remaining: {Math.ceil((activeResearch.cost - activeResearch.progress) / researchRate)}s
+              +{researchRate} RP/h • Time: {(() => {
+                const remainingRP = activeResearch.cost - activeResearch.progress;
+                const hoursRemaining = remainingRP / researchRate;
+                const hours = Math.floor(hoursRemaining);
+                const minutes = Math.floor((hoursRemaining - hours) * 60);
+                return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+              })()}
             </div>
           </Card>
         )}
