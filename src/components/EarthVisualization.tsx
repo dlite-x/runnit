@@ -3191,6 +3191,10 @@ const EarthVisualization = () => {
                 </div>
                 <span className="font-medium">{credits.toLocaleString()}</span>
               </div>
+              <div className="flex items-center gap-1 bg-blue-600/20 px-2 py-1 rounded border border-blue-500/30">
+                <Zap className="w-3 h-3 text-blue-400" />
+                <span className="text-blue-300 font-medium text-sm">+{earthBuildings.lab + moonBuildings.lab + marsBuildings.lab}/h</span>
+              </div>
               <div className="flex items-center gap-1 bg-cyan-600/20 px-2 py-1 rounded border border-cyan-500/30">
                 <span className="text-cyan-400 text-xs">💎</span>
                 <span className="text-cyan-300 font-medium text-sm">12</span>
