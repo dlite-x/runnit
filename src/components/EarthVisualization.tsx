@@ -3391,6 +3391,13 @@ const EarthVisualization = () => {
                       </div>
                       <span className="text-base font-bold text-slate-200">{co2ppm}</span>
                     </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-blue-400" />
+                        <span className="text-base text-slate-400">Research</span>
+                      </div>
+                      <span className="text-base font-bold text-blue-400">+{earthBuildings.lab}/h</span>
+                    </div>
                   </>
                 ) : activeBuildingTab === 'moon' ? (
                   <>
