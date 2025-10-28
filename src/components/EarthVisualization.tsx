@@ -2873,6 +2873,7 @@ const EarthVisualization = () => {
   }, []);
 
   const handleReset = () => {
+    console.log('Reset button clicked - clearing localStorage');
     // Clear all localStorage game state
     localStorage.removeItem('planet_buildings');
     localStorage.removeItem('planet_resources');
@@ -2886,6 +2887,7 @@ const EarthVisualization = () => {
     localStorage.removeItem('ship_id_counter');
     localStorage.removeItem('active_research');
     localStorage.removeItem('completed_research');
+    console.log('localStorage cleared. About to reload page.');
     
     // Reload the page to reinitialize everything
     window.location.reload();

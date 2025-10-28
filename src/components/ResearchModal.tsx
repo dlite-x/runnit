@@ -43,6 +43,7 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
 
   const [activeResearch, setActiveResearch] = useState<ActiveResearch | null>(() => {
     const stored = localStorage.getItem('active_research');
+    console.log('ResearchModal initializing activeResearch from localStorage:', stored);
     if (!stored) return null;
     
     const parsed = JSON.parse(stored);
@@ -51,6 +52,7 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
     if (item && parsed.cost !== item.cost) {
       const migrated = { ...parsed, cost: item.cost };
       localStorage.setItem('active_research', JSON.stringify(migrated));
+      console.log('Migrated activeResearch cost:', migrated);
       return migrated;
     }
     return parsed;
@@ -58,6 +60,7 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
 
   const [completedResearch, setCompletedResearch] = useState<string[]>(() => {
     const stored = localStorage.getItem('completed_research');
+    console.log('ResearchModal initializing completedResearch from localStorage:', stored);
     return stored ? JSON.parse(stored) : [];
   });
 
@@ -66,11 +69,14 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
     if (isOpen) {
       const storedActive = localStorage.getItem('active_research');
       const storedCompleted = localStorage.getItem('completed_research');
+      console.log('ResearchModal opened. Checking reset:', { storedActive, storedCompleted, activeResearch, completedResearch });
       
       if (!storedActive && activeResearch) {
+        console.log('Resetting activeResearch to null');
         setActiveResearch(null);
       }
       if (!storedCompleted && completedResearch.length > 0) {
+        console.log('Resetting completedResearch to []');
         setCompletedResearch([]);
       }
     }
