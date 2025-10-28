@@ -2875,18 +2875,7 @@ const EarthVisualization = () => {
   const handleReset = () => {
     console.log('Reset button clicked - clearing localStorage');
     // Clear all localStorage game state
-    localStorage.removeItem('planet_buildings');
-    localStorage.removeItem('planet_resources');
-    localStorage.removeItem('user_credits');
-    localStorage.removeItem('user_investment_amount');
-    localStorage.removeItem('user_investment_timestamp');
-    localStorage.removeItem('planet_population');
-    localStorage.removeItem('earth_co2_ppm');
-    localStorage.removeItem('earth_co2_events');
-    localStorage.removeItem('built_ships');
-    localStorage.removeItem('ship_id_counter');
-    localStorage.removeItem('active_research');
-    localStorage.removeItem('completed_research');
+    localStorage.clear();
     console.log('localStorage cleared. About to reload page.');
     
     // Reload the page to reinitialize everything
