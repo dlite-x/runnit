@@ -2884,6 +2884,8 @@ const EarthVisualization = () => {
     localStorage.removeItem('earth_co2_events');
     localStorage.removeItem('built_ships');
     localStorage.removeItem('ship_id_counter');
+    localStorage.removeItem('active_research');
+    localStorage.removeItem('completed_research');
     
     // Reload the page to reinitialize everything
     window.location.reload();
