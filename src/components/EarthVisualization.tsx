@@ -3472,8 +3472,8 @@ const EarthVisualization = () => {
                     <span className="text-base font-bold text-slate-200">
                       {getCurrentResources().food.toFixed(1)}
                     </span>
-                    <span className="text-base text-green-400">
-                      +{getCurrentProduction().food}/h
+                    <span className={`text-base ${getCurrentProduction().food >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {getCurrentProduction().food >= 0 ? '+' : ''}{getCurrentProduction().food}/h
                     </span>
                   </div>
                 </div>
