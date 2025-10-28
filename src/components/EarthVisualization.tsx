@@ -3955,7 +3955,7 @@ const EarthVisualization = () => {
                         ) : ship.location !== 'traveling' && ship.location !== 'preparing' ? (
                           <button 
                             className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-                            disabled={!ship.destination || currentFuel < requiredFuel}
+                            disabled={!ship.destination || currentFuel < requiredFuel || ship.destination === ship.location}
                             onClick={() => {
                               if (ship.location !== 'traveling' && ship.location !== 'preparing') {
                                 // Launch with static positioning system
