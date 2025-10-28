@@ -61,6 +61,21 @@ const ResearchModal = ({ isOpen, onOpenChange, researchRate }: ResearchModalProp
     return stored ? JSON.parse(stored) : [];
   });
 
+  // Reset research state when modal opens if localStorage is empty (after reset)
+  useEffect(() => {
+    if (isOpen) {
+      const storedActive = localStorage.getItem('active_research');
+      const storedCompleted = localStorage.getItem('completed_research');
+      
+      if (!storedActive && activeResearch) {
+        setActiveResearch(null);
+      }
+      if (!storedCompleted && completedResearch.length > 0) {
+        setCompletedResearch([]);
+      }
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (!activeResearch || researchRate <= 0) return;
 
