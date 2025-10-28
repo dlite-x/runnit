@@ -104,10 +104,10 @@ export function MissionsModal({ open, onOpenChange, gameState }: MissionsModalPr
   // Update selected mission when missions change
   useEffect(() => {
     const updatedSelected = missions.find(m => m.id === selectedMission.id);
-    if (updatedSelected) {
+    if (updatedSelected && updatedSelected.completed !== selectedMission.completed) {
       setSelectedMission(updatedSelected);
     }
-  }, [missions, selectedMission.id]);
+  }, [missions, selectedMission.id, selectedMission.completed]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {

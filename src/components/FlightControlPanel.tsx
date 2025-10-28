@@ -25,6 +25,7 @@ interface FlightControlPanelProps {
   onColonizePlanet: (shipName: string, planet: string) => void;
   availableResources: { fuel: number; metal: number; food: number };
   onSpendResource: (resourceType: 'fuel' | 'metal' | 'food', amount: number) => boolean;
+  onTransferCargo: (planetLocation: string, cargo: { food: number; fuel: number; metal: number }) => void;
 }
 
 // Fuel requirements from Earth (origin perspective)
@@ -52,6 +53,7 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
   onColonizePlanet,
   availableResources,
   onSpendResource,
+  onTransferCargo,
 }) => {
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
   const [selectedShipForCargo, setSelectedShipForCargo] = useState<Ship | null>(null);
@@ -121,8 +123,10 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
     
     console.log(`Manual offload: transferring cargo from ${ship.name} at ${ship.location}:`, ship.cargo);
     
-    // Note: The actual cargo transfer to planet resources is handled in EarthVisualization
-    // This just resets the ship's cargo in the UI
+    // Transfer cargo to planet using the parent's transfer function
+    onTransferCargo(ship.location, ship.cargo);
+    
+    // Reset ship's cargo
     onUpdateShip(ship.name, {
       cargo: { metal: 0, fuel: 0, food: 0 }
     });

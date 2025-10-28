@@ -2985,18 +2985,31 @@ const EarthVisualization = () => {
         setCargoDialogOpen(false);
       }
     } else {
-      // Unload mode - return resources to Earth by spending negative amounts
+      // Unload mode - transfer resources to the planet where the ship is located
       const unloadFood = Math.min(cargoInputs.food, currentCargo.food);
       const unloadFuel = Math.min(cargoInputs.fuel, currentCargo.fuel);
       const unloadMetal = Math.min(cargoInputs.metal, currentCargo.metal);
       const unloadPeople = selectedShipForCargo.type === 'colony' ? Math.min(cargoInputs.people, selectedShipForCargo.people || 0) : 0;
 
-      // Add people back to Earth population if unloading from colony ship
+      // Transfer cargo to the planet where the ship is docked
+      transferCargoToPlanet(selectedShipForCargo.location, {
+        food: unloadFood,
+        fuel: unloadFuel,
+        metal: unloadMetal,
+      });
+
+      // Add people back to the planet's population if unloading from colony ship
       if (selectedShipForCargo.type === 'colony' && unloadPeople > 0) {
-        adjustEarthPopulation(unloadPeople);
+        const shipLocation = selectedShipForCargo.location.toLowerCase();
+        if (shipLocation === 'earth') {
+          adjustEarthPopulation(unloadPeople);
+        } else if (shipLocation === 'moon') {
+          adjustMoonPopulation(unloadPeople);
+        } else if (shipLocation === 'mars') {
+          adjustMarsPopulation(unloadPeople);
+        }
       }
 
-      // The resources will be updated through the state and hooks
       // Update ship cargo
       setBuiltSpheres(prev => prev.map(s =>
         s.name === selectedShipForCargo.name ? {
@@ -3010,7 +3023,7 @@ const EarthVisualization = () => {
         } : s
       ));
       setCargoDialogOpen(false);
-      alert(`Unloaded ${unloadFood} food, ${unloadFuel} fuel, ${unloadMetal} metal${selectedShipForCargo.type === 'colony' ? `, ${unloadPeople} people` : ''}`);
+      console.log(`Unloaded ${unloadFood} food, ${unloadFuel} fuel, ${unloadMetal} metal${selectedShipForCargo.type === 'colony' ? `, ${unloadPeople} people` : ''} at ${selectedShipForCargo.location}`);
     }
   };
 
