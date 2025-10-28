@@ -3826,18 +3826,26 @@ const EarthVisualization = () => {
                       </Select>
                       
                       {/* Fuel column */}
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-slate-300">
-                          {Math.floor(currentFuel)}/{requiredFuel || '-'}
-                        </span>
-                        {ship.destination && ship.location !== 'traveling' && ship.location !== 'preparing' && (
-                          <button
-                            className="h-5 w-5 p-0 hover:bg-slate-600/50 rounded flex items-center justify-center"
-                            onClick={() => handleTopUpFuel(ship)}
-                            disabled={currentFuel >= requiredFuel || earthResources.fuel === 0}
-                          >
-                            <Fuel className="w-3 h-3 text-orange-400" />
-                          </button>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-slate-300">
+                            {Math.floor(currentFuel)}/{requiredFuel || '-'}
+                          </span>
+                          {ship.destination && ship.location !== 'traveling' && ship.location !== 'preparing' && (
+                            <button
+                              className="h-5 w-5 p-0 hover:bg-slate-600/50 rounded flex items-center justify-center"
+                              onClick={() => handleTopUpFuel(ship)}
+                              disabled={currentFuel >= requiredFuel || earthResources.fuel === 0}
+                            >
+                              <Fuel className="w-3 h-3 text-orange-400" />
+                            </button>
+                          )}
+                        </div>
+                        {ship.type === 'colony' && (
+                          <div className="flex items-center gap-0.5">
+                            <Users className="w-3 h-3 text-blue-400" />
+                            <span className="text-xs text-slate-300">100</span>
+                          </div>
                         )}
                       </div>
                       
