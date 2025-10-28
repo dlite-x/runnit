@@ -2610,8 +2610,8 @@ const EarthVisualization = () => {
   
   // Now get resources again with actual population - THIS IS THE SINGLE SOURCE OF TRUTH
   const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource, addResource: addEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
-  const { resources: moonResources, productionRates: moonProduction } = usePlanetResources('Moon', moonBuildings);
-  const { resources: marsResources, productionRates: marsProduction } = usePlanetResources('Mars', marsBuildings);
+  const { resources: moonResources, productionRates: moonProduction, addResource: addMoonResource } = usePlanetResources('Moon', moonBuildings);
+  const { resources: marsResources, productionRates: marsProduction, addResource: addMarsResource } = usePlanetResources('Mars', marsBuildings);
   
   // Get current planet's building levels and upgrade function
   const getCurrentBuildings = () => {
@@ -2636,6 +2636,28 @@ const EarthVisualization = () => {
     if (activeBuildingTab === 'earth') return earthProduction;
     if (activeBuildingTab === 'moon') return moonProduction;
     return marsProduction;
+  };
+
+  // Helper function to transfer cargo to a planet using the appropriate addResource function
+  const transferCargoToPlanet = (planetLocation: string, cargo: { food: number; fuel: number; metal: number }) => {
+    console.log(`Transferring cargo to ${planetLocation}:`, cargo);
+    
+    // Determine which planet's addResource function to use
+    const planetLower = planetLocation.toLowerCase();
+    
+    if (planetLower === 'earth') {
+      if (cargo.food > 0) addEarthResource('food', cargo.food);
+      if (cargo.fuel > 0) addEarthResource('fuel', cargo.fuel);
+      if (cargo.metal > 0) addEarthResource('metal', cargo.metal);
+    } else if (planetLower === 'moon') {
+      if (cargo.food > 0) addMoonResource('food', cargo.food);
+      if (cargo.fuel > 0) addMoonResource('fuel', cargo.fuel);
+      if (cargo.metal > 0) addMoonResource('metal', cargo.metal);
+    } else if (planetLower === 'mars') {
+      if (cargo.food > 0) addMarsResource('food', cargo.food);
+      if (cargo.fuel > 0) addMarsResource('fuel', cargo.fuel);
+      if (cargo.metal > 0) addMarsResource('metal', cargo.metal);
+    }
   };
   
   // Ship state
@@ -2730,20 +2752,7 @@ const EarthVisualization = () => {
           
           // Transfer cargo resources from ship to planet
           if (ship.cargo) {
-            const stored = localStorage.getItem('planet_resources');
-            const allPlanets = stored ? JSON.parse(stored) : {};
-            const planetKey = ship.location.charAt(0).toUpperCase() + ship.location.slice(1);
-            const currentResources = allPlanets[planetKey] || { food: 0, fuel: 0, metal: 0, power: 0 };
-            
-            allPlanets[planetKey] = {
-              ...currentResources,
-              food: currentResources.food + (ship.cargo.food || 0),
-              fuel: currentResources.fuel + (ship.cargo.fuel || 0),
-              metal: currentResources.metal + (ship.cargo.metal || 0),
-            };
-            
-            localStorage.setItem('planet_resources', JSON.stringify(allPlanets));
-            console.log(`Transferred cargo to ${planetKey}:`, ship.cargo);
+            transferCargoToPlanet(ship.location, ship.cargo);
           }
           
           // Check if colonizing the Moon, Mars, or EML-1
@@ -2769,21 +2778,8 @@ const EarthVisualization = () => {
             ship.cargo && (ship.cargo.metal > 0 || ship.cargo.fuel > 0 || ship.cargo.food > 0)) {
           console.log(`${ship.name} offloading cargo at ${ship.location}, current cargo:`, ship.cargo);
           
-          // Add cargo resources to planet
-          const stored = localStorage.getItem('planet_resources');
-          const allPlanets = stored ? JSON.parse(stored) : {};
-          const planetKey = ship.location.charAt(0).toUpperCase() + ship.location.slice(1);
-          const currentResources = allPlanets[planetKey] || { food: 0, fuel: 0, metal: 0, power: 0 };
-          
-          allPlanets[planetKey] = {
-            ...currentResources,
-            food: currentResources.food + (ship.cargo.food || 0),
-            fuel: currentResources.fuel + (ship.cargo.fuel || 0),
-            metal: currentResources.metal + (ship.cargo.metal || 0),
-          };
-          
-          localStorage.setItem('planet_resources', JSON.stringify(allPlanets));
-          console.log(`Added cargo to ${planetKey}:`, ship.cargo);
+          // Transfer cargo to planet using the helper function
+          transferCargoToPlanet(ship.location, ship.cargo);
           
           hasChanges = true;
           return {

@@ -119,23 +119,10 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
   const handleOffloadCargo = (ship: Ship) => {
     if (!ship.cargo) return;
     
-    // Add cargo resources to planet
-    const stored = localStorage.getItem('planet_resources');
-    const allPlanets = stored ? JSON.parse(stored) : {};
-    const planetKey = ship.location.charAt(0).toUpperCase() + ship.location.slice(1);
-    const currentResources = allPlanets[planetKey] || { food: 0, fuel: 0, metal: 0, power: 0 };
+    console.log(`Manual offload: transferring cargo from ${ship.name} at ${ship.location}:`, ship.cargo);
     
-    allPlanets[planetKey] = {
-      ...currentResources,
-      food: currentResources.food + (ship.cargo.food || 0),
-      fuel: currentResources.fuel + (ship.cargo.fuel || 0),
-      metal: currentResources.metal + (ship.cargo.metal || 0),
-    };
-    
-    localStorage.setItem('planet_resources', JSON.stringify(allPlanets));
-    console.log(`Added cargo to ${planetKey}:`, ship.cargo);
-    
-    // Reset ship's cargo
+    // Note: The actual cargo transfer to planet resources is handled in EarthVisualization
+    // This just resets the ship's cargo in the UI
     onUpdateShip(ship.name, {
       cargo: { metal: 0, fuel: 0, food: 0 }
     });
