@@ -455,11 +455,11 @@ function StaticShip({
         // Point frigate toward target
         shipRef.current.lookAt(targetPos[0], targetPos[1], targetPos[2]);
         
-        // Check if close enough to shoot (within 1.5 units)
+        // Check if close enough to shoot (within 2.5 units for better range)
         const now = Date.now();
         const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
         
-        if (distance < 1.5 && timeSinceLastShot > 1500) { // 1.5 second cooldown between shots
+        if (distance < 2.5 && timeSinceLastShot > 1500) { // 1.5 second cooldown between shots
           console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}!`);
           if (onPirateHit) {
             onPirateHit(ship.targetPirateId);
@@ -872,43 +872,31 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
 }
 
 
-// Laser shot component for frigate attacks
+// Laser shot component for frigate attacks - renders as traveling spheres
 function LaserShot({ startPos, endPos }: { startPos: [number, number, number]; endPos: [number, number, number] }) {
-  const points = React.useMemo(() => [
-    new THREE.Vector3(...startPos),
-    new THREE.Vector3(...endPos)
-  ], [startPos, endPos]);
+  const sphereRef = useRef<THREE.Mesh>(null);
+  const creationTime = useRef(Date.now());
   
-  const geometry = React.useMemo(() => {
-    const geom = new THREE.BufferGeometry().setFromPoints(points);
-    return geom;
-  }, [points]);
+  useFrame(() => {
+    if (sphereRef.current) {
+      const elapsed = (Date.now() - creationTime.current) / 1000; // seconds
+      const duration = 0.5; // 500ms to reach target
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Interpolate position from start to end
+      const x = startPos[0] + (endPos[0] - startPos[0]) * progress;
+      const y = startPos[1] + (endPos[1] - startPos[1]) * progress;
+      const z = startPos[2] + (endPos[2] - startPos[2]) * progress;
+      
+      sphereRef.current.position.set(x, y, z);
+    }
+  });
   
   return (
-    <group>
-      {/* Main laser beam */}
-      <mesh>
-        <primitive object={new THREE.Line(geometry, new THREE.LineBasicMaterial({
-          color: 0x00ff00,
-          linewidth: 5,
-          transparent: true,
-          opacity: 0.9
-        }))} />
-      </mesh>
-      {/* Glow cylinder for visibility */}
-      <mesh position={[
-        (startPos[0] + endPos[0]) / 2,
-        (startPos[1] + endPos[1]) / 2,
-        (startPos[2] + endPos[2]) / 2
-      ]}>
-        <cylinderGeometry args={[0.08, 0.08, Math.sqrt(
-          Math.pow(endPos[0] - startPos[0], 2) +
-          Math.pow(endPos[1] - startPos[1], 2) +
-          Math.pow(endPos[2] - startPos[2], 2)
-        ), 8]} />
-        <meshBasicMaterial color="#00ff00" transparent opacity={0.6} />
-      </mesh>
-    </group>
+    <mesh ref={sphereRef} position={startPos}>
+      <sphereGeometry args={[0.08, 8, 8]} />
+      <meshBasicMaterial color="#00ff00" transparent opacity={0.9} />
+    </mesh>
   );
 }
 
