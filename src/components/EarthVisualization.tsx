@@ -626,16 +626,16 @@ function StaticShip({
           </mesh>
         )}
         
-        {/* Laser beam visual - show when attacking and recently fired */}
-        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 500) && shipRef.current && (() => {
+        {/* Frigate laser - traveling projectile like drones */}
+        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 1000) && shipRef.current && (() => {
           const startPos: [number, number, number] = [shipRef.current!.position.x, shipRef.current!.position.y, shipRef.current!.position.z];
           const targetPos = piratePositions[ship.targetPirateId!];
-          console.log(`💚 Rendering laser beam from ${ship.name} at`, startPos, 'to', targetPos);
+          console.log(`💚 Rendering frigate laser from ${ship.name} at`, startPos, 'to', targetPos);
           return (
-            <LaserBeam
+            <FrigateLaser
               startPos={startPos}
               targetPos={targetPos}
-              maxRange={2.5}
+              onComplete={() => {}}
             />
           );
         })()}
@@ -876,61 +876,71 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
 }
 
 
-// Laser beam component - static cylinder that flashes twice
-function LaserBeam({ startPos, targetPos, maxRange = 2.5 }: { 
+// Frigate laser projectile - uses same pattern as working drone projectiles
+function FrigateLaser({ 
+  startPos, 
+  targetPos, 
+  onComplete 
+}: { 
   startPos: [number, number, number]; 
   targetPos: [number, number, number];
-  maxRange?: number;
+  onComplete: () => void;
 }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const beamRef = useRef<THREE.Mesh>(null);
+  const projectileRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
-  const creationTime = useRef(Date.now());
+  const startTime = useRef(Date.now());
   
-  // Calculate direction and distance
+  // Calculate direction vector (same as drone logic)
   const dx = targetPos[0] - startPos[0];
   const dy = targetPos[1] - startPos[1];
   const dz = targetPos[2] - startPos[2];
   const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-  const beamLength = Math.min(distance, maxRange);
+  const direction: [number, number, number] = [
+    dx / distance, 
+    dy / distance, 
+    dz / distance
+  ];
   
   useFrame(() => {
-    if (groupRef.current && beamRef.current && glowRef.current) {
-      // Position at start point
-      groupRef.current.position.set(startPos[0], startPos[1], startPos[2]);
+    if (projectileRef.current && glowRef.current) {
+      const speed = 10; // Fast laser speed
+      const elapsed = (Date.now() - startTime.current) / 1000;
       
-      // Point toward target using lookAt
-      groupRef.current.lookAt(targetPos[0], targetPos[1], targetPos[2]);
+      // Calculate new position (same as drone projectiles)
+      const newPos: [number, number, number] = [
+        startPos[0] + direction[0] * speed * elapsed,
+        startPos[1] + direction[1] * speed * elapsed,
+        startPos[2] + direction[2] * speed * elapsed
+      ];
       
-      // Flash pattern: on (0-0.1s), off (0.1-0.2s), on (0.2-0.3s), off (after 0.3s)
-      const elapsed = (Date.now() - creationTime.current) / 1000;
-      const visible = (elapsed < 0.1) || (elapsed >= 0.2 && elapsed < 0.3);
-      beamRef.current.visible = visible;
-      glowRef.current.visible = visible;
+      projectileRef.current.position.set(...newPos);
+      glowRef.current.position.set(...newPos);
+      
+      // Check if reached target or max distance
+      const traveled = Math.sqrt(
+        Math.pow(newPos[0] - startPos[0], 2) +
+        Math.pow(newPos[1] - startPos[1], 2) +
+        Math.pow(newPos[2] - startPos[2], 2)
+      );
+      
+      if (traveled >= Math.min(distance, 2.5) || elapsed > 1) {
+        onComplete();
+      }
     }
   });
   
   return (
-    <group ref={groupRef}>
-      {/* Core beam - cylinder extends along Z-axis by default, so rotate to extend forward */}
-      <mesh 
-        ref={beamRef}
-        position={[0, 0, beamLength / 2]}
-        rotation={[Math.PI / 2, 0, 0]}
-      >
-        <cylinderGeometry args={[0.03, 0.03, beamLength, 8]} />
+    <group>
+      {/* Core laser bolt */}
+      <mesh ref={projectileRef} position={startPos}>
+        <sphereGeometry args={[0.05, 8, 8]} />
         <meshBasicMaterial color="#00ff00" />
       </mesh>
       {/* Glow effect */}
-      <mesh 
-        ref={glowRef}
-        position={[0, 0, beamLength / 2]}
-        rotation={[Math.PI / 2, 0, 0]}
-      >
-        <cylinderGeometry args={[0.06, 0.06, beamLength, 8]} />
-        <meshBasicMaterial color="#00ff00" transparent opacity={0.3} />
+      <mesh ref={glowRef} position={startPos}>
+        <sphereGeometry args={[0.12, 8, 8]} />
+        <meshBasicMaterial color="#00ff00" transparent opacity={0.4} />
       </mesh>
-      <pointLight color="#00ff00" intensity={6} distance={3} />
     </group>
   );
 }
