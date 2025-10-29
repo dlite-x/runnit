@@ -425,7 +425,7 @@ function StaticShip({
         const now = Date.now();
         const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
         
-        if (distance < 1 && timeSinceLastShot > 500) { // 500ms cooldown between shots
+        if (distance < 1 && timeSinceLastShot > 2000) { // 2 second cooldown between shots
           console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId}!`);
           if (onPirateHit) {
             onPirateHit(ship.targetPirateId);
