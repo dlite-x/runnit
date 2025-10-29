@@ -336,6 +336,8 @@ function StaticShip({
   const trailRef = useRef<THREE.LineSegments>(null);
   const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
   const lastShotTimeRef = useRef<number>(ship.lastShotTime || 0); // Track shot timing synchronously
+  const returnStartTime = useRef<number | null>(null); // Track when return journey started
+  const returnStartPos = useRef<[number, number, number] | null>(null); // Position when return started
 
   // Calculate ship position based on travel state or patrol state
   const currentPosition = React.useMemo(() => {
@@ -404,33 +406,61 @@ function StaticShip({
     if (shipRef.current) {
       let position = currentPosition;
       
-      // Handle returning home after combat
+      // Handle returning home after combat with smooth arc path
       if (ship.isReturningHome && ship.homePosition) {
-        const targetPos = ship.homePosition;
         const currentPos = shipRef.current.position;
         
-        const returnSpeed = 0.05;
-        const newX = currentPos.x + (targetPos[0] - currentPos.x) * returnSpeed;
-        const newY = currentPos.y + (targetPos[1] - currentPos.y) * returnSpeed;
-        const newZ = currentPos.z + (targetPos[2] - currentPos.z) * returnSpeed;
+        // Initialize return journey on first frame
+        if (!returnStartTime.current) {
+          returnStartTime.current = Date.now();
+          returnStartPos.current = [currentPos.x, currentPos.y, currentPos.z];
+        }
         
-        position = [newX, newY, newZ];
+        const startPos = returnStartPos.current!;
+        const targetPos = ship.homePosition;
+        const elapsed = Date.now() - returnStartTime.current;
+        const returnDuration = 3000; // 3 seconds for return journey
+        const progress = Math.min(elapsed / returnDuration, 1);
         
-        // Check if reached home position
+        // Calculate distance for arc height
         const distance = Math.sqrt(
-          Math.pow(targetPos[0] - newX, 2) +
-          Math.pow(targetPos[1] - newY, 2) +
-          Math.pow(targetPos[2] - newZ, 2)
+          Math.pow(targetPos[0] - startPos[0], 2) + 
+          Math.pow(targetPos[1] - startPos[1], 2) + 
+          Math.pow(targetPos[2] - startPos[2], 2)
         );
         
-        // If close enough to home, resume patrolling
-        if (distance < 0.5) {
+        // Create smooth arc path
+        const arcHeight = distance * 0.3;
+        const midY = Math.max(startPos[1], targetPos[1]) + arcHeight;
+        
+        // Bezier curve for smooth path
+        const easeProgress = progress < 0.5 
+          ? 2 * progress * progress 
+          : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        
+        const x = startPos[0] + (targetPos[0] - startPos[0]) * easeProgress;
+        const y = startPos[1] + (midY - startPos[1]) * Math.sin(progress * Math.PI);
+        const z = startPos[2] + (targetPos[2] - startPos[2]) * easeProgress;
+        
+        position = [x, y, z];
+        
+        // Point toward home
+        shipRef.current.lookAt(targetPos[0], targetPos[1], targetPos[2]);
+        
+        // Check if reached home
+        if (progress >= 1) {
           console.log(`🏠 ${ship.name} returned home and resuming patrol`);
-          // This will be handled by parent component state update
+          position = targetPos;
+          returnStartTime.current = null;
+          returnStartPos.current = null;
         }
+      } else {
+        // Reset return journey tracking when not returning home
+        returnStartTime.current = null;
+        returnStartPos.current = null;
       }
       // Handle attack movement for frigates
-      else if (ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId]) {
+      if (ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId]) {
         const targetPos = piratePositions[ship.targetPirateId];
         const currentPos = shipRef.current.position;
         
