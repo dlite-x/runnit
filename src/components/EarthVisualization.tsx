@@ -433,27 +433,34 @@ function StaticShip({
         const targetPos = piratePositions[ship.targetPirateId];
         const currentPos = shipRef.current.position;
         
-        // Chase the pirate - move toward its position
-        const chaseSpeed = 0.05;
-        const newX = currentPos.x + (targetPos[0] - currentPos.x) * chaseSpeed;
-        const newY = currentPos.y + (targetPos[1] - currentPos.y) * chaseSpeed;
-        const newZ = currentPos.z + (targetPos[2] - currentPos.z) * chaseSpeed;
+        // Calculate direction vector to target
+        const dx = targetPos[0] - currentPos.x;
+        const dy = targetPos[1] - currentPos.y;
+        const dz = targetPos[2] - currentPos.z;
+        const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        
+        // Pirate speed is 0.126, frigate is 30% faster = 0.164
+        const frigateSpeed = 0.164;
+        
+        // Pursuit curve: variable speed based on distance for more realistic motion
+        const pursuitBlend = Math.min(distance / 10, 1); // More direct when close
+        const chaseSpeed = frigateSpeed * (0.03 + 0.02 * (1 - pursuitBlend));
+        
+        const newX = currentPos.x + (dx / distance) * chaseSpeed;
+        const newY = currentPos.y + (dy / distance) * chaseSpeed;
+        const newZ = currentPos.z + (dz / distance) * chaseSpeed;
         
         position = [newX, newY, newZ];
         
-        // Check if close enough to shoot (within 1 unit)
-        const distance = Math.sqrt(
-          Math.pow(targetPos[0] - newX, 2) +
-          Math.pow(targetPos[1] - newY, 2) +
-          Math.pow(targetPos[2] - newZ, 2)
-        );
+        // Point frigate toward target
+        shipRef.current.lookAt(targetPos[0], targetPos[1], targetPos[2]);
         
-        // Shoot if within range and enough time has passed since last shot
+        // Check if close enough to shoot (within 1.5 units)
         const now = Date.now();
         const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
         
-        if (distance < 1 && timeSinceLastShot > 2000) { // 2 second cooldown between shots
-          console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId}!`);
+        if (distance < 1.5 && timeSinceLastShot > 2000) { // 2 second cooldown between shots
+          console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}!`);
           if (onPirateHit) {
             onPirateHit(ship.targetPirateId);
           }
@@ -616,6 +623,14 @@ function StaticShip({
               emissiveIntensity={selected ? 0.5 : 0.2}
             />
           </mesh>
+        )}
+        
+        {/* Laser shot visual - show when attacking and recently fired */}
+        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 200) && (
+          <LaserShot
+            startPos={[shipRef.current.position.x, shipRef.current.position.y, shipRef.current.position.z]}
+            endPos={piratePositions[ship.targetPirateId]}
+          />
         )}
         
         {/* Engine glow - only show for non-patrolling ships */}
@@ -853,7 +868,30 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
   );
 }
 
-function PirateShip({ 
+
+// Laser shot component for frigate attacks
+function LaserShot({ startPos, endPos }: { startPos: [number, number, number]; endPos: [number, number, number] }) {
+  const points = React.useMemo(() => [
+    new THREE.Vector3(...startPos),
+    new THREE.Vector3(...endPos)
+  ], [startPos, endPos]);
+  
+  const geometry = React.useMemo(() => {
+    const geom = new THREE.BufferGeometry().setFromPoints(points);
+    return geom;
+  }, [points]);
+  
+  return (
+    <primitive object={new THREE.Line(geometry, new THREE.LineBasicMaterial({
+      color: 0x00ff00,
+      linewidth: 3,
+      transparent: true,
+      opacity: 0.8
+    }))} />
+  );
+}
+
+function PirateShip({
   id,
   earthPosition, 
   moonPosition, 
