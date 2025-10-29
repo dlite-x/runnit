@@ -304,7 +304,8 @@ function StaticShip({
   onShipClick, 
   onShipDoubleClick,
   piratePositions,
-  onPirateDestroyed
+  onPirateDestroyed,
+  onPirateHit
 }: {
   ship: { 
     type: 'colony' | 'cargo' | 'station' | 'frigate';
@@ -320,12 +321,14 @@ function StaticShip({
     patrolOrbitSpeed?: number;
     isAttacking?: boolean;
     targetPirateId?: string;
+    lastShotTime?: number;
   };
   selected: boolean;
   onShipClick?: () => void;
   onShipDoubleClick?: () => void;
   piratePositions?: Record<string, [number, number, number]>;
   onPirateDestroyed?: (pirateId: string) => void;
+  onPirateHit?: (pirateId: string) => void;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
@@ -411,21 +414,22 @@ function StaticShip({
         
         position = [newX, newY, newZ];
         
-        // Check if close enough to destroy pirate (within 0.5 units)
+        // Check if close enough to shoot (within 1 unit)
         const distance = Math.sqrt(
           Math.pow(targetPos[0] - newX, 2) +
           Math.pow(targetPos[1] - newY, 2) +
           Math.pow(targetPos[2] - newZ, 2)
         );
         
-        if (distance < 0.5) {
-          console.log(`💥 ${ship.name} destroyed pirate ${ship.targetPirateId}!`);
-          // Destroy the pirate
-          if (onPirateDestroyed) {
-            onPirateDestroyed(ship.targetPirateId);
+        // Shoot if within range and enough time has passed since last shot
+        const now = Date.now();
+        const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
+        
+        if (distance < 1 && timeSinceLastShot > 500) { // 500ms cooldown between shots
+          console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId}!`);
+          if (onPirateHit) {
+            onPirateHit(ship.targetPirateId);
           }
-          // Clear attack state for frigate
-          // This will be handled in the parent component
         }
       }
       // Handle patrol orbital movement for frigates
@@ -2894,6 +2898,7 @@ const EarthVisualization = () => {
   const [pirates, setPirates] = useState<Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }>>([]);
   const [piratePositions, setPiratePositions] = useState<Record<string, [number, number, number]>>({});
   const [destroyedPirates, setDestroyedPirates] = useState<Set<string>>(new Set());
+  const [pirateHits, setPirateHits] = useState<Record<string, number>>({});
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showTravelGuide, setShowTravelGuide] = useState(false);
   const [showInvestModal, setShowInvestModal] = useState(false);
@@ -3328,7 +3333,33 @@ const EarthVisualization = () => {
       s.targetPirateId === pirateId ? { 
         ...s, 
         isAttacking: false, 
-        targetPirateId: undefined 
+        targetPirateId: undefined,
+        lastShotTime: undefined
+      } : s
+    ));
+  };
+
+  // Handle pirate hit
+  const handlePirateHit = (pirateId: string) => {
+    setPirateHits(prev => {
+      const currentHits = (prev[pirateId] || 0) + 1;
+      console.log(`💥 Pirate ${pirateId} hit ${currentHits}/3 times`);
+      
+      // Check if pirate is destroyed (3 hits)
+      if (currentHits >= 3) {
+        console.log(`🔥 Pirate ${pirateId} destroyed after 3 hits!`);
+        handlePirateDestroyed(pirateId);
+        return { ...prev, [pirateId]: 0 }; // Reset hits
+      }
+      
+      return { ...prev, [pirateId]: currentHits };
+    });
+    
+    // Update last shot time for the frigate
+    setBuiltSpheres(prev => prev.map(s =>
+      s.isAttacking && s.targetPirateId === pirateId ? { 
+        ...s, 
+        lastShotTime: Date.now()
       } : s
     ));
   };
@@ -4964,6 +4995,7 @@ const EarthVisualization = () => {
             selected={selectedShip?.name === ship.name || selectedFrigateForCombat === ship.name}
             piratePositions={piratePositions}
             onPirateDestroyed={handlePirateDestroyed}
+            onPirateHit={handlePirateHit}
             onShipClick={() => {
               // Special handling for frigates - allow combat selection
               if (ship.type === 'frigate' && !ship.isPatrolling && !ship.isAttacking) {
