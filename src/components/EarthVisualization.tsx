@@ -885,6 +885,7 @@ function FrigateLaser({
   const projectileRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
   const startTime = useRef(Date.now());
+  const hasCompleted = useRef(false); // Flag to ensure onComplete fires only once
   
   // Calculate direction vector (same as drone logic)
   const dx = targetPos[0] - startPos[0];
@@ -919,7 +920,8 @@ function FrigateLaser({
         Math.pow(newPos[2] - startPos[2], 2)
       );
       
-      if (traveled >= Math.min(distance, 2.5) || elapsed > 1) {
+      if (!hasCompleted.current && (traveled >= Math.min(distance, 2.5) || elapsed > 1)) {
+        hasCompleted.current = true; // Mark as completed
         onComplete();
       }
     }
