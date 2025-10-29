@@ -439,8 +439,8 @@ function StaticShip({
         const dz = targetPos[2] - currentPos.z;
         const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         
-        // Pirate speed is 0.126, frigate is 30% faster = 0.164
-        const baseSpeed = 0.164;
+        // Pirate speed is 0.126, frigate is 15% faster = 0.145
+        const baseSpeed = 0.145;
         
         // Slow down slightly when very close for precision, otherwise full speed
         const speedMultiplier = distance < 2 ? 0.7 : 1.0;
