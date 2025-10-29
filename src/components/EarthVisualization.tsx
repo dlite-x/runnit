@@ -4998,16 +4998,6 @@ const EarthVisualization = () => {
           />
         )}
         
-        {/* Static Ships - rendered based on builtSpheres */}
-        {builtSpheres.map((ship, index) => (
-          <StaticShip
-            key={ship.name}
-            ship={ship}
-            selected={selectedObject === ship.name}
-            onShipClick={() => setSelectedObject(ship.name)}
-            onShipDoubleClick={() => console.log(`Double-clicked ${ship.name}`)}
-          />
-        ))}
         
         {/* Coordinate System */}
         {showCoordinates && <CoordinateSystem />}
