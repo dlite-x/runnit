@@ -2665,6 +2665,7 @@ const EarthVisualization = () => {
   const [selectedShipForPeople, setSelectedShipForPeople] = useState<typeof builtSpheres[0] | null>(null);
   const [peopleInput, setPeopleInput] = useState(0);
   const [peopleMode, setPeopleMode] = useState<'load' | 'unload'>('load');
+  const [selectedShipActions, setSelectedShipActions] = useState<Record<string, string>>({});
   
   // Moon colonization state
   const [isMoonColonized, setIsMoonColonized] = useState(false);
@@ -4239,71 +4240,81 @@ const EarthVisualization = () => {
                       
                       {/* Actions */}
                       <div className="flex gap-1">
-                        {ship.type === 'station' && isArrived ? (
-                          <button
-                            className="px-3 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors"
-                            onClick={() => handleDeployStation(ship.name, ship.location)}
-                          >
-                            Deploy
-                          </button>
-                        ) : ship.type === 'colony' && isArrived ? (
-                          <button
-                            className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors flex items-center gap-1"
-                            onClick={() => handleColonizePlanet(ship.name, ship.location)}
-                          >
-                            <Flag className="w-3 h-3" />
-                          </button>
-                        ) : ship.location !== 'traveling' && ship.location !== 'preparing' ? (
-                          <button 
-                            className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-                            disabled={!ship.destination || currentFuel < requiredFuel || ship.destination === ship.location}
-                            onClick={() => {
-                              if (ship.location !== 'traveling' && ship.location !== 'preparing') {
-                                // Launch with static positioning system
-                                const currentPlanet = ship.location as 'earth' | 'moon' | 'mars' | 'eml1';
-                                // Determine target planet based on destination
-                                let targetPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
-                                if (ship.destination === 'mars') {
-                                  targetPlanet = 'mars';
-                                } else if (ship.destination === 'eml1') {
-                                  targetPlanet = 'eml1';
-                                } else if (ship.destination === 'moon') {
-                                  targetPlanet = 'moon';
-                                } else {
-                                  targetPlanet = 'earth';
-                                }
-                                const startPos = ship.staticPosition || ship.position;
-                                // Count ships that will be at destination to determine proper landing spot
-                                const shipsAtTargetDestination = builtSpheres.filter(s => s.location === targetPlanet || (s.location === 'traveling' && (s.destination === targetPlanet || (s.destination === 'moon' && targetPlanet === 'moon') || (s.destination === 'earth' && targetPlanet === 'earth') || (s.destination === 'mars' && targetPlanet === 'mars')))).length;
-                                const endPos = getStaticPositionNearPlanet(targetPlanet, shipsAtTargetDestination);
-                                const travelTime = calculateTravelTimeSeconds(currentPlanet, targetPlanet);
-                                
-                                setBuiltSpheres(prev => prev.map(s => 
-                                  s.name === ship.name ? { 
-                                    ...s, 
-                                    location: 'traveling',
-                                    startPosition: startPos,
-                                    endPosition: endPos,
-                                    departureTime: Date.now(),
-                                    totalTravelTime: travelTime,
-                                    staticPosition: undefined // Clear static position during travel
-                                  } : s
-                                ));
-                                console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`, {
-                                  startPos,
-                                  endPos,
-                                  departureTime: Date.now(),
-                                  totalTravelTime: travelTime
-                                });
-                              }
-                            }}
-                          >
-                            launch
-                          </button>
-                        ) : (
+                        {ship.location === 'traveling' || ship.location === 'preparing' ? (
                           <span className="text-xs text-slate-400 px-2">
                             {ship.location === 'traveling' ? 'flying' : 'prep'}
                           </span>
+                        ) : (
+                          <>
+                            <Select 
+                              value={selectedShipActions[ship.name] || ''}
+                              onValueChange={(value) => setSelectedShipActions(prev => ({ ...prev, [ship.name]: value }))}
+                            >
+                              <SelectTrigger className="w-20 h-6 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300">
+                                <SelectValue placeholder="Select" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
+                                <SelectItem value="launch" className="text-slate-300 hover:bg-slate-700">Launch</SelectItem>
+                                {ship.type === 'colony' && isArrived && (
+                                  <SelectItem value="colonize" className="text-slate-300 hover:bg-slate-700">Colonize</SelectItem>
+                                )}
+                                {ship.type === 'station' && isArrived && (
+                                  <SelectItem value="deploy" className="text-slate-300 hover:bg-slate-700">Deploy</SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <button
+                              className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                              disabled={!selectedShipActions[ship.name] || 
+                                       (selectedShipActions[ship.name] === 'launch' && (!ship.destination || currentFuel < requiredFuel || ship.destination === ship.location))}
+                              onClick={() => {
+                                const action = selectedShipActions[ship.name];
+                                if (!action) return;
+
+                                if (action === 'launch' && ship.location !== 'traveling' && ship.location !== 'preparing') {
+                                  const currentPlanet = ship.location as 'earth' | 'moon' | 'mars' | 'eml1';
+                                  let targetPlanet: 'earth' | 'moon' | 'mars' | 'eml1';
+                                  if (ship.destination === 'mars') {
+                                    targetPlanet = 'mars';
+                                  } else if (ship.destination === 'eml1') {
+                                    targetPlanet = 'eml1';
+                                  } else if (ship.destination === 'moon') {
+                                    targetPlanet = 'moon';
+                                  } else {
+                                    targetPlanet = 'earth';
+                                  }
+                                  const startPos = ship.staticPosition || ship.position;
+                                  const shipsAtTargetDestination = builtSpheres.filter(s => s.location === targetPlanet || (s.location === 'traveling' && (s.destination === targetPlanet || (s.destination === 'moon' && targetPlanet === 'moon') || (s.destination === 'earth' && targetPlanet === 'earth') || (s.destination === 'mars' && targetPlanet === 'mars')))).length;
+                                  const endPos = getStaticPositionNearPlanet(targetPlanet, shipsAtTargetDestination);
+                                  const travelTime = calculateTravelTimeSeconds(currentPlanet, targetPlanet);
+                                  
+                                  setBuiltSpheres(prev => prev.map(s => 
+                                    s.name === ship.name ? { 
+                                      ...s, 
+                                      location: 'traveling',
+                                      startPosition: startPos,
+                                      endPosition: endPos,
+                                      departureTime: Date.now(),
+                                      totalTravelTime: travelTime,
+                                      staticPosition: undefined
+                                    } : s
+                                  ));
+                                  console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`, {
+                                    startPos,
+                                    endPos,
+                                    departureTime: Date.now(),
+                                    totalTravelTime: travelTime
+                                  });
+                                } else if (action === 'deploy') {
+                                  handleDeployStation(ship.name, ship.location);
+                                } else if (action === 'colonize') {
+                                  handleColonizePlanet(ship.name, ship.location);
+                                }
+                              }}
+                            >
+                              Execute
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
