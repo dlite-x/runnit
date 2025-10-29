@@ -335,6 +335,7 @@ function StaticShip({
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
   const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
+  const lastShotTimeRef = useRef<number>(ship.lastShotTime || 0); // Track shot timing synchronously
 
   // Calculate ship position based on travel state or patrol state
   const currentPosition = React.useMemo(() => {
@@ -457,7 +458,7 @@ function StaticShip({
         
         // Check if close enough to shoot (within 2.5 units for better range)
         const now = Date.now();
-        const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
+        const timeSinceLastShot = now - lastShotTimeRef.current;
         
         if (distance < 2.5 && timeSinceLastShot > 3000) { // 3 second cooldown between shots
           console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}!`);
@@ -467,6 +468,8 @@ function StaticShip({
               shipRef.current.position.y,
               shipRef.current.position.z
             ];
+            // Update ref IMMEDIATELY to prevent duplicate shots
+            lastShotTimeRef.current = now;
             onProjectileFire(ship.name, currentPos, targetPos, ship.targetPirateId);
             console.log(`🚀 Projectile fired from ${ship.name} at`, currentPos, 'to', targetPos);
           }
