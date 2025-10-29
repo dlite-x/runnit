@@ -460,9 +460,10 @@ function StaticShip({
         const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
         
         if (distance < 2.5 && timeSinceLastShot > 1500) { // 1.5 second cooldown between shots
-          console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}!`);
+          console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}! lastShotTime=${ship.lastShotTime}`);
           if (onPirateHit) {
             onPirateHit(ship.targetPirateId);
+            console.log(`📡 onPirateHit called for ${ship.targetPirateId}`);
           }
         }
       }
@@ -3528,6 +3529,7 @@ const EarthVisualization = () => {
 
   // Handle pirate hit
   const handlePirateHit = (pirateId: string) => {
+    console.log(`🎯 handlePirateHit called for ${pirateId}`);
     setPirateHits(prev => {
       const currentHits = (prev[pirateId] || 0) + 1;
       console.log(`💥 Pirate ${pirateId} hit ${currentHits}/3 times`);
@@ -3543,12 +3545,18 @@ const EarthVisualization = () => {
     });
     
     // Update last shot time for the frigate
-    setBuiltSpheres(prev => prev.map(s =>
-      s.isAttacking && s.targetPirateId === pirateId ? { 
+    const updateTime = Date.now();
+    console.log(`⏰ Setting lastShotTime to ${updateTime} for attacking ship targeting ${pirateId}`);
+    setBuiltSpheres(prev => prev.map(s => {
+      const shouldUpdate = s.isAttacking && s.targetPirateId === pirateId;
+      if (shouldUpdate) {
+        console.log(`✅ Updating ${s.name} lastShotTime to ${updateTime}`);
+      }
+      return shouldUpdate ? { 
         ...s, 
-        lastShotTime: Date.now()
-      } : s
-    ));
+        lastShotTime: updateTime
+      } : s;
+    }));
   };
 
   // Fuel management handler
