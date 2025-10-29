@@ -395,7 +395,7 @@ function StaticShip({
       // Handle patrol orbital movement for frigates
       if (ship.isPatrolling && ship.type === 'frigate') {
         const time = state.clock.getElapsedTime();
-        const speed = ship.patrolOrbitSpeed || 0.0005;
+        const speed = ship.patrolOrbitSpeed || 0.5;
         
         // Get the planet's position based on ship location
         let planetCenter: [number, number, number] = [0, 0, 0];
@@ -4422,7 +4422,7 @@ const EarthVisualization = () => {
                                 } else if (action === 'patrol') {
                                   // Start patrolling
                                   setBuiltSpheres(prev => prev.map(s =>
-                                    s.name === ship.name ? { ...s, isPatrolling: true, patrolOrbitSpeed: 0.0005 } : s
+                                    s.name === ship.name ? { ...s, isPatrolling: true, patrolOrbitSpeed: 0.5 } : s
                                   ));
                                   console.log(`🛡️ ${ship.name} started patrolling ${ship.location}`);
                                 }
