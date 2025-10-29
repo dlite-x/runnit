@@ -440,7 +440,7 @@ function StaticShip({
         const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         
         // Frigate chase speed - slightly faster than pirates to catch up
-        const baseSpeed = 0.021; // Increased for better pursuit
+        const baseSpeed = 0.02;
         
         // Slow down when very close for precision
         const speedMultiplier = distance < 2 ? 0.6 : 1.0;
@@ -894,8 +894,9 @@ function LaserShot({ startPos, endPos }: { startPos: [number, number, number]; e
   
   return (
     <mesh ref={sphereRef} position={startPos}>
-      <sphereGeometry args={[0.08, 8, 8]} />
-      <meshBasicMaterial color="#00ff00" transparent opacity={0.9} />
+      <sphereGeometry args={[0.15, 16, 16]} />
+      <meshBasicMaterial color="#00ff00" />
+      <pointLight color="#00ff00" intensity={2} distance={1} />
     </mesh>
   );
 }
