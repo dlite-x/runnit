@@ -439,12 +439,11 @@ function StaticShip({
         const dz = targetPos[2] - currentPos.z;
         const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         
-        // Frigate chase speed - needs to be much slower than pirate's parametric speed
-        // Using interpolation-based movement similar to return-home speed
-        const baseSpeed = 0.015; // Slightly faster than typical orbital movements
+        // Frigate chase speed - slightly faster than pirates to catch up
+        const baseSpeed = 0.018; // About 20% faster than return-home speed
         
         // Slow down when very close for precision
-        const speedMultiplier = distance < 2 ? 0.5 : 1.0;
+        const speedMultiplier = distance < 2 ? 0.6 : 1.0;
         const chaseSpeed = baseSpeed * speedMultiplier;
         
         const newX = currentPos.x + (dx / distance) * chaseSpeed;
@@ -627,12 +626,15 @@ function StaticShip({
         )}
         
         {/* Laser shot visual - show when attacking and recently fired */}
-        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 500) && (
-          <LaserShot
-            startPos={[shipRef.current.position.x, shipRef.current.position.y, shipRef.current.position.z]}
-            endPos={piratePositions[ship.targetPirateId]}
-          />
-        )}
+        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 800) && (() => {
+          console.log(`💚 Rendering laser shot from ${ship.name} to ${ship.targetPirateId}`);
+          return (
+            <LaserShot
+              startPos={[shipRef.current.position.x, shipRef.current.position.y, shipRef.current.position.z]}
+              endPos={piratePositions[ship.targetPirateId]}
+            />
+          );
+        })()}
         
         {/* Engine glow - only show for non-patrolling ships */}
         {!ship.isPatrolling && (
