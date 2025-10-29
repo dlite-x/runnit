@@ -440,7 +440,7 @@ function StaticShip({
         const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         
         // Frigate chase speed - slightly faster than pirates to catch up
-        const baseSpeed = 0.018; // About 20% faster than return-home speed
+        const baseSpeed = 0.021; // Increased for better pursuit
         
         // Slow down when very close for precision
         const speedMultiplier = distance < 2 ? 0.6 : 1.0;
