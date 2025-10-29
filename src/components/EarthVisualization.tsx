@@ -305,7 +305,8 @@ function StaticShip({
   onShipDoubleClick,
   piratePositions,
   onPirateDestroyed,
-  onProjectileFire
+  onProjectileFire,
+  onReturnedHome
 }: {
   ship: { 
     type: 'colony' | 'cargo' | 'station' | 'frigate';
@@ -331,6 +332,7 @@ function StaticShip({
   piratePositions?: Record<string, [number, number, number]>;
   onPirateDestroyed?: (pirateId: string) => void;
   onProjectileFire?: (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => void;
+  onReturnedHome?: (frigateId: string) => void;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
@@ -453,6 +455,11 @@ function StaticShip({
           position = targetPos;
           returnStartTime.current = null;
           returnStartPos.current = null;
+          
+          // Notify parent that frigate has returned home
+          if (onReturnedHome) {
+            onReturnedHome(ship.name);
+          }
         }
       } else {
         // Reset return journey tracking when not returning home
@@ -3605,22 +3612,9 @@ const EarthVisualization = () => {
         }
         
         // Check if returning home frigate has reached destination
-        if (ship.isReturningHome && ship.homePosition && ship.staticPosition) {
-          const dx = ship.homePosition[0] - ship.staticPosition[0];
-          const dy = ship.homePosition[1] - ship.staticPosition[1];
-          const dz = ship.homePosition[2] - ship.staticPosition[2];
-          const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-          
-          if (distance < 0.5) {
-            console.log(`✅ ${ship.name} returned home and idle`);
-            hasChanges = true;
-            return {
-              ...ship,
-              isReturningHome: false,
-              isDeployed: false,
-              homePosition: undefined
-            };
-          }
+        if (ship.isReturningHome && ship.homePosition) {
+          // This is now handled by the onReturnedHome callback in StaticShip
+          // No need to check here as the actual position is tracked in useFrame
         }
         return ship;
       });
@@ -3628,6 +3622,18 @@ const EarthVisualization = () => {
       return hasChanges ? updated : prev;
     });
   }, [builtSpheres, pirates, destroyedPirates, piratePositions]);
+
+  // Handle frigate returning home
+  const handleFrigateReturnedHome = (frigateId: string) => {
+    console.log(`✅ ${frigateId} returned home and resuming patrol`);
+    setBuiltSpheres(prev => prev.map(s =>
+      s.name === frigateId ? {
+        ...s,
+        isReturningHome: false,
+        isPatrolling: true
+      } : s
+    ));
+  };
 
   // Handle projectile fire from frigate
   const handleProjectileFire = (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => {
@@ -5304,6 +5310,7 @@ const EarthVisualization = () => {
             piratePositions={piratePositions}
             onPirateDestroyed={handlePirateDestroyed}
             onProjectileFire={handleProjectileFire}
+            onReturnedHome={handleFrigateReturnedHome}
             onShipClick={() => {
               setSelectedShip({ name: ship.name, type: ship.type });
               setShowShipLaunchModal(true);
