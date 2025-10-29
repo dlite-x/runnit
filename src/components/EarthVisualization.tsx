@@ -929,12 +929,12 @@ function FrigateLaser({
     <group>
       {/* Core laser bolt */}
       <mesh ref={projectileRef} position={startPos}>
-        <sphereGeometry args={[0.05, 8, 8]} />
+        <sphereGeometry args={[0.04, 8, 8]} />
         <meshBasicMaterial color="#00ff00" />
       </mesh>
       {/* Glow effect */}
       <mesh ref={glowRef} position={startPos}>
-        <sphereGeometry args={[0.12, 8, 8]} />
+        <sphereGeometry args={[0.08, 8, 8]} />
         <meshBasicMaterial color="#00ff00" transparent opacity={0.4} />
       </mesh>
     </group>
@@ -3575,6 +3575,13 @@ const EarthVisualization = () => {
   const handleLaserFire = (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => {
     const laserId = `laser-${Date.now()}-${frigateId}`;
     console.log(`🚀 Creating laser ${laserId} from ${frigateId} to ${targetPirateId}`);
+    
+    // Update lastShotTime IMMEDIATELY when firing (not when hitting)
+    const fireTime = Date.now();
+    setBuiltSpheres(prev => prev.map(s => 
+      s.name === frigateId ? { ...s, lastShotTime: fireTime } : s
+    ));
+    
     setFrigateLasers(prev => [...prev, {
       id: laserId,
       startPos: [...startPos],
@@ -3606,19 +3613,7 @@ const EarthVisualization = () => {
       return { ...prev, [pirateId]: currentHits };
     });
     
-    // Update last shot time for the frigate
-    const updateTime = Date.now();
-    console.log(`⏰ Setting lastShotTime to ${updateTime} for frigate ${frigateId}`);
-    setBuiltSpheres(prev => prev.map(s => {
-      const shouldUpdate = s.name === frigateId;
-      if (shouldUpdate) {
-        console.log(`✅ Updating ${s.name} lastShotTime to ${updateTime}`);
-      }
-      return shouldUpdate ? { 
-        ...s, 
-        lastShotTime: updateTime
-      } : s;
-    }));
+    // Note: lastShotTime already updated when firing, not here
   };
 
   // Handle pirate hit (legacy - kept for compatibility)
