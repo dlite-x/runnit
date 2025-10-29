@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 interface Ship {
   name: string;
-  type: 'colony' | 'cargo';
+  type: 'colony' | 'cargo' | 'station';
   location: string;
   destination?: string;
   departureTime?: number;
@@ -23,6 +23,7 @@ interface FlightControlPanelProps {
   onUpdateShip: (shipName: string, updates: Partial<Ship>) => void;
   onLaunchShip: (shipName: string) => void;
   onColonizePlanet: (shipName: string, planet: string) => void;
+  onDeployStation: (shipName: string, location: string) => void;
   availableResources: { fuel: number; metal: number; food: number };
   onSpendResource: (resourceType: 'fuel' | 'metal' | 'food', amount: number) => boolean;
   onTransferCargo: (planetLocation: string, cargo: { food: number; fuel: number; metal: number }) => void;
@@ -51,6 +52,7 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
   onUpdateShip,
   onLaunchShip,
   onColonizePlanet,
+  onDeployStation,
   availableResources,
   onSpendResource,
   onTransferCargo,
@@ -196,6 +198,8 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                     <TableCell className="px-1">
                       {ship.type === 'colony' ? (
                         <Home className="w-4 h-4 text-blue-400" />
+                      ) : ship.type === 'station' ? (
+                        <span className="text-xs">🛰️</span>
                       ) : (
                         <Package className="w-4 h-4 text-orange-400" />
                       )}
@@ -282,7 +286,16 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                       <span className="text-xs">{getETA(ship)}</span>
                     </TableCell>
                     <TableCell className="text-right px-2">
-                      {ship.type === 'colony' && isArrived ? (
+                      {ship.type === 'station' && ship.location !== 'traveling' ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 px-2 text-xs"
+                          onClick={() => onDeployStation(ship.name, ship.location)}
+                        >
+                          Deploy
+                        </Button>
+                      ) : ship.type === 'colony' && isArrived ? (
                         <Button
                           size="sm"
                           variant="ghost"
@@ -300,6 +313,15 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                           disabled={!canLaunch(ship)}
                         >
                           <ArrowRight className={`w-4 h-4 ${canLaunch(ship) ? 'text-green-400' : 'text-muted-foreground'}`} />
+                        </Button>
+                      ) : ship.type === 'station' && ship.location === 'traveling' ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 px-2 text-xs"
+                          disabled
+                        >
+                          En Route
                         </Button>
                       ) : null}
                     </TableCell>

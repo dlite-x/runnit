@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 
 interface ShipLaunchModalProps {
   shipName: string;
-  shipType: 'colony' | 'cargo';
+  shipType: 'colony' | 'cargo' | 'station';
   isVisible: boolean;
   onClose: () => void;
   onLaunch: () => void;
@@ -38,7 +38,7 @@ const ShipLaunchModal: React.FC<ShipLaunchModalProps> = ({
         </div>
         
         <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Type:</span> {shipType === 'colony' ? 'Colony Ship' : 'Cargo Ship'}
+          <span className="font-medium text-foreground">Type:</span> {shipType === 'colony' ? 'Colony Ship' : shipType === 'station' ? 'Space Station' : 'Cargo Ship'}
         </div>
         
         <button

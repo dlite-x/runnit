@@ -304,7 +304,7 @@ function StaticShip({
   onShipDoubleClick 
 }: { 
   ship: { 
-    type: 'colony' | 'cargo';
+    type: 'colony' | 'cargo' | 'station';
     name: string;
     location: 'earth' | 'moon' | 'mars' | 'eml1' | 'preparing' | 'traveling';
     staticPosition?: [number, number, number];
@@ -1272,6 +1272,76 @@ function BaseCube({ onCubeClick }: { onCubeClick?: () => void }) {
           color="#00FF00"
           emissive="#00FF00"
           emissiveIntensity={0.8}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// Deployed Station Component - small orbiting station
+function DeployedStation({ 
+  location, 
+  index 
+}: { 
+  location: 'earth' | 'moon' | 'mars' | 'eml1'; 
+  index: number;
+}) {
+  const stationRef = useRef<THREE.Group>(null);
+  
+  // Get base position for the planet
+  const basePosition: [number, number, number] = React.useMemo(() => {
+    if (location === 'earth') return [0, 0, 0];
+    if (location === 'moon') return [24, 4, 8];
+    if (location === 'eml1') return [16, 2.5, 5.3];
+    return [60, 10, 20]; // mars
+  }, [location]);
+  
+  // Orbit radius and speed based on location
+  const orbitRadius = location === 'earth' ? 4 : location === 'moon' ? 3 : location === 'eml1' ? 2 : 5;
+  const orbitSpeed = 0.2 + (index * 0.05); // Vary speed per station
+  const orbitOffset = (index * Math.PI * 2) / 3; // Offset orbit phase
+  
+  useFrame((state) => {
+    if (stationRef.current) {
+      const time = state.clock.getElapsedTime();
+      const angle = time * orbitSpeed + orbitOffset;
+      stationRef.current.position.x = basePosition[0] + Math.cos(angle) * orbitRadius;
+      stationRef.current.position.y = basePosition[1] + Math.sin(angle) * orbitRadius * 0.3;
+      stationRef.current.position.z = basePosition[2] + Math.sin(angle) * orbitRadius;
+      stationRef.current.rotation.y = time * 0.3;
+    }
+  });
+
+  return (
+    <group ref={stationRef}>
+      {/* Small central hub */}
+      <mesh>
+        <cylinderGeometry args={[0.15, 0.15, 0.4, 6]} />
+        <meshStandardMaterial 
+          color="#90EE90" 
+          metalness={0.7} 
+          roughness={0.3}
+          emissive="#32CD32"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      
+      {/* Small solar panels */}
+      <mesh position={[0.5, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[0.3, 0.02, 0.6]} />
+        <meshStandardMaterial 
+          color="#003366" 
+          emissive="#0066CC"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      
+      <mesh position={[-0.5, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[0.3, 0.02, 0.6]} />
+        <meshStandardMaterial 
+          color="#003366" 
+          emissive="#0066CC"
+          emissiveIntensity={0.2}
         />
       </mesh>
     </group>
@@ -2478,7 +2548,7 @@ const EarthVisualization = () => {
   const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
   const [builtSpheres, setBuiltSpheres] = useState<Array<{ 
-    type: 'colony' | 'cargo', 
+    type: 'colony' | 'cargo' | 'station', 
     position?: [number, number, number], // Optional for legacy spheres
     name: string, 
     location: 'earth' | 'moon' | 'mars' | 'eml1' | 'preparing' | 'traveling',
@@ -2560,6 +2630,8 @@ const EarthVisualization = () => {
   };
   const [colonyCount, setColonyCount] = useState(0);
   const [cargoCount, setCargoCount] = useState(0);
+  const [stationCount, setStationCount] = useState(0);
+  const [deployedStations, setDeployedStations] = useState<Array<{ name: string; location: 'earth' | 'moon' | 'mars' | 'eml1' }>>([]);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [showTargetCube, setShowTargetCube] = useState(false);
   const [showBaseCube, setShowBaseCube] = useState(false);
@@ -2574,7 +2646,7 @@ const EarthVisualization = () => {
   const [showMissionsModal, setShowMissionsModal] = useState(false);
   
   // Ship launch modal state
-  const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' } | null>(null);
+  const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' | 'station' } | null>(null);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showTravelGuide, setShowTravelGuide] = useState(false);
   const [showInvestModal, setShowInvestModal] = useState(false);
@@ -2943,6 +3015,22 @@ const EarthVisualization = () => {
     ));
 
     console.log(`Colonizing ${planet} with ${shipName}`);
+  };
+
+  const handleDeployStation = (shipName: string, location: string) => {
+    const ship = builtSpheres.find(s => s.name === shipName);
+    if (!ship || ship.type !== 'station') return;
+
+    // Add to deployed stations
+    setDeployedStations(prev => [...prev, { 
+      name: shipName, 
+      location: location as 'earth' | 'moon' | 'mars' | 'eml1' 
+    }]);
+
+    // Remove station from builtSpheres (consumed)
+    setBuiltSpheres(prev => prev.filter(s => s.name !== shipName));
+
+    console.log(`Deployed ${shipName} at ${location}`);
   };
 
   // Fuel management handler
@@ -3841,27 +3929,43 @@ const EarthVisualization = () => {
                  </div>
                  
                  <div className={`border border-slate-600/30 rounded-lg p-1 transition-colors relative z-[9999] pointer-events-auto ${activeBuildingTab === 'earth' ? 'hover:border-slate-500/50' : 'opacity-50 cursor-not-allowed'}`}>
-                   <div 
-                     className={`flex items-center justify-between px-2 py-0.5 rounded transition-colors group relative z-[9999] ${activeBuildingTab === 'earth' ? 'cursor-pointer hover:bg-slate-700/50' : 'cursor-not-allowed'}`}
-                      onClick={() => {
-                        if (activeBuildingTab !== 'earth') return;
-                        console.log('Station clicked!');
-                        // Add station functionality here later
-                      }}
-                   >
-                     <div className="flex items-center gap-2">
-                       <Satellite className="w-4 h-4 text-green-400" />
-                       <span className="text-base text-slate-400">Station</span>
-                     </div>
-                     <div className="flex items-center gap-2">
-                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
-                         <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
-                           <span className="text-xs font-bold text-slate-900">₵</span>
-                         </div>
-                         <span className="text-xs text-yellow-400">500</span>
-                       </div>
-                     </div>
-                   </div>
+                    <div 
+                      className={`flex items-center justify-between px-2 py-0.5 rounded transition-colors group relative z-[9999] ${activeBuildingTab === 'earth' ? 'cursor-pointer hover:bg-slate-700/50' : 'cursor-not-allowed'}`}
+                       onClick={() => {
+                         if (activeBuildingTab !== 'earth') return;
+                         console.log('Station clicked!');
+                         if (spendCredits(500)) {
+                           const newStationCount = stationCount + 1;
+                           setStationCount(newStationCount);
+                           const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
+                           setBuiltSpheres(prev => [...prev, { 
+                             type: 'station', 
+                             staticPosition: staticPos,
+                             name: `Station ${newStationCount}`, 
+                             location: activeBuildingTab, 
+                             destination: activeBuildingTab,
+                             cargo: { metal: 0, fuel: 0, food: 0 }
+                           }]);
+                           // Add CO2 event only for Earth
+                           if (activeBuildingTab === 'earth') {
+                             addCO2Event('ship_construct', `Constructed Space Station ${newStationCount}`);
+                           }
+                         }
+                       }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Satellite className="w-4 h-4 text-green-400" />
+                        <span className="text-base text-slate-400">Station</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                          <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                            <span className="text-xs font-bold text-slate-900">₵</span>
+                          </div>
+                          <span className="text-xs text-yellow-400">500</span>
+                        </div>
+                      </div>
+                    </div>
                  </div>
                 
               </div>
@@ -3896,6 +4000,8 @@ const EarthVisualization = () => {
                       <div className="flex items-center gap-2 min-w-0">
                         {ship.type === 'colony' ? (
                           <Home className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                        ) : ship.type === 'station' ? (
+                          <Satellite className="w-4 h-4 text-green-400 flex-shrink-0" />
                         ) : (
                           <Package className="w-4 h-4 text-amber-400 flex-shrink-0" />
                         )}
@@ -4060,7 +4166,14 @@ const EarthVisualization = () => {
                       
                       {/* Actions */}
                       <div className="flex gap-1">
-                        {ship.type === 'colony' && isArrived ? (
+                        {ship.type === 'station' && ship.location !== 'traveling' ? (
+                          <button
+                            className="px-3 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors"
+                            onClick={() => handleDeployStation(ship.name, ship.location)}
+                          >
+                            Deploy
+                          </button>
+                        ) : ship.type === 'colony' && isArrived ? (
                           <button
                             className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors flex items-center gap-1"
                             onClick={() => handleColonizePlanet(ship.name, ship.location)}
@@ -4419,6 +4532,15 @@ const EarthVisualization = () => {
         
         {/* Ship Panel Drones */}
         {shipFactoryBuilt && <ShipPanelDrones count={shipPanelDrones} />}
+        
+        {/* Deployed Stations */}
+        {deployedStations.map((station, index) => (
+          <DeployedStation 
+            key={station.name}
+            location={station.location}
+            index={index}
+          />
+        ))}
         
         {/* Static Ships */}
         {builtSpheres.map((ship, index) => (
