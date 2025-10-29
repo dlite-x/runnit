@@ -476,7 +476,7 @@ function StaticShip({
         const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         
         // Frigate chase speed - slightly faster than pirates to catch up
-        const baseSpeed = 0.02;
+        const baseSpeed = 0.021;
         
         // Slow down when very close for precision
         const speedMultiplier = distance < 2 ? 0.6 : 1.0;
@@ -4938,7 +4938,15 @@ const EarthVisualization = () => {
                                       endPosition: endPos,
                                       departureTime: Date.now(),
                                       totalTravelTime: travelTime,
-                                      staticPosition: undefined
+                                      staticPosition: undefined,
+                                      // Clear deployment state when launching
+                                      isDeployed: false,
+                                      deployedLocation: undefined,
+                                      homePosition: undefined,
+                                      isAttacking: false,
+                                      isReturningHome: false,
+                                      targetPirateId: undefined,
+                                      lastShotTime: undefined
                                     } : s
                                   ));
                                   console.log(`🚀 Launching ${ship.name} from ${currentPlanet} to ${targetPlanet} (${travelTime}s journey)`, {
