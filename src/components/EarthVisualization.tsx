@@ -3316,7 +3316,7 @@ const EarthVisualization = () => {
                     <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                       <span className="text-xs font-bold text-slate-900">₵</span>
                     </div>
-                    <span className="font-medium">{credits.toLocaleString()}</span>
+                    <span className="font-medium">{Math.round(credits).toLocaleString()}</span>
                   </div>
                 </HoverCardTrigger>
                 <HoverCardContent className="w-64 bg-slate-800/95 border-slate-600">
