@@ -4166,7 +4166,7 @@ const EarthVisualization = () => {
                       
                       {/* Actions */}
                       <div className="flex gap-1">
-                        {ship.type === 'station' && ship.location !== 'traveling' ? (
+                        {ship.type === 'station' && isArrived ? (
                           <button
                             className="px-3 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors"
                             onClick={() => handleDeployStation(ship.name, ship.location)}
