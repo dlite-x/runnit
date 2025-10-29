@@ -627,7 +627,7 @@ function StaticShip({
         )}
         
         {/* Laser shot visual - show when attacking and recently fired */}
-        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 1000) && shipRef.current && (() => {
+        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 1200) && shipRef.current && (() => {
           const startPos: [number, number, number] = [shipRef.current!.position.x, shipRef.current!.position.y, shipRef.current!.position.z];
           const endPos = piratePositions[ship.targetPirateId!];
           console.log(`💚 Rendering laser shot from ${ship.name} at`, startPos, 'to', endPos);
@@ -878,12 +878,13 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
 // Laser shot component for frigate attacks - renders as traveling spheres
 function LaserShot({ startPos, endPos }: { startPos: [number, number, number]; endPos: [number, number, number] }) {
   const sphereRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
   const creationTime = useRef(Date.now());
   
   useFrame(() => {
-    if (sphereRef.current) {
+    if (sphereRef.current && glowRef.current) {
       const elapsed = (Date.now() - creationTime.current) / 1000; // seconds
-      const duration = 0.5; // 500ms to reach target
+      const duration = 0.8; // 800ms to reach target (slower for visibility)
       const progress = Math.min(elapsed / duration, 1);
       
       // Interpolate position from start to end
@@ -892,15 +893,25 @@ function LaserShot({ startPos, endPos }: { startPos: [number, number, number]; e
       const z = startPos[2] + (endPos[2] - startPos[2]) * progress;
       
       sphereRef.current.position.set(x, y, z);
+      glowRef.current.position.set(x, y, z);
     }
   });
   
   return (
-    <mesh ref={sphereRef} position={startPos}>
-      <sphereGeometry args={[0.15, 16, 16]} />
-      <meshBasicMaterial color="#00ff00" />
-      <pointLight color="#00ff00" intensity={2} distance={1} />
-    </mesh>
+    <group>
+      {/* Bright core */}
+      <mesh ref={sphereRef} position={startPos}>
+        <sphereGeometry args={[0.15, 16, 16]} />
+        <meshBasicMaterial color="#00ff00" />
+      </mesh>
+      {/* Large glowing halo */}
+      <mesh ref={glowRef} position={startPos}>
+        <sphereGeometry args={[0.4, 16, 16]} />
+        <meshBasicMaterial color="#00ff00" transparent opacity={0.3} />
+      </mesh>
+      {/* Point light for illumination */}
+      <pointLight position={startPos} color="#00ff00" intensity={5} distance={3} />
+    </group>
   );
 }
 
