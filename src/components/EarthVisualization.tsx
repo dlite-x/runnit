@@ -439,11 +439,12 @@ function StaticShip({
         const dz = targetPos[2] - currentPos.z;
         const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         
-        // Pirate speed is 0.126, frigate is 15% faster = 0.145
-        const baseSpeed = 0.145;
+        // Frigate chase speed - needs to be much slower than pirate's parametric speed
+        // Using interpolation-based movement similar to return-home speed
+        const baseSpeed = 0.015; // Slightly faster than typical orbital movements
         
-        // Slow down slightly when very close for precision, otherwise full speed
-        const speedMultiplier = distance < 2 ? 0.7 : 1.0;
+        // Slow down when very close for precision
+        const speedMultiplier = distance < 2 ? 0.5 : 1.0;
         const chaseSpeed = baseSpeed * speedMultiplier;
         
         const newX = currentPos.x + (dx / distance) * chaseSpeed;
