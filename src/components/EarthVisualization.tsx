@@ -299,13 +299,14 @@ function CapitalShip({ position, rotation, selected, onShipClick, onShipDoubleCl
 
 // New StaticShip component for simplified movement system
 function StaticShip({ 
-  ship, 
-  selected, 
-  onShipClick, 
+  ship,
+  selected,
+  onShipClick,
   onShipDoubleClick,
   piratePositions,
   onPirateDestroyed,
-  onPirateHit
+  onPirateHit,
+  onLaserFire
 }: {
   ship: { 
     type: 'colony' | 'cargo' | 'station' | 'frigate';
@@ -331,6 +332,7 @@ function StaticShip({
   piratePositions?: Record<string, [number, number, number]>;
   onPirateDestroyed?: (pirateId: string) => void;
   onPirateHit?: (pirateId: string) => void;
+  onLaserFire?: (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => void;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
@@ -460,10 +462,15 @@ function StaticShip({
         const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
         
         if (distance < 2.5 && timeSinceLastShot > 1500) { // 1.5 second cooldown between shots
-          console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}! lastShotTime=${ship.lastShotTime}`);
-          if (onPirateHit) {
-            onPirateHit(ship.targetPirateId);
-            console.log(`📡 onPirateHit called for ${ship.targetPirateId}`);
+          console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}!`);
+          if (onLaserFire) {
+            const currentPos: [number, number, number] = [
+              shipRef.current.position.x,
+              shipRef.current.position.y,
+              shipRef.current.position.z
+            ];
+            onLaserFire(ship.name, currentPos, targetPos, ship.targetPirateId);
+            console.log(`🚀 Laser fired from ${ship.name} at`, currentPos, 'to', targetPos);
           }
         }
       }
@@ -626,19 +633,8 @@ function StaticShip({
           </mesh>
         )}
         
-        {/* Frigate laser - traveling projectile like drones */}
-        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 1000) && shipRef.current && (() => {
-          const startPos: [number, number, number] = [shipRef.current!.position.x, shipRef.current!.position.y, shipRef.current!.position.z];
-          const targetPos = piratePositions[ship.targetPirateId!];
-          console.log(`💚 Rendering frigate laser from ${ship.name} at`, startPos, 'to', targetPos);
-          return (
-            <FrigateLaser
-              startPos={startPos}
-              targetPos={targetPos}
-              onComplete={() => {}}
-            />
-          );
-        })()}
+        {/* Laser beam visual - show when attacking and recently fired */}
+        {/* REMOVED - lasers now rendered at scene level */}
         
         {/* Engine glow - only show for non-patrolling ships */}
         {!ship.isPatrolling && (
@@ -3021,6 +3017,13 @@ const EarthVisualization = () => {
   const [piratePositions, setPiratePositions] = useState<Record<string, [number, number, number]>>({});
   const [destroyedPirates, setDestroyedPirates] = useState<Set<string>>(new Set());
   const [pirateHits, setPirateHits] = useState<Record<string, number>>({});
+  const [frigateLasers, setFrigateLasers] = useState<Array<{
+    id: string;
+    startPos: [number, number, number];
+    targetPos: [number, number, number];
+    targetPirateId: string;
+    frigateId: string;
+  }>>([]);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showTravelGuide, setShowTravelGuide] = useState(false);
   const [showInvestModal, setShowInvestModal] = useState(false);
@@ -3568,7 +3571,57 @@ const EarthVisualization = () => {
     });
   }, [builtSpheres, pirates, destroyedPirates, piratePositions]);
 
-  // Handle pirate hit
+  // Handle laser fire from frigate
+  const handleLaserFire = (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => {
+    const laserId = `laser-${Date.now()}-${frigateId}`;
+    console.log(`🚀 Creating laser ${laserId} from ${frigateId} to ${targetPirateId}`);
+    setFrigateLasers(prev => [...prev, {
+      id: laserId,
+      startPos: [...startPos],
+      targetPos: [...targetPos],
+      targetPirateId,
+      frigateId
+    }]);
+  };
+
+  // Handle pirate hit from laser
+  const handleLaserHit = (pirateId: string, laserId: string, frigateId: string) => {
+    console.log(`🎯 Laser ${laserId} hit pirate ${pirateId}`);
+    
+    // Remove the laser
+    setFrigateLasers(prev => prev.filter(l => l.id !== laserId));
+    
+    // Process the hit
+    setPirateHits(prev => {
+      const currentHits = (prev[pirateId] || 0) + 1;
+      console.log(`💥 Pirate ${pirateId} hit ${currentHits}/3 times`);
+      
+      // Check if pirate is destroyed (3 hits)
+      if (currentHits >= 3) {
+        console.log(`🔥 Pirate ${pirateId} destroyed after 3 hits!`);
+        handlePirateDestroyed(pirateId);
+        return { ...prev, [pirateId]: 0 }; // Reset hits
+      }
+      
+      return { ...prev, [pirateId]: currentHits };
+    });
+    
+    // Update last shot time for the frigate
+    const updateTime = Date.now();
+    console.log(`⏰ Setting lastShotTime to ${updateTime} for frigate ${frigateId}`);
+    setBuiltSpheres(prev => prev.map(s => {
+      const shouldUpdate = s.name === frigateId;
+      if (shouldUpdate) {
+        console.log(`✅ Updating ${s.name} lastShotTime to ${updateTime}`);
+      }
+      return shouldUpdate ? { 
+        ...s, 
+        lastShotTime: updateTime
+      } : s;
+    }));
+  };
+
+  // Handle pirate hit (legacy - kept for compatibility)
   const handlePirateHit = (pirateId: string) => {
     console.log(`🎯 handlePirateHit called for ${pirateId}`);
     setPirateHits(prev => {
@@ -5230,6 +5283,7 @@ const EarthVisualization = () => {
             piratePositions={piratePositions}
             onPirateDestroyed={handlePirateDestroyed}
             onPirateHit={handlePirateHit}
+            onLaserFire={handleLaserFire}
             onShipClick={() => {
               setSelectedShip({ name: ship.name, type: ship.type });
               setShowShipLaunchModal(true);
@@ -5237,6 +5291,16 @@ const EarthVisualization = () => {
             onShipDoubleClick={() => {
               console.log(`${ship.name} double clicked!`);
             }}
+          />
+        ))}
+        
+        {/* Frigate Lasers - render at scene level like drone projectiles */}
+        {frigateLasers.map(laser => (
+          <FrigateLaser
+            key={laser.id}
+            startPos={laser.startPos}
+            targetPos={laser.targetPos}
+            onComplete={() => handleLaserHit(laser.targetPirateId, laser.id, laser.frigateId)}
           />
         ))}
         
