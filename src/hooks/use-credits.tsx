@@ -10,6 +10,7 @@ export interface CreditsBreakdown {
   };
   expenses: {
     fleet: number;
+    pirates: number;
   };
   net: number;
 }
@@ -34,16 +35,17 @@ export function useCredits(
     },
     expenses: {
       fleet: -frigateCount, // -1 per frigate
+      pirates: -alivePirateCount, // -1 per alive pirate
     },
     net: 0,
   };
 
-  // Calculate net rate (per hour) - subtract pirate penalty
+  // Calculate net rate (per hour)
   breakdown.net = 
     breakdown.income.planetIncome + 
     breakdown.income.spaceTrade + 
-    breakdown.expenses.fleet -
-    alivePirateCount; // Pirates cause -1 credits each
+    breakdown.expenses.fleet +
+    breakdown.expenses.pirates;
 
   // Convert hourly rate to per-second rate
   const creditsPerSecond = breakdown.net / 3600;

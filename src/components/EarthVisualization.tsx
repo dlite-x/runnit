@@ -3976,6 +3976,12 @@ const EarthVisualization = () => {
                           <span className="text-slate-400">Fleet Upkeep</span>
                           <span className="text-red-400">{breakdown.expenses.fleet}/hr</span>
                         </div>
+                        {breakdown.expenses.pirates < 0 && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-slate-400">Pirate Attacks</span>
+                            <span className="text-red-400">{breakdown.expenses.pirates}/hr</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
