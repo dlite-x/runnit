@@ -4758,8 +4758,13 @@ const EarthVisualization = () => {
           />
         ))}
         
-        {/* Trajectory Ship with Figure-8 path */}
-        <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
+        {/* Trade Ships - Only appear when stations deployed at both endpoints */}
+        {deployedStations.some(s => s.location === 'earth') && deployedStations.some(s => s.location === 'moon') && (
+          <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
+        )}
+        {deployedStations.some(s => s.location === 'moon') && deployedStations.some(s => s.location === 'mars') && (
+          <TrajectoryShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} />
+        )}
         
         
         {/* Alien Ship */}
