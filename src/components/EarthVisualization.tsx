@@ -3390,6 +3390,8 @@ const EarthVisualization = () => {
   }, [deployedStations, destroyedPirates]);
 
   useEffect(() => {
+    console.log(`🎮 Auto-hunt effect started. Pirates: ${pirates.length}, Positions: ${Object.keys(piratePositions).length}`);
+    
     const autoHuntPirates = () => {
       setBuiltSpheres(prev => {
         let hasChanges = false;
