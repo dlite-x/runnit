@@ -4064,7 +4064,7 @@ const EarthVisualization = () => {
                       const requiredFuel = ship.destination ? (FUEL_REQUIREMENTS[origin]?.[ship.destination] || 0) : 0;
                       const currentFuel = ship.fuel || 0;
                       const cargo = ship.cargo || { metal: 0, fuel: 0, food: 0 };
-                      const isArrived = ship.location !== 'traveling' && ship.location !== 'earth' && ship.location !== 'preparing';
+                      const isArrived = ship.location !== 'traveling' && ship.location !== 'preparing';
                       
                       return (
                     <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto_auto] gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20 relative">
