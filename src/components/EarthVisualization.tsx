@@ -3389,94 +3389,92 @@ const EarthVisualization = () => {
     console.log(`👾 Updated pirates array: ${visiblePirates.length} pirates visible`, visiblePirates.map(p => p.id));
   }, [deployedStations, destroyedPirates]);
 
+  // Auto-hunt logic - runs continuously using React render cycle instead of setInterval
   useEffect(() => {
-    console.log(`🎮 Auto-hunt effect started. Pirates: ${pirates.length}, Positions: ${Object.keys(piratePositions).length}`);
+    // Only run if there are deployed frigates
+    const deployedFrigates = builtSpheres.filter(s => s.type === 'frigate' && s.isDeployed);
+    if (deployedFrigates.length === 0) return;
     
-    const autoHuntPirates = () => {
-      setBuiltSpheres(prev => {
-        let hasChanges = false;
-        const updated = prev.map(ship => {
-          // Only auto-hunt for frigates that are deployed and not currently attacking
-          if (ship.type === 'frigate' && ship.isDeployed && !ship.isAttacking && !ship.isReturningHome) {
-            // Find nearest alive pirate using piratePositions
-            const alivePirates = pirates.filter(p => !destroyedPirates.has(p.id));
-            
-            console.log(`🔍 Auto-hunt check for ${ship.name}: ${alivePirates.length} pirates alive, piratePositions:`, piratePositions);
-            
-            if (alivePirates.length > 0) {
-              // Find closest pirate
-              const shipPos = ship.staticPosition || [5, 0, 0];
-              let closestPirate = alivePirates[0];
-              let closestDistance = Infinity;
-              
-              alivePirates.forEach(pirate => {
-                const piratePos = piratePositions[pirate.id];
-                if (!piratePos) {
-                  console.log(`⚠️ No position found for pirate ${pirate.id}`);
-                  return;
-                }
-                
-                const dx = piratePos[0] - shipPos[0];
-                const dy = piratePos[1] - shipPos[1];
-                const dz = piratePos[2] - shipPos[2];
-                const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                
-                if (distance < closestDistance) {
-                  closestDistance = distance;
-                  closestPirate = pirate;
-                }
-              });
-              
-              if (piratePositions[closestPirate.id]) {
-                console.log(`🎯 ${ship.name} auto-targeting pirate ${closestPirate.id} at distance ${closestDistance}`);
-                hasChanges = true;
-                return {
-                  ...ship,
-                  isAttacking: true,
-                  targetPirateId: closestPirate.id
-                };
-              }
-            } else {
-              // No more pirates - return home
-              if (!ship.isReturningHome) {
-                console.log(`🏠 ${ship.name} - all pirates destroyed, returning home`);
-                hasChanges = true;
-                return {
-                  ...ship,
-                  isReturningHome: true
-                };
-              }
-            }
-          }
+    console.log(`🎮 Auto-hunt check: ${deployedFrigates.length} deployed frigates, ${pirates.length} pirates, ${Object.keys(piratePositions).length} positions`);
+    
+    setBuiltSpheres(prev => {
+      let hasChanges = false;
+      const updated = prev.map(ship => {
+        // Only auto-hunt for frigates that are deployed and not currently attacking
+        if (ship.type === 'frigate' && ship.isDeployed && !ship.isAttacking && !ship.isReturningHome) {
+          // Find nearest alive pirate using piratePositions
+          const alivePirates = pirates.filter(p => !destroyedPirates.has(p.id));
           
-          // Check if returning home frigate has reached destination
-          if (ship.isReturningHome && ship.homePosition && ship.staticPosition) {
-            const dx = ship.homePosition[0] - ship.staticPosition[0];
-            const dy = ship.homePosition[1] - ship.staticPosition[1];
-            const dz = ship.homePosition[2] - ship.staticPosition[2];
-            const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          console.log(`🔍 Auto-hunt check for ${ship.name}: deployed=${ship.isDeployed}, attacking=${ship.isAttacking}, ${alivePirates.length} pirates alive`);
+          
+          if (alivePirates.length > 0) {
+            // Find closest pirate
+            const shipPos = ship.staticPosition || [5, 0, 0];
+            let closestPirate = alivePirates[0];
+            let closestDistance = Infinity;
             
-            if (distance < 0.5) {
-              console.log(`✅ ${ship.name} returned home and idle`);
+            alivePirates.forEach(pirate => {
+              const piratePos = piratePositions[pirate.id];
+              if (!piratePos) {
+                console.log(`⚠️ No position found for pirate ${pirate.id}`);
+                return;
+              }
+              
+              const dx = piratePos[0] - shipPos[0];
+              const dy = piratePos[1] - shipPos[1];
+              const dz = piratePos[2] - shipPos[2];
+              const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+              
+              if (distance < closestDistance) {
+                closestDistance = distance;
+                closestPirate = pirate;
+              }
+            });
+            
+            if (piratePositions[closestPirate.id]) {
+              console.log(`🎯 ${ship.name} auto-targeting pirate ${closestPirate.id} at distance ${closestDistance}`);
               hasChanges = true;
               return {
                 ...ship,
-                isReturningHome: false,
-                isDeployed: false,
-                homePosition: undefined
+                isAttacking: true,
+                targetPirateId: closestPirate.id
               };
             }
+          } else {
+            // No more pirates - return home
+            console.log(`🏠 ${ship.name} - all pirates destroyed, returning home`);
+            hasChanges = true;
+            return {
+              ...ship,
+              isReturningHome: true
+            };
           }
-          return ship;
-        });
+        }
         
-        return hasChanges ? updated : prev;
+        // Check if returning home frigate has reached destination
+        if (ship.isReturningHome && ship.homePosition && ship.staticPosition) {
+          const dx = ship.homePosition[0] - ship.staticPosition[0];
+          const dy = ship.homePosition[1] - ship.staticPosition[1];
+          const dz = ship.homePosition[2] - ship.staticPosition[2];
+          const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          
+          if (distance < 0.5) {
+            console.log(`✅ ${ship.name} returned home and idle`);
+            hasChanges = true;
+            return {
+              ...ship,
+              isReturningHome: false,
+              isDeployed: false,
+              homePosition: undefined
+            };
+          }
+        }
+        return ship;
       });
-    };
-
-    const interval = setInterval(autoHuntPirates, 500);
-    return () => clearInterval(interval);
-  }, [pirates, destroyedPirates, piratePositions]);
+      
+      return hasChanges ? updated : prev;
+    });
+  }, [builtSpheres, pirates, destroyedPirates, piratePositions]);
 
   // Handle pirate hit
   const handlePirateHit = (pirateId: string) => {
