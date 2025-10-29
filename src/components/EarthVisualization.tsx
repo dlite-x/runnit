@@ -4900,6 +4900,9 @@ const EarthVisualization = () => {
                                 {ship.type === 'frigate' && isArrived && !ship.isDeployed && !ship.isAttacking && (
                                   <SelectItem value="deploy" className="text-slate-300 hover:bg-slate-700">Deploy (Auto-Hunt)</SelectItem>
                                 )}
+                                {ship.type === 'frigate' && ship.isDeployed && !ship.isAttacking && !ship.isReturningHome && (
+                                  <SelectItem value="undeploy" className="text-slate-300 hover:bg-slate-700">Recall</SelectItem>
+                                )}
                               </SelectContent>
                             </Select>
                             <button
@@ -4961,6 +4964,23 @@ const EarthVisualization = () => {
                                       } : s
                                     ));
                                     console.log(`🛡️ ${ship.name} deployed for auto-hunt at ${deployLoc}`);
+                                  }
+                                } else if (action === 'undeploy') {
+                                  // Undeploy frigate so it can travel again
+                                  if (ship.type === 'frigate') {
+                                    setBuiltSpheres(prev => prev.map(s =>
+                                      s.name === ship.name ? { 
+                                        ...s, 
+                                        isDeployed: false,
+                                        deployedLocation: undefined,
+                                        homePosition: undefined,
+                                        isAttacking: false,
+                                        isReturningHome: false,
+                                        targetPirateId: undefined,
+                                        lastShotTime: undefined
+                                      } : s
+                                    ));
+                                    console.log(`📡 ${ship.name} recalled and ready to travel`);
                                   }
                                 } else if (action === 'colonize') {
                                   handleColonizePlanet(ship.name, ship.location);
