@@ -1314,9 +1314,9 @@ function DeployedStation({
 
   return (
     <group ref={stationRef}>
-      {/* Small central hub */}
+      {/* Central sphere hub */}
       <mesh>
-        <cylinderGeometry args={[0.15, 0.15, 0.4, 6]} />
+        <sphereGeometry args={[0.25, 16, 16]} />
         <meshStandardMaterial 
           color="#90EE90" 
           metalness={0.7} 
@@ -3020,6 +3020,19 @@ const EarthVisualization = () => {
   const handleDeployStation = (shipName: string, location: string) => {
     const ship = builtSpheres.find(s => s.name === shipName);
     if (!ship || ship.type !== 'station') return;
+
+    // Check if EML1
+    if (location === 'eml1') {
+      alert('Cannot deploy stations at EML1!');
+      return;
+    }
+
+    // Check if station already deployed at this location
+    const existingStation = deployedStations.find(s => s.location === location);
+    if (existingStation) {
+      alert(`A station is already deployed at ${location}! Only one station per location allowed.`);
+      return;
+    }
 
     // Add to deployed stations
     setDeployedStations(prev => [...prev, { 
