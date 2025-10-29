@@ -1656,15 +1656,13 @@ function DeployedStation({
 
   return (
     <group ref={stationRef}>
-      {/* Central sphere hub */}
-      <mesh>
-        <sphereGeometry args={[0.25, 16, 16]} />
+      {/* Central connecting cylinder */}
+      <mesh rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.05, 0.05, 1.0, 8]} />
         <meshStandardMaterial 
-          color="#90EE90" 
-          metalness={0.7} 
-          roughness={0.3}
-          emissive="#32CD32"
-          emissiveIntensity={0.3}
+          color="#808080" 
+          metalness={0.8} 
+          roughness={0.2}
         />
       </mesh>
       
