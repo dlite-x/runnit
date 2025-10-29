@@ -882,7 +882,9 @@ function LaserBeam({ startPos, targetPos, maxRange = 2.5 }: {
   targetPos: [number, number, number];
   maxRange?: number;
 }) {
+  const groupRef = useRef<THREE.Group>(null);
   const beamRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
   const creationTime = useRef(Date.now());
   
   // Calculate direction and distance
@@ -893,42 +895,42 @@ function LaserBeam({ startPos, targetPos, maxRange = 2.5 }: {
   const beamLength = Math.min(distance, maxRange);
   
   useFrame(() => {
-    if (beamRef.current) {
-      const elapsed = (Date.now() - creationTime.current) / 1000;
+    if (groupRef.current && beamRef.current && glowRef.current) {
+      // Position at start point
+      groupRef.current.position.set(startPos[0], startPos[1], startPos[2]);
+      
+      // Point toward target using lookAt
+      groupRef.current.lookAt(targetPos[0], targetPos[1], targetPos[2]);
       
       // Flash pattern: on (0-0.1s), off (0.1-0.2s), on (0.2-0.3s), off (after 0.3s)
+      const elapsed = (Date.now() - creationTime.current) / 1000;
       const visible = (elapsed < 0.1) || (elapsed >= 0.2 && elapsed < 0.3);
       beamRef.current.visible = visible;
+      glowRef.current.visible = visible;
     }
   });
   
   return (
-    <group position={startPos}>
+    <group ref={groupRef}>
+      {/* Core beam - cylinder extends along Z-axis by default, so rotate to extend forward */}
       <mesh 
         ref={beamRef}
-        position={[dx / distance * beamLength / 2, dy / distance * beamLength / 2, dz / distance * beamLength / 2]}
-        rotation={[
-          Math.atan2(Math.sqrt(dx * dx + dz * dz), dy),
-          0,
-          Math.atan2(dx, dz)
-        ]}
+        position={[0, 0, beamLength / 2]}
+        rotation={[Math.PI / 2, 0, 0]}
       >
-        <cylinderGeometry args={[0.08, 0.08, beamLength, 8]} />
-        <meshBasicMaterial color="#00ff00" transparent opacity={0.8} />
+        <cylinderGeometry args={[0.03, 0.03, beamLength, 8]} />
+        <meshBasicMaterial color="#00ff00" />
       </mesh>
-      {/* Bright glow around beam */}
+      {/* Glow effect */}
       <mesh 
-        position={[dx / distance * beamLength / 2, dy / distance * beamLength / 2, dz / distance * beamLength / 2]}
-        rotation={[
-          Math.atan2(Math.sqrt(dx * dx + dz * dz), dy),
-          0,
-          Math.atan2(dx, dz)
-        ]}
+        ref={glowRef}
+        position={[0, 0, beamLength / 2]}
+        rotation={[Math.PI / 2, 0, 0]}
       >
-        <cylinderGeometry args={[0.15, 0.15, beamLength, 8]} />
+        <cylinderGeometry args={[0.06, 0.06, beamLength, 8]} />
         <meshBasicMaterial color="#00ff00" transparent opacity={0.3} />
       </mesh>
-      <pointLight color="#00ff00" intensity={8} distance={4} />
+      <pointLight color="#00ff00" intensity={6} distance={3} />
     </group>
   );
 }
