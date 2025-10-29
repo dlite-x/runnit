@@ -303,8 +303,9 @@ function StaticShip({
   selected, 
   onShipClick, 
   onShipDoubleClick,
-  piratePositions
-}: { 
+  piratePositions,
+  onPirateDestroyed
+}: {
   ship: { 
     type: 'colony' | 'cargo' | 'station' | 'frigate';
     name: string;
@@ -324,6 +325,7 @@ function StaticShip({
   onShipClick?: () => void;
   onShipDoubleClick?: () => void;
   piratePositions?: Record<string, [number, number, number]>;
+  onPirateDestroyed?: (pirateId: string) => void;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
@@ -418,7 +420,12 @@ function StaticShip({
         
         if (distance < 0.5) {
           console.log(`💥 ${ship.name} destroyed pirate ${ship.targetPirateId}!`);
-          // TODO: Remove pirate from scene - for now just clear attack state
+          // Destroy the pirate
+          if (onPirateDestroyed) {
+            onPirateDestroyed(ship.targetPirateId);
+          }
+          // Clear attack state for frigate
+          // This will be handled in the parent component
         }
       }
       // Handle patrol orbital movement for frigates
@@ -2886,6 +2893,7 @@ const EarthVisualization = () => {
   const [selectedFrigateForCombat, setSelectedFrigateForCombat] = useState<string | null>(null);
   const [pirates, setPirates] = useState<Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }>>([]);
   const [piratePositions, setPiratePositions] = useState<Record<string, [number, number, number]>>({});
+  const [destroyedPirates, setDestroyedPirates] = useState<Set<string>>(new Set());
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showTravelGuide, setShowTravelGuide] = useState(false);
   const [showInvestModal, setShowInvestModal] = useState(false);
@@ -3310,6 +3318,19 @@ const EarthVisualization = () => {
       console.log(`🎯 ${selectedFrigateForCombat} targeting pirate ${pirateId}`);
       setSelectedFrigateForCombat(null); // Clear selection
     }
+  };
+
+  // Handle pirate destruction
+  const handlePirateDestroyed = (pirateId: string) => {
+    setDestroyedPirates(prev => new Set([...prev, pirateId]));
+    // Clear attack state from all frigates targeting this pirate
+    setBuiltSpheres(prev => prev.map(s =>
+      s.targetPirateId === pirateId ? { 
+        ...s, 
+        isAttacking: false, 
+        targetPirateId: undefined 
+      } : s
+    ));
   };
 
   // Fuel management handler
@@ -4942,6 +4963,7 @@ const EarthVisualization = () => {
             ship={ship}
             selected={selectedShip?.name === ship.name || selectedFrigateForCombat === ship.name}
             piratePositions={piratePositions}
+            onPirateDestroyed={handlePirateDestroyed}
             onShipClick={() => {
               // Special handling for frigates - allow combat selection
               if (ship.type === 'frigate' && !ship.isPatrolling && !ship.isAttacking) {
@@ -4963,44 +4985,52 @@ const EarthVisualization = () => {
           <>
             <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
             {/* Pirate ships chasing Earth-Moon trade ship */}
-            <PirateShip 
-              id="em-pirate-1" 
-              earthPosition={[0, 0, 0]} 
-              moonPosition={[24, 4, 8]} 
-              offset={-1.5} 
-              onPirateClick={handlePirateClick}
-              onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
-            />
-            <PirateShip 
-              id="em-pirate-2" 
-              earthPosition={[0, 0, 0]} 
-              moonPosition={[24, 4, 8]} 
-              offset={-3} 
-              onPirateClick={handlePirateClick}
-              onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
-            />
+            {!destroyedPirates.has('em-pirate-1') && (
+              <PirateShip 
+                id="em-pirate-1" 
+                earthPosition={[0, 0, 0]} 
+                moonPosition={[24, 4, 8]} 
+                offset={-1.5} 
+                onPirateClick={handlePirateClick}
+                onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+              />
+            )}
+            {!destroyedPirates.has('em-pirate-2') && (
+              <PirateShip 
+                id="em-pirate-2" 
+                earthPosition={[0, 0, 0]} 
+                moonPosition={[24, 4, 8]} 
+                offset={-3} 
+                onPirateClick={handlePirateClick}
+                onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+              />
+            )}
           </>
         )}
         {deployedStations.some(s => s.location === 'moon') && deployedStations.some(s => s.location === 'mars') && (
           <>
             <TrajectoryShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} />
             {/* Pirate ships chasing Moon-Mars trade ship */}
-            <PirateShip 
-              id="mm-pirate-1" 
-              earthPosition={[24, 4, 8]} 
-              moonPosition={[64, 11, 23]} 
-              offset={-1.5} 
-              onPirateClick={handlePirateClick}
-              onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
-            />
-            <PirateShip 
-              id="mm-pirate-2" 
-              earthPosition={[24, 4, 8]} 
-              moonPosition={[64, 11, 23]} 
-              offset={-3} 
-              onPirateClick={handlePirateClick}
-              onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
-            />
+            {!destroyedPirates.has('mm-pirate-1') && (
+              <PirateShip 
+                id="mm-pirate-1" 
+                earthPosition={[24, 4, 8]} 
+                moonPosition={[64, 11, 23]} 
+                offset={-1.5} 
+                onPirateClick={handlePirateClick}
+                onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+              />
+            )}
+            {!destroyedPirates.has('mm-pirate-2') && (
+              <PirateShip 
+                id="mm-pirate-2" 
+                earthPosition={[24, 4, 8]} 
+                moonPosition={[64, 11, 23]} 
+                offset={-3} 
+                onPirateClick={handlePirateClick}
+                onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+              />
+            )}
           </>
         )}
         
