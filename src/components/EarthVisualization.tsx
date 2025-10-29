@@ -2597,7 +2597,7 @@ const EarthVisualization = () => {
   const [isMoonColonized, setIsMoonColonized] = useState(false);
   const [isMarsColonized, setIsMarsColonized] = useState(false);
   const [isEML1Colonized, setIsEML1Colonized] = useState(false);
-  const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon' | 'mars'>('earth');
+  const [activeBuildingTab, setActiveBuildingTab] = useState<'earth' | 'moon' | 'eml1' | 'mars'>('earth');
   
   // Building levels for each planet
   const { buildingLevels: earthBuildings, upgradeBuilding: upgradeEarthBuilding } = useBuildingLevels('Earth');
@@ -3307,6 +3307,19 @@ const EarthVisualization = () => {
                 🌙 {isMoonColonized ? 'Moon' : 'Moon'}
               </button>
               <button
+                onClick={() => setActiveBuildingTab('eml1')}
+                disabled={!isEML1Colonized}
+                className={`px-3 py-1 text-xs rounded transition-all duration-200 ${
+                  activeBuildingTab === 'eml1' && isEML1Colonized
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : isEML1Colonized
+                    ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                    : 'text-slate-500 cursor-not-allowed opacity-50'
+                }`}
+              >
+                🛰️ {isEML1Colonized ? 'EML1' : 'EML1'}
+              </button>
+              <button
                 onClick={() => setActiveBuildingTab('mars')}
                 disabled={!isMarsColonized}
                 className={`px-3 py-1 text-xs rounded transition-all duration-200 ${
@@ -3344,7 +3357,7 @@ const EarthVisualization = () => {
                   <Globe className="w-4 h-4 text-blue-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-200">
-                  {activeBuildingTab === 'earth' ? 'Earth' : activeBuildingTab === 'moon' ? 'Moon' : 'Mars'}
+                  {activeBuildingTab === 'earth' ? 'Earth' : activeBuildingTab === 'moon' ? 'Moon' : activeBuildingTab === 'eml1' ? 'EML1' : 'Mars'}
                 </h3>
               </div>
               
