@@ -305,7 +305,7 @@ function StaticShip({
   onShipDoubleClick 
 }: { 
   ship: { 
-    type: 'colony' | 'cargo' | 'station';
+    type: 'colony' | 'cargo' | 'station' | 'frigate';
     name: string;
     location: 'earth' | 'moon' | 'mars' | 'eml1' | 'preparing' | 'traveling';
     staticPosition?: [number, number, number];
@@ -2549,7 +2549,7 @@ const EarthVisualization = () => {
   const [modalType, setModalType] = useState('');
   const [alienShipHits, setAlienShipHits] = useState(0);
   const [builtSpheres, setBuiltSpheres] = useState<Array<{ 
-    type: 'colony' | 'cargo' | 'station', 
+    type: 'colony' | 'cargo' | 'station' | 'frigate', 
     position?: [number, number, number], // Optional for legacy spheres
     name: string, 
     location: 'earth' | 'moon' | 'mars' | 'eml1' | 'preparing' | 'traveling',
@@ -2632,6 +2632,7 @@ const EarthVisualization = () => {
   const [colonyCount, setColonyCount] = useState(0);
   const [cargoCount, setCargoCount] = useState(0);
   const [stationCount, setStationCount] = useState(0);
+  const [frigateCount, setFrigateCount] = useState(0);
   const [deployedStations, setDeployedStations] = useState<Array<{ name: string; location: 'earth' | 'moon' | 'mars' | 'eml1' }>>([]);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [showTargetCube, setShowTargetCube] = useState(false);
@@ -2647,7 +2648,7 @@ const EarthVisualization = () => {
   const [showMissionsModal, setShowMissionsModal] = useState(false);
   
   // Ship launch modal state
-  const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' | 'station' } | null>(null);
+  const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' | 'station' | 'frigate' } | null>(null);
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showTravelGuide, setShowTravelGuide] = useState(false);
   const [showInvestModal, setShowInvestModal] = useState(false);
@@ -3957,33 +3958,33 @@ const EarthVisualization = () => {
                         </div>
                         <span className="text-xs text-yellow-400">200</span>
                       </div>
-                </div>
-              </div>
-            </div>
-                <div className={`border border-slate-600/30 rounded-lg p-1 transition-colors relative z-[9999] pointer-events-auto ${activeBuildingTab === 'earth' ? 'hover:border-slate-500/50' : 'opacity-50 cursor-not-allowed'}`}>
-                  <div 
-                    className={`flex items-center justify-between px-2 py-0.5 rounded transition-colors group relative z-[9999] ${activeBuildingTab === 'earth' ? 'cursor-pointer hover:bg-slate-700/50' : 'cursor-not-allowed'}`}
-                     onClick={() => {
-                        if (activeBuildingTab !== 'earth') return;
-                        console.log('Cargo clicked!');
-                        if (spendCredits(200)) {
-                          const newCargoCount = cargoCount + 1;
-                          setCargoCount(newCargoCount);
-                          const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
-                          setBuiltSpheres(prev => [...prev, { 
-                            type: 'cargo', 
-                            staticPosition: staticPos,
-                            name: `Cargo ${newCargoCount}`, 
-                            location: activeBuildingTab, 
-                            destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
-                            cargo: { metal: 0, fuel: 0, food: 0 }
-                          }]);
-                          // Add CO2 event only for Earth
-                          if (activeBuildingTab === 'earth') {
-                            addCO2Event('ship_construct', `Constructed Cargo Ship ${newCargoCount}`);
-                          }
-                        }
-                      }}
+                 </div>
+               </div>
+             </div>
+                 <div className={`border border-slate-600/30 rounded-lg p-1 transition-colors relative z-[9999] pointer-events-auto ${activeBuildingTab === 'earth' ? 'hover:border-slate-500/50' : 'opacity-50 cursor-not-allowed'}`}>
+                   <div 
+                     className={`flex items-center justify-between px-2 py-0.5 rounded transition-colors group relative z-[9999] ${activeBuildingTab === 'earth' ? 'cursor-pointer hover:bg-slate-700/50' : 'cursor-not-allowed'}`}
+                      onClick={() => {
+                         if (activeBuildingTab !== 'earth') return;
+                         console.log('Cargo clicked!');
+                         if (spendCredits(200)) {
+                           const newCargoCount = cargoCount + 1;
+                           setCargoCount(newCargoCount);
+                           const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
+                           setBuiltSpheres(prev => [...prev, { 
+                             type: 'cargo', 
+                             staticPosition: staticPos,
+                             name: `Cargo ${newCargoCount}`, 
+                             location: activeBuildingTab, 
+                             destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
+                             cargo: { metal: 0, fuel: 0, food: 0 }
+                           }]);
+                           // Add CO2 event only for Earth
+                           if (activeBuildingTab === 'earth') {
+                             addCO2Event('ship_construct', `Constructed Cargo Ship ${newCargoCount}`);
+                           }
+                         }
+                       }}
                    >
                      <div className="flex items-center gap-2">
                        <Package className="w-4 h-4 text-amber-400" />
@@ -4036,14 +4037,54 @@ const EarthVisualization = () => {
                           </div>
                           <span className="text-xs text-yellow-400">500</span>
                         </div>
-                      </div>
-                    </div>
-                 </div>
-                
-              </div>
-            </div>
+                       </div>
+                     </div>
+                  </div>
+                  
+                  <div className={`border border-slate-600/30 rounded-lg p-1 transition-colors relative z-[9999] pointer-events-auto ${activeBuildingTab === 'earth' ? 'hover:border-slate-500/50' : 'opacity-50 cursor-not-allowed'}`}>
+                     <div 
+                       className={`flex items-center justify-between px-2 py-0.5 rounded transition-colors group relative z-[9999] ${activeBuildingTab === 'earth' ? 'cursor-pointer hover:bg-slate-700/50' : 'cursor-not-allowed'}`}
+                        onClick={() => {
+                          if (activeBuildingTab !== 'earth') return;
+                          console.log('Frigate clicked!');
+                          if (spendCredits(300)) {
+                            const newFrigateCount = frigateCount + 1;
+                            setFrigateCount(newFrigateCount);
+                            const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
+                            setBuiltSpheres(prev => [...prev, { 
+                              type: 'frigate', 
+                              staticPosition: staticPos,
+                              name: `Frigate ${newFrigateCount}`, 
+                              location: activeBuildingTab, 
+                              destination: activeBuildingTab === 'earth' ? 'moon' : (activeBuildingTab === 'moon' ? 'mars' : 'earth'),
+                              cargo: { metal: 0, fuel: 0, food: 0 }
+                            }]);
+                            // Add CO2 event only for Earth
+                            if (activeBuildingTab === 'earth') {
+                              addCO2Event('ship_construct', `Constructed Frigate ${newFrigateCount}`);
+                            }
+                          }
+                        }}
+                     >
+                       <div className="flex items-center gap-2">
+                         <Zap className="w-4 h-4 text-red-400" />
+                         <span className="text-base text-slate-400">Frigate</span>
+                       </div>
+                       <div className="flex items-center gap-2">
+                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                           <div className="w-3 h-3 rounded-full bg-yellow-400 flex items-center justify-center">
+                             <span className="text-xs font-bold text-slate-900">₵</span>
+                           </div>
+                           <span className="text-xs text-yellow-400">300</span>
+                         </div>
+                       </div>
+                     </div>
+                  </div>
+                 
+               </div>
+             </div>
 
-            {/* Flight Control Section - Universal Solar System Control */}
+             {/* Flight Control Section - Universal Solar System Control */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30 relative z-[10001] pointer-events-auto">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
