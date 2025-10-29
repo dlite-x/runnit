@@ -306,7 +306,7 @@ function StaticShip({
   piratePositions,
   onPirateDestroyed,
   onPirateHit,
-  onLaserFire
+  onProjectileFire
 }: {
   ship: { 
     type: 'colony' | 'cargo' | 'station' | 'frigate';
@@ -332,7 +332,7 @@ function StaticShip({
   piratePositions?: Record<string, [number, number, number]>;
   onPirateDestroyed?: (pirateId: string) => void;
   onPirateHit?: (pirateId: string) => void;
-  onLaserFire?: (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => void;
+  onProjectileFire?: (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => void;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
@@ -463,14 +463,14 @@ function StaticShip({
         
         if (distance < 2.5 && timeSinceLastShot > 3000) { // 3 second cooldown between shots
           console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}!`);
-          if (onLaserFire) {
+          if (onProjectileFire) {
             const currentPos: [number, number, number] = [
               shipRef.current.position.x,
               shipRef.current.position.y,
               shipRef.current.position.z
             ];
-            onLaserFire(ship.name, currentPos, targetPos, ship.targetPirateId);
-            console.log(`🚀 Laser fired from ${ship.name} at`, currentPos, 'to', targetPos);
+            onProjectileFire(ship.name, currentPos, targetPos, ship.targetPirateId);
+            console.log(`🚀 Projectile fired from ${ship.name} at`, currentPos, 'to', targetPos);
           }
         }
       }
@@ -872,8 +872,8 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
 }
 
 
-// Frigate laser projectile - uses same pattern as working drone projectiles
-function FrigateLaser({ 
+// Frigate projectile - sphere-based shots
+function FrigateProjectile({
   startPos, 
   targetPos, 
   onComplete 
@@ -929,7 +929,7 @@ function FrigateLaser({
   
   return (
     <group>
-      {/* Core laser bolt */}
+      {/* Projectile sphere */}
       <mesh ref={projectileRef} position={startPos}>
         <sphereGeometry args={[0.04, 8, 8]} />
         <meshBasicMaterial color="#00ff00" />
@@ -3014,7 +3014,7 @@ const EarthVisualization = () => {
   const [piratePositions, setPiratePositions] = useState<Record<string, [number, number, number]>>({});
   const [destroyedPirates, setDestroyedPirates] = useState<Set<string>>(new Set());
   const [pirateHits, setPirateHits] = useState<Record<string, number>>({});
-  const [frigateLasers, setFrigateLasers] = useState<Array<{
+  const [frigateProjectiles, setFrigateProjectiles] = useState<Array<{
     id: string;
     startPos: [number, number, number];
     targetPos: [number, number, number];
@@ -3594,10 +3594,10 @@ const EarthVisualization = () => {
     });
   }, [builtSpheres, pirates, destroyedPirates, piratePositions]);
 
-  // Handle laser fire from frigate
-  const handleLaserFire = (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => {
-    const laserId = `laser-${Date.now()}-${frigateId}`;
-    console.log(`🚀 Creating laser ${laserId} from ${frigateId} to ${targetPirateId}`);
+  // Handle projectile fire from frigate
+  const handleProjectileFire = (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => {
+    const projectileId = `projectile-${Date.now()}-${frigateId}`;
+    console.log(`🚀 Creating projectile ${projectileId} from ${frigateId} to ${targetPirateId}`);
     
     // Update lastShotTime IMMEDIATELY when firing (not when hitting)
     const fireTime = Date.now();
@@ -3605,8 +3605,8 @@ const EarthVisualization = () => {
       s.name === frigateId ? { ...s, lastShotTime: fireTime } : s
     ));
     
-    setFrigateLasers(prev => [...prev, {
-      id: laserId,
+    setFrigateProjectiles(prev => [...prev, {
+      id: projectileId,
       startPos: [...startPos],
       targetPos: [...targetPos],
       targetPirateId,
@@ -3614,12 +3614,12 @@ const EarthVisualization = () => {
     }]);
   };
 
-  // Handle pirate hit from laser
-  const handleLaserHit = (pirateId: string, laserId: string, frigateId: string) => {
-    console.log(`🎯 Laser ${laserId} hit pirate ${pirateId}`);
+  // Handle pirate hit from projectile
+  const handleProjectileHit = (pirateId: string, projectileId: string, frigateId: string) => {
+    console.log(`🎯 Projectile ${projectileId} hit pirate ${pirateId}`);
     
-    // Remove the laser
-    setFrigateLasers(prev => prev.filter(l => l.id !== laserId));
+    // Remove the projectile
+    setFrigateProjectiles(prev => prev.filter(p => p.id !== projectileId));
     
     // Process the hit
     setPirateHits(prev => {
@@ -5301,7 +5301,7 @@ const EarthVisualization = () => {
             piratePositions={piratePositions}
             onPirateDestroyed={handlePirateDestroyed}
             onPirateHit={handlePirateHit}
-            onLaserFire={handleLaserFire}
+            onProjectileFire={handleProjectileFire}
             onShipClick={() => {
               setSelectedShip({ name: ship.name, type: ship.type });
               setShowShipLaunchModal(true);
@@ -5312,13 +5312,13 @@ const EarthVisualization = () => {
           />
         ))}
         
-        {/* Frigate Lasers - render at scene level like drone projectiles */}
-        {frigateLasers.map(laser => (
-          <FrigateLaser
-            key={laser.id}
-            startPos={laser.startPos}
-            targetPos={laser.targetPos}
-            onComplete={() => handleLaserHit(laser.targetPirateId, laser.id, laser.frigateId)}
+        {/* Frigate Projectiles - render at scene level like drone projectiles */}
+        {frigateProjectiles.map(projectile => (
+          <FrigateProjectile
+            key={projectile.id}
+            startPos={projectile.startPos}
+            targetPos={projectile.targetPos}
+            onComplete={() => handleProjectileHit(projectile.targetPirateId, projectile.id, projectile.frigateId)}
           />
         ))}
         
