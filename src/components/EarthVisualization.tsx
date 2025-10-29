@@ -786,6 +786,119 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
   );
 }
 
+function PirateShip({ 
+  earthPosition, 
+  moonPosition, 
+  offset = 0 
+}: { 
+  earthPosition: [number, number, number]; 
+  moonPosition: [number, number, number]; 
+  offset?: number;
+}) {
+  const shipRef = useRef<THREE.Group>(null);
+  const trailRef = useRef<THREE.LineSegments>(null);
+  const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
+  
+  useFrame((state, delta) => {
+    if (shipRef.current) {
+      const time = state.clock.getElapsedTime();
+      const speed = 0.126; // Same speed as trade ship
+      
+      // Pirates follow behind the trade ship with an offset
+      const t = time * speed + offset;
+      
+      // Calculate distance between Earth and Moon
+      const earthToMoon = {
+        x: moonPosition[0] - earthPosition[0],
+        y: moonPosition[1] - earthPosition[1],
+        z: moonPosition[2] - earthPosition[2]
+      };
+      
+      // Center point for the figure-8
+      const centerX = earthPosition[0] + earthToMoon.x * 0.4;
+      const centerY = earthPosition[1] + earthToMoon.y * 0.4;
+      const centerZ = earthPosition[2] + earthToMoon.z * 0.4;
+      
+      // Figure-8 parameters
+      const a = 15;
+      const b = 8;
+      
+      // Parametric equations for figure-8 (same path as trade ship)
+      const x = centerX + (a * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
+      const y = centerY + (b * Math.sin(t) * Math.cos(t)) / (1 + Math.sin(t) * Math.sin(t));
+      const z = centerZ + Math.sin(t * 0.3) * 3;
+      
+      shipRef.current.position.set(x, y, z);
+      
+      // Point ship in direction of movement
+      const nextT = t + 0.1;
+      const nextX = centerX + (a * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
+      const nextY = centerY + (b * Math.sin(nextT) * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
+      const nextZ = centerZ + Math.sin(nextT * 0.3) * 3;
+      shipRef.current.lookAt(nextX, nextY, nextZ);
+      
+      // Update trail
+      const currentPos = new THREE.Vector3(x, y, z);
+      setTrailPoints(prev => {
+        const newPoints = [...prev, currentPos];
+        return newPoints.slice(-30);
+      });
+    }
+  });
+
+  // Create trail geometry
+  React.useEffect(() => {
+    if (trailRef.current && trailPoints.length > 1) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
+      trailRef.current.geometry.dispose();
+      trailRef.current.geometry = geometry;
+    }
+  }, [trailPoints]);
+
+  return (
+    <group>
+      {/* Pirate Ship */}
+      <group ref={shipRef}>
+        <mesh>
+          <boxGeometry args={[0.15, 0.08, 0.2]} />
+          <meshStandardMaterial 
+            color="#FF0000" 
+            metalness={0.7} 
+            roughness={0.2}
+            emissive="#CC0000"
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+        
+        {/* Engine glow - red */}
+        <mesh position={[0, 0, -0.12]}>
+          <cylinderGeometry args={[0.03, 0.05, 0.1, 8]} />
+          <meshStandardMaterial 
+            color="#FF0000" 
+            emissive="#CC0000" 
+            emissiveIntensity={0.8}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      </group>
+      
+      {/* Red Trail */}
+      {trailPoints.length > 1 && (
+        <lineSegments ref={trailRef}>
+          <bufferGeometry />
+          <lineBasicMaterial 
+            color="#FF0000" 
+            transparent 
+            opacity={0.8}
+            linewidth={3}
+          />
+        </lineSegments>
+      )}
+    </group>
+  );
+}
+
 function MoonBase() {
   const baseRef = useRef<THREE.Group>(null);
   
@@ -4760,10 +4873,20 @@ const EarthVisualization = () => {
         
         {/* Trade Ships - Only appear when stations deployed at both endpoints */}
         {deployedStations.some(s => s.location === 'earth') && deployedStations.some(s => s.location === 'moon') && (
-          <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
+          <>
+            <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
+            {/* Pirate ships chasing Earth-Moon trade ship */}
+            <PirateShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} offset={-1.5} />
+            <PirateShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} offset={-3} />
+          </>
         )}
         {deployedStations.some(s => s.location === 'moon') && deployedStations.some(s => s.location === 'mars') && (
-          <TrajectoryShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} />
+          <>
+            <TrajectoryShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} />
+            {/* Pirate ships chasing Moon-Mars trade ship */}
+            <PirateShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} offset={-1.5} />
+            <PirateShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} offset={-3} />
+          </>
         )}
         
         
