@@ -626,15 +626,16 @@ function StaticShip({
           </mesh>
         )}
         
-        {/* Laser shot visual - show when attacking and recently fired */}
-        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 1200) && shipRef.current && (() => {
+        {/* Laser beam visual - show when attacking and recently fired */}
+        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 500) && shipRef.current && (() => {
           const startPos: [number, number, number] = [shipRef.current!.position.x, shipRef.current!.position.y, shipRef.current!.position.z];
-          const endPos = piratePositions[ship.targetPirateId!];
-          console.log(`💚 Rendering laser shot from ${ship.name} at`, startPos, 'to', endPos);
+          const targetPos = piratePositions[ship.targetPirateId!];
+          console.log(`💚 Rendering laser beam from ${ship.name} at`, startPos, 'to', targetPos);
           return (
-            <LaserShot
+            <LaserBeam
               startPos={startPos}
-              endPos={endPos}
+              targetPos={targetPos}
+              maxRange={2.5}
             />
           );
         })()}
@@ -875,42 +876,59 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
 }
 
 
-// Laser shot component for frigate attacks - renders as traveling spheres
-function LaserShot({ startPos, endPos }: { startPos: [number, number, number]; endPos: [number, number, number] }) {
-  const sphereRef = useRef<THREE.Mesh>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
+// Laser beam component - static cylinder that flashes twice
+function LaserBeam({ startPos, targetPos, maxRange = 2.5 }: { 
+  startPos: [number, number, number]; 
+  targetPos: [number, number, number];
+  maxRange?: number;
+}) {
+  const beamRef = useRef<THREE.Mesh>(null);
   const creationTime = useRef(Date.now());
   
+  // Calculate direction and distance
+  const dx = targetPos[0] - startPos[0];
+  const dy = targetPos[1] - startPos[1];
+  const dz = targetPos[2] - startPos[2];
+  const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  const beamLength = Math.min(distance, maxRange);
+  
   useFrame(() => {
-    if (sphereRef.current && glowRef.current) {
-      const elapsed = (Date.now() - creationTime.current) / 1000; // seconds
-      const duration = 0.8; // 800ms to reach target (slower for visibility)
-      const progress = Math.min(elapsed / duration, 1);
+    if (beamRef.current) {
+      const elapsed = (Date.now() - creationTime.current) / 1000;
       
-      // Interpolate position from start to end
-      const x = startPos[0] + (endPos[0] - startPos[0]) * progress;
-      const y = startPos[1] + (endPos[1] - startPos[1]) * progress;
-      const z = startPos[2] + (endPos[2] - startPos[2]) * progress;
-      
-      sphereRef.current.position.set(x, y, z);
-      glowRef.current.position.set(x, y, z);
+      // Flash pattern: on (0-0.1s), off (0.1-0.2s), on (0.2-0.3s), off (after 0.3s)
+      const visible = (elapsed < 0.1) || (elapsed >= 0.2 && elapsed < 0.3);
+      beamRef.current.visible = visible;
     }
   });
   
   return (
-    <group>
-      {/* Bright core */}
-      <mesh ref={sphereRef} position={startPos}>
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshBasicMaterial color="#00ff00" />
+    <group position={startPos}>
+      <mesh 
+        ref={beamRef}
+        position={[dx / distance * beamLength / 2, dy / distance * beamLength / 2, dz / distance * beamLength / 2]}
+        rotation={[
+          Math.atan2(Math.sqrt(dx * dx + dz * dz), dy),
+          0,
+          Math.atan2(dx, dz)
+        ]}
+      >
+        <cylinderGeometry args={[0.08, 0.08, beamLength, 8]} />
+        <meshBasicMaterial color="#00ff00" transparent opacity={0.8} />
       </mesh>
-      {/* Large glowing halo */}
-      <mesh ref={glowRef} position={startPos}>
-        <sphereGeometry args={[0.4, 16, 16]} />
+      {/* Bright glow around beam */}
+      <mesh 
+        position={[dx / distance * beamLength / 2, dy / distance * beamLength / 2, dz / distance * beamLength / 2]}
+        rotation={[
+          Math.atan2(Math.sqrt(dx * dx + dz * dz), dy),
+          0,
+          Math.atan2(dx, dz)
+        ]}
+      >
+        <cylinderGeometry args={[0.15, 0.15, beamLength, 8]} />
         <meshBasicMaterial color="#00ff00" transparent opacity={0.3} />
       </mesh>
-      {/* Point light for illumination */}
-      <pointLight position={startPos} color="#00ff00" intensity={5} distance={3} />
+      <pointLight color="#00ff00" intensity={8} distance={4} />
     </group>
   );
 }
