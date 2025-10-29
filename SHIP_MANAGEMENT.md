@@ -7,23 +7,32 @@ Ships are the key to expanding your interplanetary civilization. They enable col
 
 ### Colony Ship
 - **Purpose**: Colonize uninhabited planets (Mars, Moon)
-- **Cost**: 10 metal + 5 fuel
-- **Capacity**: Carries colonists to establish new settlements
+- **Cost**: 200 credits
+- **Capacity**: Carries up to 50 colonists to establish new settlements
+- **Cargo**: Can transport food, fuel, and metal resources
 - **One-time use**: Consumed upon successful colonization
 
 ### Cargo Ship
 - **Purpose**: Transport resources between planets
-- **Cost**: 5 metal + 3 fuel
+- **Cost**: 200 credits
 - **Cargo Capacity**: Can load/unload food, fuel, metal, and power
 - **Reusable**: Can make multiple trips
+
+### Space Station
+- **Purpose**: Establish permanent orbital infrastructure at planets
+- **Cost**: 500 credits
+- **Capacity**: Can carry people for transport
+- **Cargo**: Cannot carry cargo resources
+- **Deployment**: One station per location (Earth, Moon, Mars only - not EML1)
+- **One-time use**: Consumed upon deployment, becomes permanent orbiting structure
 
 ## Building Ships
 
 - **Location**: Ships can **only be built on Earth**
 - **Requirements**: 
-  - Sufficient metal and fuel resources
-  - Space Station must be built first
-- Ships are built at your Earth space station and start with 0 fuel
+  - Sufficient credits (200 for Colony/Cargo, 500 for Station)
+  - Ships are built and appear in orbit around Earth
+- Ships start with 0 fuel and must be refueled before launch
 
 ## Flight Control Panel
 
@@ -31,18 +40,22 @@ Access the Flight Control Panel via the "Solar System Flight Control" button to 
 
 ### Ship Information Display
 Each ship shows:
-- **Name**: Ship identifier (e.g., Colony Ship 1)
-- **Type**: Colony or Cargo
+- **Name**: Ship identifier (e.g., Colony Ship 1, Station 1)
+- **Type**: Colony, Cargo, or Station
 - **Location**: Current planet
 - **Destination**: Target planet (click to change)
 - **Fuel**: Current fuel / Required fuel for destination
-- **Cargo**: Resources loaded (cargo ships only)
+- **Cargo**: Resources loaded (cargo ships only - stations cannot carry cargo)
+- **People**: Number of people on board (colony ships and stations)
 - **ETA**: Estimated time of arrival (when in transit)
 - **Status**: Docked, Ready, In Transit, or Needs Fuel
 
 ### Setting Destinations
 1. Click on the destination cell for your ship
-2. Select from available planets: Earth, Mars, Moon
+2. Select from available planets:
+   - **All ships**: Earth, Mars, Moon
+   - **Colony ships only**: EML1 (Lagrange Point)
+   - **Stations**: Cannot select EML1 as destination
 3. Fuel requirements update automatically based on distance
 
 ### Refueling Ships
@@ -52,15 +65,16 @@ Each ship shows:
 - Cost: 1 fuel resource per unit
 
 ### Managing Cargo (Cargo Ships Only)
-1. Click "Load/Unload" button
+1. Click "Load/Unload" button (disabled for stations)
 2. Modal opens showing current cargo and planet resources
 3. Adjust sliders to load or unload:
    - **Food**
    - **Fuel**
    - **Metal**
-   - **Power**
 4. Click "Confirm" to apply changes
 5. Resources are immediately transferred to/from ship
+
+**Note**: Space stations cannot carry cargo resources. This button is disabled for stations.
 
 ### Launching Ships
 1. Ensure ship has sufficient fuel for the journey
@@ -68,6 +82,16 @@ Each ship shows:
 3. Click "Launch" button
 4. Ship enters transit and travels to destination
 5. Monitor ETA for arrival time
+
+### Deploying Stations (Stations Only)
+1. Launch station to desired destination (Moon, Mars, or Earth)
+2. Wait for station to arrive at destination
+3. Click "Deploy" button when arrived
+4. Station becomes a permanent orbiting structure at that location
+5. **Restrictions**:
+   - Only one station can be deployed per location
+   - Cannot deploy at EML1
+   - Station is consumed upon deployment
 
 ## Travel Guide
 
@@ -89,10 +113,20 @@ Click the rocket icon (🚀) in the top-right corner to open the Travel Guide.
 
 ### Colonization Strategy
 1. Build a Colony Ship on Earth
-2. Set destination to Mars or Moon
-3. Top up fuel to 100% of requirement
-4. Launch when ready
-5. Ship automatically colonizes upon arrival
+2. Set destination to Mars, Moon, or EML1
+3. Load colonists (up to 50 people)
+4. Top up fuel to 100% of requirement
+5. Launch when ready
+6. Ship automatically colonizes upon arrival
+
+### Station Deployment Strategy
+1. Build a Space Station on Earth (costs 500 credits)
+2. Set destination to Moon or Mars (not EML1)
+3. Load people if transporting colonists
+4. Refuel for the journey
+5. Launch and wait for arrival
+6. Deploy at destination to create permanent orbital infrastructure
+7. Remember: Only one station per location allowed
 
 ### Resource Transport
 1. Build Cargo Ships for regular supply runs
@@ -104,12 +138,16 @@ Click the rocket icon (🚀) in the top-right corner to open the Travel Guide.
 
 ### Fleet Management
 - Build multiple cargo ships for efficient resource distribution
+- Deploy stations strategically at key locations for infrastructure
 - Keep ships fueled and ready for emergencies
 - Monitor ETAs to coordinate arrivals
 - Use the Travel Guide to plan efficient routes
+- Remember station deployment limits (one per location)
 
 ## Tips
 - **Plan ahead**: Check fuel requirements before building ships
 - **Resource balance**: Ensure you have enough fuel production to support fleet operations
 - **Strategic positioning**: Keep cargo ships at key locations for quick response
+- **Station placement**: Deploy stations at high-traffic planets for maximum utility
 - **Colonize early**: Establishing Mars/Moon bases enables local resource production and reduces transport needs
+- **Budget wisely**: Stations cost more (500 credits) but provide permanent infrastructure
