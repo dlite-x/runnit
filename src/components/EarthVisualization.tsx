@@ -343,14 +343,9 @@ function StaticShip({
   const returnStartTime = useRef<number | null>(null); // Track when return journey started
   const returnStartPos = useRef<[number, number, number] | null>(null); // Position when return started
 
-  // Calculate ship position based on travel state or patrol state
+  // Calculate ship position based on travel state
   const currentPosition = React.useMemo(() => {
-    console.log(`StaticShip ${ship.name}: location=${ship.location}, hasStartPos=${!!ship.startPosition}, hasEndPos=${!!ship.endPosition}, hasDepartureTime=${!!ship.departureTime}, hasTotalTime=${!!ship.totalTravelTime}, isPatrolling=${ship.isPatrolling}`);
-    
-    // If patrolling, position will be calculated in useFrame for orbital movement
-    if (ship.isPatrolling) {
-      return ship.staticPosition || [0, 0, 0];
-    }
+    console.log(`StaticShip ${ship.name}: location=${ship.location}, hasStartPos=${!!ship.startPosition}, hasEndPos=${!!ship.endPosition}, hasDepartureTime=${!!ship.departureTime}, hasTotalTime=${!!ship.totalTravelTime}`);
     
     if (ship.location === 'traveling' && ship.startPosition && ship.endPosition && ship.departureTime && ship.totalTravelTime) {
       const elapsed = Date.now() - ship.departureTime;
@@ -403,9 +398,9 @@ function StaticShip({
     
     console.log(`${ship.name} using static position:`, ship.staticPosition);
     return ship.staticPosition || [0, 0, 0];
-  }, [ship.location, ship.startPosition, ship.endPosition, ship.departureTime, ship.totalTravelTime, ship.staticPosition, ship.name, ship.isPatrolling]);
+  }, [ship.location, ship.startPosition, ship.endPosition, ship.departureTime, ship.totalTravelTime, ship.staticPosition, ship.name]);
 
-  // Use useFrame for continuous position updates during travel, patrol, or attack
+  // Use useFrame for continuous position updates during travel or attack
   useFrame((state) => {
     if (shipRef.current) {
       let position = currentPosition;
@@ -458,7 +453,8 @@ function StaticShip({
           returnStartTime.current = null;
           returnStartPos.current = null;
           
-          // Notify parent that frigate has returned home
+          // Update static position and notify parent
+          ship.staticPosition = targetPos;
           if (onReturnedHome) {
             onReturnedHome(ship.name);
           }
@@ -520,37 +516,7 @@ function StaticShip({
         const currentPos = shipRef.current.position;
         position = [currentPos.x, currentPos.y, currentPos.z];
       }
-      // Handle patrol orbital movement for frigates
-      else if (ship.isPatrolling && ship.type === 'frigate') {
-        const time = state.clock.getElapsedTime();
-        const speed = ship.patrolOrbitSpeed || 0.25;
-        
-        // Use deployedLocation for orbit center if deployed, otherwise use location
-        const orbitLocation = ship.isDeployed && ship.deployedLocation ? ship.deployedLocation : ship.location;
-        
-        // Get the planet's position based on deployed location
-        let planetCenter: [number, number, number] = [0, 0, 0];
-        if (orbitLocation === 'earth') {
-          planetCenter = [0, 0, 0];
-        } else if (orbitLocation === 'moon') {
-          planetCenter = [26, 5, 10];
-        } else if (orbitLocation === 'mars') {
-          planetCenter = [64, 11, 23];
-        } else if (orbitLocation === 'eml1') {
-          planetCenter = [16, 2.5, 5.3];
-        }
-        
-        // Large orbital radius for patrol
-        const orbitRadius = orbitLocation === 'earth' ? 8 : orbitLocation === 'moon' ? 4 : orbitLocation === 'eml1' ? 3 : 10;
-        
-        // Calculate orbital position
-        const angle = time * speed;
-        const x = planetCenter[0] + Math.cos(angle) * orbitRadius;
-        const y = planetCenter[1] + Math.sin(angle * 0.5) * (orbitRadius * 0.3); // Slight vertical movement
-        const z = planetCenter[2] + Math.sin(angle) * orbitRadius;
-        
-        position = [x, y, z];
-      }
+      // Deployed frigates that aren't attacking stay at their static position (removed patrol orbit)
       // Recalculate position for traveling ships to ensure smooth animation
       else if (ship.location === 'traveling' && ship.startPosition && ship.endPosition && ship.departureTime && ship.totalTravelTime) {
         const elapsed = Date.now() - ship.departureTime;
@@ -634,59 +600,34 @@ function StaticShip({
         </lineSegments>
       )}
       
-      {/* Ship - Render as blue sphere if patrolling frigate, otherwise normal ship */}
+      {/* Ship - Always render as normal ship model */}
       <group ref={shipRef}>
-        {ship.isPatrolling && ship.type === 'frigate' ? (
-          // Blue sphere for patrolling frigate
-          <mesh
-            onClick={onShipClick}
-            onDoubleClick={onShipDoubleClick}
-            onPointerOver={(e) => {
-              e.stopPropagation();
-              document.body.style.cursor = onShipClick ? 'pointer' : 'default';
-            }}
-            onPointerOut={() => {
-              document.body.style.cursor = 'default';
-            }}
-          >
-            <sphereGeometry args={[0.25, 16, 16]} />
-            <meshStandardMaterial 
-              color="#3b82f6"
-              metalness={0.7} 
-              roughness={0.2}
-              emissive="#3b82f6"
-              emissiveIntensity={0.5}
-            />
-          </mesh>
-        ) : (
-          // Normal ship model
-          <mesh
-            onClick={onShipClick}
-            onDoubleClick={onShipDoubleClick}
-            onPointerOver={(e) => {
-              e.stopPropagation();
-              document.body.style.cursor = onShipClick ? 'pointer' : 'default';
-            }}
-            onPointerOut={() => {
-              document.body.style.cursor = 'default';
-            }}
-          >
-            <boxGeometry args={[0.15, 0.08, 0.2]} />
-            <meshStandardMaterial 
-              color={selected ? "#FFD700" : shipColor} 
-              metalness={0.7} 
-              roughness={0.2}
-              emissive={selected ? "#FFD700" : shipColor}
-              emissiveIntensity={selected ? 0.5 : 0.2}
-            />
-          </mesh>
-        )}
+        <mesh
+          onClick={onShipClick}
+          onDoubleClick={onShipDoubleClick}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            document.body.style.cursor = onShipClick ? 'pointer' : 'default';
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'default';
+          }}
+        >
+          <boxGeometry args={[0.15, 0.08, 0.2]} />
+          <meshStandardMaterial 
+            color={selected ? "#FFD700" : shipColor} 
+            metalness={0.7} 
+            roughness={0.2}
+            emissive={selected ? "#FFD700" : shipColor}
+            emissiveIntensity={selected ? 0.5 : 0.2}
+          />
+        </mesh>
         
         {/* Laser beam visual - show when attacking and recently fired */}
         {/* REMOVED - lasers now rendered at scene level */}
         
-        {/* Engine glow - only show for non-patrolling ships */}
-        {!ship.isPatrolling && (
+        {/* Engine glow - show for traveling or attacking ships */}
+        {(ship.location === 'traveling' || ship.isAttacking || ship.isReturningHome) && (
           <mesh position={[0, 0, -0.12]}>
             <cylinderGeometry args={[0.03, 0.05, 0.1, 8]} />
             <meshStandardMaterial 
@@ -3650,12 +3591,14 @@ const EarthVisualization = () => {
 
   // Handle frigate returning home
   const handleFrigateReturnedHome = (frigateId: string) => {
-    console.log(`✅ ${frigateId} returned home and resuming patrol`);
+    console.log(`✅ ${frigateId} returned home and staying stationary`);
     setBuiltSpheres(prev => prev.map(s =>
       s.name === frigateId ? {
         ...s,
         isReturningHome: false,
-        isPatrolling: true
+        isPatrolling: false, // Stay stationary, don't patrol
+        targetPirateId: undefined,
+        lastShotTime: undefined
       } : s
     ));
   };
