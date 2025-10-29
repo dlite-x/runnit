@@ -3413,15 +3413,9 @@ const EarthVisualization = () => {
       location: location as 'earth' | 'moon' | 'mars' | 'eml1' 
     }]);
 
-    // Remove station from builtSpheres WITHOUT affecting other ships
-    // Use functional update to prevent frigate position glitches
-    setBuiltSpheres(prev => prev.filter(s => s.name !== shipName).map(s => {
-      // Ensure deployed frigates maintain their location
-      if (s.type === 'frigate' && s.isDeployed && s.deployedLocation) {
-        return { ...s, location: s.deployedLocation };
-      }
-      return s;
-    }));
+    // Remove station from builtSpheres (consumed)
+    // CRITICAL: Filter only, don't map - deployed frigates should not be touched at all
+    setBuiltSpheres(prev => prev.filter(s => s.name !== shipName));
 
     console.log(`Deployed ${shipName} at ${location}`);
   };
@@ -4814,22 +4808,25 @@ const EarthVisualization = () => {
                             else if (ship.type === 'cargo' && ship.destination === 'offload') {
                               const arrivalPlanet = ship.destination === 'offload' ? 'moon' : (ship.destination === 'earth' ? 'earth' : 'moon');
                               // Count ships already at destination for proper spacing
-                              const shipsAtDestination = builtSpheres.filter(s => s.location === arrivalPlanet).length;
-                              const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
-                              setBuiltSpheres(prev => prev.map(s => 
-                                s.name === ship.name ? { 
-                                  ...s, 
-                                  location: arrivalPlanet,
-                                  staticPosition: arrivalPosition,
-                                  position: arrivalPosition,
-                                  cargo: { metal: 0, fuel: 0, food: 0 },
-                                  fuel: 0, // Consume all fuel on arrival
-                                  startPosition: undefined,
-                                  endPosition: undefined,
-                                  departureTime: undefined,
-                                  totalTravelTime: undefined
-                                } : s
-                              ));
+                              // Use callback's prev parameter instead of stale builtSpheres closure
+                              setBuiltSpheres(prev => {
+                                const shipsAtDestination = prev.filter(s => s.location === arrivalPlanet && !s.isDeployed).length;
+                                const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
+                                return prev.map(s => 
+                                  s.name === ship.name ? { 
+                                    ...s, 
+                                    location: arrivalPlanet,
+                                    staticPosition: arrivalPosition,
+                                    position: arrivalPosition,
+                                    cargo: { metal: 0, fuel: 0, food: 0 },
+                                    fuel: 0, // Consume all fuel on arrival
+                                    startPosition: undefined,
+                                    endPosition: undefined,
+                                    departureTime: undefined,
+                                    totalTravelTime: undefined
+                                  } : s
+                                );
+                              });
                               console.log(`${ship.name} has offloaded all cargo at ${arrivalPlanet}`);
                             } else {
                               // Normal arrival behavior - set to static position at destination with proper spacing
@@ -4844,21 +4841,24 @@ const EarthVisualization = () => {
                                 arrivalPlanet = 'earth';
                               }
                               // Count ships already at destination to determine spacing index
-                              const shipsAtDestination = builtSpheres.filter(s => s.location === arrivalPlanet).length;
-                              const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
-                              setBuiltSpheres(prev => prev.map(s => 
-                                s.name === ship.name ? { 
-                                  ...s, 
-                                  location: arrivalPlanet,
-                                  staticPosition: arrivalPosition,
-                                  position: arrivalPosition,
-                                  fuel: 0, // Consume all fuel on arrival
-                                  startPosition: undefined,
-                                  endPosition: undefined,
-                                  departureTime: undefined,
-                                  totalTravelTime: undefined
-                                } : s
-                              ));
+                              // Use callback's prev parameter instead of stale builtSpheres closure
+                              setBuiltSpheres(prev => {
+                                const shipsAtDestination = prev.filter(s => s.location === arrivalPlanet && !s.isDeployed).length;
+                                const arrivalPosition = getStaticPositionNearPlanet(arrivalPlanet, shipsAtDestination);
+                                return prev.map(s => 
+                                  s.name === ship.name ? { 
+                                    ...s, 
+                                    location: arrivalPlanet,
+                                    staticPosition: arrivalPosition,
+                                    position: arrivalPosition,
+                                    fuel: 0, // Consume all fuel on arrival
+                                    startPosition: undefined,
+                                    endPosition: undefined,
+                                    departureTime: undefined,
+                                    totalTravelTime: undefined
+                                  } : s
+                                );
+                              });
                               console.log(`✅ ${ship.name} arrived at ${arrivalPlanet} and positioned statically`);
                             }
                           }}
