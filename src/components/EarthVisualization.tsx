@@ -934,8 +934,8 @@ function FrigateLaser({
       </mesh>
       {/* Glow effect */}
       <mesh ref={glowRef} position={startPos}>
-        <sphereGeometry args={[0.08, 8, 8]} />
-        <meshBasicMaterial color="#00ff00" transparent opacity={0.4} />
+        <sphereGeometry args={[0.06, 8, 8]} />
+        <meshBasicMaterial color="#00ff00" transparent opacity={0.15} />
       </mesh>
     </group>
   );
