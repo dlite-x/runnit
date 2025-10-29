@@ -322,6 +322,8 @@ function StaticShip({
     isAttacking?: boolean;
     targetPirateId?: string;
     lastShotTime?: number;
+    homePosition?: [number, number, number];
+    isReturningHome?: boolean;
   };
   selected: boolean;
   onShipClick?: () => void;
@@ -401,8 +403,33 @@ function StaticShip({
     if (shipRef.current) {
       let position = currentPosition;
       
+      // Handle returning home after combat
+      if (ship.isReturningHome && ship.homePosition) {
+        const targetPos = ship.homePosition;
+        const currentPos = shipRef.current.position;
+        
+        const returnSpeed = 0.05;
+        const newX = currentPos.x + (targetPos[0] - currentPos.x) * returnSpeed;
+        const newY = currentPos.y + (targetPos[1] - currentPos.y) * returnSpeed;
+        const newZ = currentPos.z + (targetPos[2] - currentPos.z) * returnSpeed;
+        
+        position = [newX, newY, newZ];
+        
+        // Check if reached home position
+        const distance = Math.sqrt(
+          Math.pow(targetPos[0] - newX, 2) +
+          Math.pow(targetPos[1] - newY, 2) +
+          Math.pow(targetPos[2] - newZ, 2)
+        );
+        
+        // If close enough to home, resume patrolling
+        if (distance < 0.5) {
+          console.log(`🏠 ${ship.name} returned home and resuming patrol`);
+          // This will be handled by parent component state update
+        }
+      }
       // Handle attack movement for frigates
-      if (ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId]) {
+      else if (ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId]) {
         const targetPos = piratePositions[ship.targetPirateId];
         const currentPos = shipRef.current.position;
         
@@ -2804,6 +2831,9 @@ const EarthVisualization = () => {
     patrolOrbitSpeed?: number, // Orbit speed for patrolling frigates
     isAttacking?: boolean, // Combat state for frigates
     targetPirateId?: string, // ID of pirate being targeted
+    lastShotTime?: number, // Timestamp of last shot fired
+    homePosition?: [number, number, number], // Home position to return to after combat
+    isReturningHome?: boolean, // Whether frigate is returning home after combat
     // New fields for static positioning
     staticPosition?: [number, number, number],
     travelProgress?: number,
@@ -3311,15 +3341,25 @@ const EarthVisualization = () => {
   // Combat handler - assign frigate to attack pirate
   const handlePirateClick = (pirateId: string, piratePosition: [number, number, number]) => {
     if (selectedFrigateForCombat) {
-      // Assign the selected frigate to attack this pirate
-      setBuiltSpheres(prev => prev.map(s =>
-        s.name === selectedFrigateForCombat ? { 
-          ...s, 
-          isAttacking: true, 
-          targetPirateId: pirateId,
-          isPatrolling: false // Stop patrolling when attacking
-        } : s
-      ));
+      // Store home position before attacking
+      setBuiltSpheres(prev => prev.map(s => {
+        if (s.name === selectedFrigateForCombat) {
+          // Get current position or default patrol position
+          let homePos: [number, number, number] = s.staticPosition || [5, 0, 0];
+          if (s.location === 'moon') homePos = [27, 4, 8];
+          else if (s.location === 'mars') homePos = [64, 11, 23];
+          
+          return { 
+            ...s, 
+            isAttacking: true, 
+            targetPirateId: pirateId,
+            isPatrolling: false,
+            homePosition: homePos,
+            isReturningHome: false
+          };
+        }
+        return s;
+      }));
       console.log(`🎯 ${selectedFrigateForCombat} targeting pirate ${pirateId}`);
       setSelectedFrigateForCombat(null); // Clear selection
     }
@@ -3328,16 +3368,46 @@ const EarthVisualization = () => {
   // Handle pirate destruction
   const handlePirateDestroyed = (pirateId: string) => {
     setDestroyedPirates(prev => new Set([...prev, pirateId]));
-    // Clear attack state from all frigates targeting this pirate
+    // Tell frigates to return home after destroying pirate
     setBuiltSpheres(prev => prev.map(s =>
       s.targetPirateId === pirateId ? { 
         ...s, 
         isAttacking: false, 
         targetPirateId: undefined,
-        lastShotTime: undefined
+        lastShotTime: undefined,
+        isReturningHome: true
       } : s
     ));
   };
+
+  // Effect to detect when frigate reaches home and resume patrol
+  useEffect(() => {
+    const checkFrigatesReturningHome = () => {
+      setBuiltSpheres(prev => prev.map(ship => {
+        if (ship.isReturningHome && ship.homePosition && ship.staticPosition) {
+          // Calculate distance to home
+          const dx = ship.homePosition[0] - ship.staticPosition[0];
+          const dy = ship.homePosition[1] - ship.staticPosition[1];
+          const dz = ship.homePosition[2] - ship.staticPosition[2];
+          const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          
+          // If close to home, resume patrolling
+          if (distance < 0.5) {
+            return {
+              ...ship,
+              isReturningHome: false,
+              isPatrolling: true,
+              homePosition: undefined
+            };
+          }
+        }
+        return ship;
+      }));
+    };
+
+    const interval = setInterval(checkFrigatesReturningHome, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   // Handle pirate hit
   const handlePirateHit = (pirateId: string) => {
