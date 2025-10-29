@@ -5294,7 +5294,7 @@ const EarthVisualization = () => {
         {/* Static Ships */}
         {builtSpheres.map((ship, index) => (
           <StaticShip 
-            key={index} 
+            key={ship.name}
             ship={ship}
             selected={selectedShip?.name === ship.name}
             piratePositions={piratePositions}
