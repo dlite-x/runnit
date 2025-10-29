@@ -325,6 +325,7 @@ function StaticShip({
     lastShotTime?: number;
     homePosition?: [number, number, number];
     isReturningHome?: boolean;
+    deployedLocation?: 'earth' | 'moon' | 'mars' | 'eml1'; // Track where frigate is deployed
   };
   selected: boolean;
   onShipClick?: () => void;
@@ -2962,6 +2963,7 @@ const EarthVisualization = () => {
     homePosition?: [number, number, number], // Home position to return to after combat
     isReturningHome?: boolean, // Whether frigate is returning home after combat
     isDeployed?: boolean, // Whether frigate has been deployed to auto-hunt
+    deployedLocation?: 'earth' | 'moon' | 'mars' | 'eml1', // Track where frigate is deployed
     // New fields for static positioning
     staticPosition?: [number, number, number],
     travelProgress?: number,
@@ -3562,8 +3564,20 @@ const EarthVisualization = () => {
       const updated = prev.map(ship => {
         // Only auto-hunt for frigates that are deployed and either not attacking OR attacking but target was destroyed
         if (ship.type === 'frigate' && ship.isDeployed && (!ship.isAttacking || (ship.isAttacking && !ship.targetPirateId)) && !ship.isReturningHome) {
-          // Find nearest alive pirate using piratePositions
-          const alivePirates = pirates.filter(p => !destroyedPirates.has(p.id));
+          // Find nearest alive pirate using piratePositions, filtered by deployment location
+          const deployedLoc = ship.deployedLocation || 'earth';
+          const alivePirates = pirates.filter(p => {
+            if (destroyedPirates.has(p.id)) return false;
+            
+            // Filter pirates based on deployment location
+            // Earth: hunt earth-moon pirates
+            // Moon: hunt both earth-moon and moon-mars pirates
+            // Mars: hunt moon-mars pirates
+            if (deployedLoc === 'earth' && p.route === 'earth-moon') return true;
+            if (deployedLoc === 'moon') return true; // Moon can hunt both routes
+            if (deployedLoc === 'mars' && p.route === 'moon-mars') return true;
+            return false;
+          });
           
           console.log(`🔍 Auto-hunt check for ${ship.name}: deployed=${ship.isDeployed}, attacking=${ship.isAttacking}, ${alivePirates.length} pirates alive`);
           
@@ -4981,16 +4995,18 @@ const EarthVisualization = () => {
                                   if (ship.type === 'station') {
                                     handleDeployStation(ship.name, ship.location);
                                   } else if (ship.type === 'frigate') {
-                                    // Deploy frigate for auto-hunt
+                                    // Deploy frigate for auto-hunt at current location
                                     const homePos = ship.staticPosition || [5, 0, 0];
+                                    const deployLoc = ship.location === 'traveling' ? 'earth' : ship.location;
                                     setBuiltSpheres(prev => prev.map(s =>
                                       s.name === ship.name ? { 
                                         ...s, 
                                         isDeployed: true, 
-                                        homePosition: homePos 
+                                        homePosition: homePos,
+                                        deployedLocation: deployLoc as 'earth' | 'moon' | 'mars' | 'eml1'
                                       } : s
                                     ));
-                                    console.log(`🛡️ ${ship.name} deployed for auto-hunt at ${ship.location}`);
+                                    console.log(`🛡️ ${ship.name} deployed for auto-hunt at ${deployLoc}`);
                                   }
                                 } else if (action === 'colonize') {
                                   handleColonizePlanet(ship.name, ship.location);
