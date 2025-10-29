@@ -461,7 +461,7 @@ function StaticShip({
         const now = Date.now();
         const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
         
-        if (distance < 2.5 && timeSinceLastShot > 1500) { // 1.5 second cooldown between shots
+        if (distance < 2.5 && timeSinceLastShot > 3000) { // 3 second cooldown between shots
           console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}!`);
           if (onLaserFire) {
             const currentPos: [number, number, number] = [
