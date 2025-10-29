@@ -314,6 +314,8 @@ function StaticShip({
     endPosition?: [number, number, number];
     departureTime?: number;
     totalTravelTime?: number;
+    isPatrolling?: boolean;
+    patrolOrbitSpeed?: number;
   };
   selected: boolean;
   onShipClick?: () => void;
@@ -323,9 +325,14 @@ function StaticShip({
   const trailRef = useRef<THREE.LineSegments>(null);
   const [trailPoints, setTrailPoints] = useState<THREE.Vector3[]>([]);
 
-  // Calculate ship position based on travel state
+  // Calculate ship position based on travel state or patrol state
   const currentPosition = React.useMemo(() => {
-    console.log(`StaticShip ${ship.name}: location=${ship.location}, hasStartPos=${!!ship.startPosition}, hasEndPos=${!!ship.endPosition}, hasDepartureTime=${!!ship.departureTime}, hasTotalTime=${!!ship.totalTravelTime}`);
+    console.log(`StaticShip ${ship.name}: location=${ship.location}, hasStartPos=${!!ship.startPosition}, hasEndPos=${!!ship.endPosition}, hasDepartureTime=${!!ship.departureTime}, hasTotalTime=${!!ship.totalTravelTime}, isPatrolling=${ship.isPatrolling}`);
+    
+    // If patrolling, position will be calculated in useFrame for orbital movement
+    if (ship.isPatrolling) {
+      return ship.staticPosition || [0, 0, 0];
+    }
     
     if (ship.location === 'traveling' && ship.startPosition && ship.endPosition && ship.departureTime && ship.totalTravelTime) {
       const elapsed = Date.now() - ship.departureTime;
@@ -378,15 +385,43 @@ function StaticShip({
     
     console.log(`${ship.name} using static position:`, ship.staticPosition);
     return ship.staticPosition || [0, 0, 0];
-  }, [ship.location, ship.startPosition, ship.endPosition, ship.departureTime, ship.totalTravelTime, ship.staticPosition, ship.name]);
+  }, [ship.location, ship.startPosition, ship.endPosition, ship.departureTime, ship.totalTravelTime, ship.staticPosition, ship.name, ship.isPatrolling]);
 
-  // Use useFrame for continuous position updates during travel
-  useFrame(() => {
+  // Use useFrame for continuous position updates during travel or patrol
+  useFrame((state) => {
     if (shipRef.current) {
       let position = currentPosition;
       
+      // Handle patrol orbital movement for frigates
+      if (ship.isPatrolling && ship.type === 'frigate') {
+        const time = state.clock.getElapsedTime();
+        const speed = ship.patrolOrbitSpeed || 0.0005;
+        
+        // Get the planet's position based on ship location
+        let planetCenter: [number, number, number] = [0, 0, 0];
+        if (ship.location === 'earth') {
+          planetCenter = [0, 0, 0];
+        } else if (ship.location === 'moon') {
+          planetCenter = [26, 5, 10];
+        } else if (ship.location === 'mars') {
+          planetCenter = [64, 11, 23];
+        } else if (ship.location === 'eml1') {
+          planetCenter = [16, 2.5, 5.3];
+        }
+        
+        // Large orbital radius for patrol
+        const orbitRadius = ship.location === 'earth' ? 8 : ship.location === 'moon' ? 4 : ship.location === 'eml1' ? 3 : 10;
+        
+        // Calculate orbital position
+        const angle = time * speed;
+        const x = planetCenter[0] + Math.cos(angle) * orbitRadius;
+        const y = planetCenter[1] + Math.sin(angle * 0.5) * (orbitRadius * 0.3); // Slight vertical movement
+        const z = planetCenter[2] + Math.sin(angle) * orbitRadius;
+        
+        position = [x, y, z];
+      }
       // Recalculate position for traveling ships to ensure smooth animation
-      if (ship.location === 'traveling' && ship.startPosition && ship.endPosition && ship.departureTime && ship.totalTravelTime) {
+      else if (ship.location === 'traveling' && ship.startPosition && ship.endPosition && ship.departureTime && ship.totalTravelTime) {
         const elapsed = Date.now() - ship.departureTime;
         const progress = Math.min(elapsed / (ship.totalTravelTime * 1000), 1);
         
@@ -468,40 +503,67 @@ function StaticShip({
         </lineSegments>
       )}
       
-      {/* Ship */}
+      {/* Ship - Render as blue sphere if patrolling frigate, otherwise normal ship */}
       <group ref={shipRef}>
-        <mesh
-          onClick={onShipClick}
-          onDoubleClick={onShipDoubleClick}
-          onPointerOver={(e) => {
-            e.stopPropagation();
-            document.body.style.cursor = onShipClick ? 'pointer' : 'default';
-          }}
-          onPointerOut={() => {
-            document.body.style.cursor = 'default';
-          }}
-        >
-          <boxGeometry args={[0.15, 0.08, 0.2]} />
-          <meshStandardMaterial 
-            color={selected ? "#FFD700" : shipColor} 
-            metalness={0.7} 
-            roughness={0.2}
-            emissive={selected ? "#FFD700" : shipColor}
-            emissiveIntensity={selected ? 0.5 : 0.2}
-          />
-        </mesh>
+        {ship.isPatrolling && ship.type === 'frigate' ? (
+          // Blue sphere for patrolling frigate
+          <mesh
+            onClick={onShipClick}
+            onDoubleClick={onShipDoubleClick}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              document.body.style.cursor = onShipClick ? 'pointer' : 'default';
+            }}
+            onPointerOut={() => {
+              document.body.style.cursor = 'default';
+            }}
+          >
+            <sphereGeometry args={[0.25, 16, 16]} />
+            <meshStandardMaterial 
+              color="#3b82f6"
+              metalness={0.7} 
+              roughness={0.2}
+              emissive="#3b82f6"
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+        ) : (
+          // Normal ship model
+          <mesh
+            onClick={onShipClick}
+            onDoubleClick={onShipDoubleClick}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              document.body.style.cursor = onShipClick ? 'pointer' : 'default';
+            }}
+            onPointerOut={() => {
+              document.body.style.cursor = 'default';
+            }}
+          >
+            <boxGeometry args={[0.15, 0.08, 0.2]} />
+            <meshStandardMaterial 
+              color={selected ? "#FFD700" : shipColor} 
+              metalness={0.7} 
+              roughness={0.2}
+              emissive={selected ? "#FFD700" : shipColor}
+              emissiveIntensity={selected ? 0.5 : 0.2}
+            />
+          </mesh>
+        )}
         
-        {/* Engine glow */}
-        <mesh position={[0, 0, -0.12]}>
-          <cylinderGeometry args={[0.03, 0.05, 0.1, 8]} />
-          <meshStandardMaterial 
-            color="#FF8800" 
-            emissive="#FF6600" 
-            emissiveIntensity={ship.location === 'traveling' ? 0.8 : 0.3}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
+        {/* Engine glow - only show for non-patrolling ships */}
+        {!ship.isPatrolling && (
+          <mesh position={[0, 0, -0.12]}>
+            <cylinderGeometry args={[0.03, 0.05, 0.1, 8]} />
+            <meshStandardMaterial 
+              color="#FF8800" 
+              emissive="#FF6600" 
+              emissiveIntensity={ship.location === 'traveling' ? 0.8 : 0.3}
+              transparent
+              opacity={0.7}
+            />
+          </mesh>
+        )}
         
         {/* Ship Name Label - Simple approach with HTML */}
         <Html position={[0, 0.4, 0]} center>
@@ -2559,6 +2621,8 @@ const EarthVisualization = () => {
     cargo?: { metal: number, fuel: number, food: number },
     fuel?: number, // Add fuel property for ships
     people?: number, // Number of people on colony ships (max 50)
+    isPatrolling?: boolean, // Patrol state for frigates
+    patrolOrbitSpeed?: number, // Orbit speed for patrolling frigates
     // New fields for static positioning
     staticPosition?: [number, number, number],
     travelProgress?: number,
@@ -4111,10 +4175,12 @@ const EarthVisualization = () => {
                       return (
                     <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto_auto] gap-2 items-center py-2 px-2 rounded bg-slate-700/30 border border-slate-600/20 relative">
                       <div className="flex items-center gap-2 min-w-0">
-                        {ship.type === 'colony' ? (
+                         {ship.type === 'colony' ? (
                           <Home className="w-4 h-4 text-blue-400 flex-shrink-0" />
                         ) : ship.type === 'station' ? (
                           <Satellite className="w-4 h-4 text-green-400 flex-shrink-0" />
+                        ) : ship.type === 'frigate' ? (
+                          <Zap className="w-4 h-4 text-red-400 flex-shrink-0" />
                         ) : (
                           <Package className="w-4 h-4 text-amber-400 flex-shrink-0" />
                         )}
@@ -4299,8 +4365,11 @@ const EarthVisualization = () => {
                                 {ship.type === 'colony' && isArrived && (
                                   <SelectItem value="colonize" className="text-slate-300 hover:bg-slate-700">Colonize</SelectItem>
                                 )}
-                                {ship.type === 'station' && isArrived && (
+                                 {ship.type === 'station' && isArrived && (
                                   <SelectItem value="deploy" className="text-slate-300 hover:bg-slate-700">Deploy</SelectItem>
+                                )}
+                                {ship.type === 'frigate' && isArrived && !ship.isPatrolling && (
+                                  <SelectItem value="patrol" className="text-slate-300 hover:bg-slate-700">Patrol</SelectItem>
                                 )}
                               </SelectContent>
                             </Select>
@@ -4350,6 +4419,12 @@ const EarthVisualization = () => {
                                   handleDeployStation(ship.name, ship.location);
                                 } else if (action === 'colonize') {
                                   handleColonizePlanet(ship.name, ship.location);
+                                } else if (action === 'patrol') {
+                                  // Start patrolling
+                                  setBuiltSpheres(prev => prev.map(s =>
+                                    s.name === ship.name ? { ...s, isPatrolling: true, patrolOrbitSpeed: 0.0005 } : s
+                                  ));
+                                  console.log(`🛡️ ${ship.name} started patrolling ${ship.location}`);
                                 }
                               }}
                             >
