@@ -2834,6 +2834,7 @@ const EarthVisualization = () => {
     lastShotTime?: number, // Timestamp of last shot fired
     homePosition?: [number, number, number], // Home position to return to after combat
     isReturningHome?: boolean, // Whether frigate is returning home after combat
+    isDeployed?: boolean, // Whether frigate has been deployed to auto-hunt
     // New fields for static positioning
     staticPosition?: [number, number, number],
     travelProgress?: number,
@@ -2924,7 +2925,6 @@ const EarthVisualization = () => {
   
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' | 'station' | 'frigate' } | null>(null);
-  const [selectedFrigateForCombat, setSelectedFrigateForCombat] = useState<string | null>(null);
   const [pirates, setPirates] = useState<Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }>>([]);
   const [piratePositions, setPiratePositions] = useState<Record<string, [number, number, number]>>({});
   const [destroyedPirates, setDestroyedPirates] = useState<Set<string>>(new Set());
@@ -3338,65 +3338,90 @@ const EarthVisualization = () => {
     console.log(`Deployed ${shipName} at ${location}`);
   };
 
-  // Combat handler - assign frigate to attack pirate
+  // Combat handler - assign frigate to attack pirate (no longer used with auto-hunt)
   const handlePirateClick = (pirateId: string, piratePosition: [number, number, number]) => {
-    if (selectedFrigateForCombat) {
-      // Store home position before attacking
-      setBuiltSpheres(prev => prev.map(s => {
-        if (s.name === selectedFrigateForCombat) {
-          // Get current position or default patrol position
-          let homePos: [number, number, number] = s.staticPosition || [5, 0, 0];
-          if (s.location === 'moon') homePos = [27, 4, 8];
-          else if (s.location === 'mars') homePos = [64, 11, 23];
-          
-          return { 
-            ...s, 
-            isAttacking: true, 
-            targetPirateId: pirateId,
-            isPatrolling: false,
-            homePosition: homePos,
-            isReturningHome: false
-          };
-        }
-        return s;
-      }));
-      console.log(`🎯 ${selectedFrigateForCombat} targeting pirate ${pirateId}`);
-      setSelectedFrigateForCombat(null); // Clear selection
-    }
+    // Pirates are now targeted automatically by deployed frigates
+    console.log(`Pirate ${pirateId} clicked but auto-hunt is enabled`);
   };
 
   // Handle pirate destruction
   const handlePirateDestroyed = (pirateId: string) => {
     setDestroyedPirates(prev => new Set([...prev, pirateId]));
-    // Tell frigates to return home after destroying pirate
-    setBuiltSpheres(prev => prev.map(s =>
-      s.targetPirateId === pirateId ? { 
-        ...s, 
-        isAttacking: false, 
-        targetPirateId: undefined,
-        lastShotTime: undefined,
-        isReturningHome: true
-      } : s
-    ));
+    // Frigates will automatically find next pirate or return home
+    setBuiltSpheres(prev => prev.map(s => {
+      if (s.targetPirateId === pirateId) {
+        return {
+          ...s,
+          isAttacking: false,
+          targetPirateId: undefined,
+          lastShotTime: undefined
+        };
+      }
+      return s;
+    }));
   };
 
-  // Effect to detect when frigate reaches home and resume patrol
+  // Effect to auto-hunt pirates for deployed frigates
   useEffect(() => {
-    const checkFrigatesReturningHome = () => {
+    const autoHuntPirates = () => {
       setBuiltSpheres(prev => prev.map(ship => {
+        // Only auto-hunt for frigates that are deployed (not patrolling) and not currently attacking
+        if (ship.type === 'frigate' && ship.isDeployed && !ship.isAttacking && !ship.isReturningHome) {
+          // Find nearest alive pirate using piratePositions
+          const alivePirates = pirates.filter(p => !destroyedPirates.has(p.id));
+          
+          if (alivePirates.length > 0) {
+            // Find closest pirate
+            const shipPos = ship.staticPosition || [5, 0, 0];
+            let closestPirate = alivePirates[0];
+            let closestDistance = Infinity;
+            
+            alivePirates.forEach(pirate => {
+              const piratePos = piratePositions[pirate.id];
+              if (!piratePos) return;
+              
+              const dx = piratePos[0] - shipPos[0];
+              const dy = piratePos[1] - shipPos[1];
+              const dz = piratePos[2] - shipPos[2];
+              const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+              
+              if (distance < closestDistance) {
+                closestDistance = distance;
+                closestPirate = pirate;
+              }
+            });
+            
+            console.log(`🎯 ${ship.name} auto-targeting pirate ${closestPirate.id}`);
+            return {
+              ...ship,
+              isAttacking: true,
+              targetPirateId: closestPirate.id
+            };
+          } else {
+            // No more pirates - return home
+            if (!ship.isReturningHome) {
+              console.log(`🏠 ${ship.name} - all pirates destroyed, returning home`);
+              return {
+                ...ship,
+                isReturningHome: true
+              };
+            }
+          }
+        }
+        
+        // Check if returning home frigate has reached destination
         if (ship.isReturningHome && ship.homePosition && ship.staticPosition) {
-          // Calculate distance to home
           const dx = ship.homePosition[0] - ship.staticPosition[0];
           const dy = ship.homePosition[1] - ship.staticPosition[1];
           const dz = ship.homePosition[2] - ship.staticPosition[2];
           const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
           
-          // If close to home, resume patrolling
           if (distance < 0.5) {
+            console.log(`✅ ${ship.name} returned home and idle`);
             return {
               ...ship,
               isReturningHome: false,
-              isPatrolling: true,
+              isDeployed: false,
               homePosition: undefined
             };
           }
@@ -3405,9 +3430,9 @@ const EarthVisualization = () => {
       }));
     };
 
-    const interval = setInterval(checkFrigatesReturningHome, 100);
+    const interval = setInterval(autoHuntPirates, 100);
     return () => clearInterval(interval);
-  }, []);
+  }, [pirates, destroyedPirates, piratePositions, builtSpheres]);
 
   // Handle pirate hit
   const handlePirateHit = (pirateId: string) => {
@@ -4683,8 +4708,8 @@ const EarthVisualization = () => {
                                  {ship.type === 'station' && isArrived && (
                                   <SelectItem value="deploy" className="text-slate-300 hover:bg-slate-700">Deploy</SelectItem>
                                 )}
-                                {ship.type === 'frigate' && isArrived && !ship.isPatrolling && (
-                                  <SelectItem value="patrol" className="text-slate-300 hover:bg-slate-700">Patrol</SelectItem>
+                                {ship.type === 'frigate' && isArrived && !ship.isDeployed && !ship.isAttacking && (
+                                  <SelectItem value="deploy" className="text-slate-300 hover:bg-slate-700">Deploy (Auto-Hunt)</SelectItem>
                                 )}
                               </SelectContent>
                             </Select>
@@ -4731,15 +4756,23 @@ const EarthVisualization = () => {
                                     totalTravelTime: travelTime
                                   });
                                 } else if (action === 'deploy') {
-                                  handleDeployStation(ship.name, ship.location);
+                                  // Check if this is a station
+                                  if (ship.type === 'station') {
+                                    handleDeployStation(ship.name, ship.location);
+                                  } else if (ship.type === 'frigate') {
+                                    // Deploy frigate for auto-hunt
+                                    const homePos = ship.staticPosition || [5, 0, 0];
+                                    setBuiltSpheres(prev => prev.map(s =>
+                                      s.name === ship.name ? { 
+                                        ...s, 
+                                        isDeployed: true, 
+                                        homePosition: homePos 
+                                      } : s
+                                    ));
+                                    console.log(`🛡️ ${ship.name} deployed for auto-hunt at ${ship.location}`);
+                                  }
                                 } else if (action === 'colonize') {
                                   handleColonizePlanet(ship.name, ship.location);
-                                } else if (action === 'patrol') {
-                                  // Start patrolling
-                                  setBuiltSpheres(prev => prev.map(s =>
-                                    s.name === ship.name ? { ...s, isPatrolling: true, patrolOrbitSpeed: 0.25 } : s
-                                  ));
-                                  console.log(`🛡️ ${ship.name} started patrolling ${ship.location}`);
                                 }
                               }}
                             >
@@ -5052,19 +5085,13 @@ const EarthVisualization = () => {
           <StaticShip 
             key={index} 
             ship={ship}
-            selected={selectedShip?.name === ship.name || selectedFrigateForCombat === ship.name}
+            selected={selectedShip?.name === ship.name}
             piratePositions={piratePositions}
             onPirateDestroyed={handlePirateDestroyed}
             onPirateHit={handlePirateHit}
             onShipClick={() => {
-              // Special handling for frigates - allow combat selection
-              if (ship.type === 'frigate' && !ship.isPatrolling && !ship.isAttacking) {
-                setSelectedFrigateForCombat(ship.name);
-                console.log(`⚔️ ${ship.name} selected for combat - click on a pirate to attack`);
-              } else {
-                setSelectedShip({ name: ship.name, type: ship.type });
-                setShowShipLaunchModal(true);
-              }
+              setSelectedShip({ name: ship.name, type: ship.type });
+              setShowShipLaunchModal(true);
             }}
             onShipDoubleClick={() => {
               console.log(`${ship.name} double clicked!`);
