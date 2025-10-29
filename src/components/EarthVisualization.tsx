@@ -3211,7 +3211,10 @@ const EarthVisualization = () => {
     console.log('Reset button clicked - clearing localStorage');
     // Clear all localStorage game state
     localStorage.clear();
-    console.log('localStorage cleared. About to reload page.');
+    
+    // Set credits to initial value of 10,000
+    localStorage.setItem('user_credits', '10000');
+    console.log('localStorage cleared and credits reset to 10,000. About to reload page.');
     
     // Reload the page to reinitialize everything
     window.location.reload();
