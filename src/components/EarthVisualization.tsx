@@ -3472,8 +3472,15 @@ const EarthVisualization = () => {
       location: location as 'earth' | 'moon' | 'mars' | 'eml1' 
     }]);
 
-    // Remove station from builtSpheres (consumed)
-    setBuiltSpheres(prev => prev.filter(s => s.name !== shipName));
+    // Remove station from builtSpheres WITHOUT affecting other ships
+    // Use functional update to prevent frigate position glitches
+    setBuiltSpheres(prev => prev.filter(s => s.name !== shipName).map(s => {
+      // Ensure deployed frigates maintain their location
+      if (s.type === 'frigate' && s.isDeployed && s.deployedLocation) {
+        return { ...s, location: s.deployedLocation };
+      }
+      return s;
+    }));
 
     console.log(`Deployed ${shipName} at ${location}`);
   };
