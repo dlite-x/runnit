@@ -14,7 +14,12 @@ export interface CreditsBreakdown {
   net: number;
 }
 
-export function useCredits(planetIncomePerHour: number = 0, stationCount: number = 0) {
+export function useCredits(
+  planetIncomePerHour: number = 0, 
+  stationCount: number = 0, 
+  frigateCount: number = 0,
+  alivePirateCount: number = 0
+) {
   const [credits, setCredits] = useState<number>(() => {
     // Load initial credits from localStorage
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -25,19 +30,20 @@ export function useCredits(planetIncomePerHour: number = 0, stationCount: number
   const breakdown: CreditsBreakdown = {
     income: {
       planetIncome: planetIncomePerHour,
-      spaceTrade: stationCount >= 3 ? 1 : 0,
+      spaceTrade: stationCount >= 3 ? 2 : stationCount >= 2 ? 1 : 0,
     },
     expenses: {
-      fleet: -1, // Placeholder for fleet upkeep
+      fleet: -frigateCount, // -1 per frigate
     },
     net: 0,
   };
 
-  // Calculate net rate (per hour)
+  // Calculate net rate (per hour) - subtract pirate penalty
   breakdown.net = 
     breakdown.income.planetIncome + 
     breakdown.income.spaceTrade + 
-    breakdown.expenses.fleet;
+    breakdown.expenses.fleet -
+    alivePirateCount; // Pirates cause -1 credits each
 
   // Convert hourly rate to per-second rate
   const creditsPerSecond = breakdown.net / 3600;

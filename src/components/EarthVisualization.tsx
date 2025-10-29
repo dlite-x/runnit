@@ -2915,6 +2915,11 @@ const EarthVisualization = () => {
     startPosition?: [number, number, number],
     endPosition?: [number, number, number]
   }>>([]);
+  const [deployedStations, setDeployedStations] = useState<Array<{ 
+    name: string, 
+    location: 'earth' | 'moon' | 'mars' | 'eml1',
+    deployedAt?: number // Timestamp when deployed
+  }>>([]);
 
   // Helper functions for static positioning
   const getStaticPositionNearPlanet = (planet: 'earth' | 'moon' | 'mars' | 'eml1', index: number): [number, number, number] => {
@@ -2982,8 +2987,6 @@ const EarthVisualization = () => {
   const [colonyCount, setColonyCount] = useState(0);
   const [cargoCount, setCargoCount] = useState(0);
   const [stationCount, setStationCount] = useState(0);
-  const [frigateCount, setFrigateCount] = useState(0);
-  const [deployedStations, setDeployedStations] = useState<Array<{ name: string; location: 'earth' | 'moon' | 'mars' | 'eml1' }>>([]);
   const [alienShipPosition, setAlienShipPosition] = useState<[number, number, number]>([15, 5, 8]);
   const [showTargetCube, setShowTargetCube] = useState(false);
   const [showBaseCube, setShowBaseCube] = useState(false);
@@ -3056,8 +3059,19 @@ const EarthVisualization = () => {
   // Calculate total planet income (Earth population generates credits)
   const planetIncomePerHour = earthGrowthRate;
   
-  // Initialize credits hook with planet income and deployed station count
-  const { credits, spendCredits, setCredits, breakdown } = useCredits(planetIncomePerHour, deployedStations.length);
+  // Count built frigates for fleet upkeep
+  const frigateCount = builtSpheres.filter(s => s.type === 'frigate').length;
+  
+  // Count alive pirates for pirate penalty
+  const alivePirateCount = pirates.filter(p => !destroyedPirates.has(p.id)).length;
+  
+  // Initialize credits hook with planet income, deployed station count, frigates, and alive pirates
+  const { credits, spendCredits, setCredits, breakdown } = useCredits(
+    planetIncomePerHour, 
+    deployedStations.length, 
+    frigateCount,
+    alivePirateCount
+  );
   
   // Now get resources again with actual population - THIS IS THE SINGLE SOURCE OF TRUTH
   const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource, addResource: addEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
@@ -3407,10 +3421,11 @@ const EarthVisualization = () => {
       return;
     }
 
-    // Add to deployed stations
+    // Add to deployed stations with timestamp
     setDeployedStations(prev => [...prev, { 
       name: shipName, 
-      location: location as 'earth' | 'moon' | 'mars' | 'eml1' 
+      location: location as 'earth' | 'moon' | 'mars' | 'eml1',
+      deployedAt: Date.now()
     }]);
 
     // Remove station from builtSpheres (consumed)
@@ -3469,27 +3484,39 @@ const EarthVisualization = () => {
     });
   };
 
-  // Sync pirates array based on which pirates are visible
+  // Sync pirates array based on which pirates are visible (30 second delay after station deployment)
   useEffect(() => {
     const visiblePirates: Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }> = [];
     
-    // Earth-Moon pirates (visible when both stations deployed)
-    if (deployedStations.some(s => s.location === 'earth') && deployedStations.some(s => s.location === 'moon')) {
-      if (!destroyedPirates.has('em-pirate-1')) {
-        visiblePirates.push({ id: 'em-pirate-1', route: 'earth-moon', offset: -1.5, destroyed: false });
-      }
-      if (!destroyedPirates.has('em-pirate-2')) {
-        visiblePirates.push({ id: 'em-pirate-2', route: 'earth-moon', offset: -3, destroyed: false });
+    const now = Date.now();
+    const PIRATE_SPAWN_DELAY = 30000; // 30 seconds
+    
+    // Earth-Moon pirates (visible 30 seconds after both stations deployed)
+    const earthStation = deployedStations.find(s => s.location === 'earth');
+    const moonStation = deployedStations.find(s => s.location === 'moon');
+    if (earthStation && moonStation) {
+      const latestDeployTime = Math.max(earthStation.deployedAt || 0, moonStation.deployedAt || 0);
+      if (now - latestDeployTime >= PIRATE_SPAWN_DELAY) {
+        if (!destroyedPirates.has('em-pirate-1')) {
+          visiblePirates.push({ id: 'em-pirate-1', route: 'earth-moon', offset: -1.5, destroyed: false });
+        }
+        if (!destroyedPirates.has('em-pirate-2')) {
+          visiblePirates.push({ id: 'em-pirate-2', route: 'earth-moon', offset: -3, destroyed: false });
+        }
       }
     }
     
-    // Moon-Mars pirates (visible when both stations deployed)
-    if (deployedStations.some(s => s.location === 'moon') && deployedStations.some(s => s.location === 'mars')) {
-      if (!destroyedPirates.has('mm-pirate-1')) {
-        visiblePirates.push({ id: 'mm-pirate-1', route: 'moon-mars', offset: -1.5, destroyed: false });
-      }
-      if (!destroyedPirates.has('mm-pirate-2')) {
-        visiblePirates.push({ id: 'mm-pirate-2', route: 'moon-mars', offset: -3, destroyed: false });
+    // Moon-Mars pirates (visible 30 seconds after both stations deployed)
+    const marsStation = deployedStations.find(s => s.location === 'mars');
+    if (moonStation && marsStation) {
+      const latestDeployTime = Math.max(moonStation.deployedAt || 0, marsStation.deployedAt || 0);
+      if (now - latestDeployTime >= PIRATE_SPAWN_DELAY) {
+        if (!destroyedPirates.has('mm-pirate-1')) {
+          visiblePirates.push({ id: 'mm-pirate-1', route: 'moon-mars', offset: -1.5, destroyed: false });
+        }
+        if (!destroyedPirates.has('mm-pirate-2')) {
+          visiblePirates.push({ id: 'mm-pirate-2', route: 'moon-mars', offset: -3, destroyed: false });
+        }
       }
     }
     
@@ -3583,16 +3610,18 @@ const EarthVisualization = () => {
     });
   }, [builtSpheres, pirates, destroyedPirates, piratePositions]);
 
-  // Handle frigate returning home
+  // Handle frigate returning home - keep deployed status so it can be launched again
   const handleFrigateReturnedHome = (frigateId: string) => {
-    console.log(`✅ ${frigateId} returned home and staying stationary`);
+    console.log(`✅ ${frigateId} returned home - ready for new mission`);
     setBuiltSpheres(prev => prev.map(s =>
       s.name === frigateId ? {
         ...s,
         isReturningHome: false,
         isPatrolling: false, // Stay stationary, don't patrol
         targetPirateId: undefined,
-        lastShotTime: undefined
+        lastShotTime: undefined,
+        isAttacking: false
+        // Keep isDeployed and deployedLocation intact so it can be launched again
       } : s
     ));
   };
@@ -4631,12 +4660,11 @@ const EarthVisualization = () => {
                   <div className={`border border-slate-600/30 rounded-lg p-1 transition-colors relative z-[9999] pointer-events-auto ${activeBuildingTab === 'earth' ? 'hover:border-slate-500/50' : 'opacity-50 cursor-not-allowed'}`}>
                      <div 
                        className={`flex items-center justify-between px-2 py-0.5 rounded transition-colors group relative z-[9999] ${activeBuildingTab === 'earth' ? 'cursor-pointer hover:bg-slate-700/50' : 'cursor-not-allowed'}`}
-                        onClick={() => {
+                     onClick={() => {
                           if (activeBuildingTab !== 'earth') return;
                           console.log('Frigate clicked!');
                           if (spendCredits(300)) {
-                            const newFrigateCount = frigateCount + 1;
-                            setFrigateCount(newFrigateCount);
+                            const newFrigateCount = builtSpheres.filter(s => s.type === 'frigate').length + 1;
                             const staticPos = getStaticPositionNearPlanet(activeBuildingTab as 'earth' | 'moon' | 'mars', builtSpheres.filter(s => s.location === activeBuildingTab).length);
                             setBuiltSpheres(prev => [...prev, { 
                               type: 'frigate', 
