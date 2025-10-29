@@ -5358,58 +5358,79 @@ const EarthVisualization = () => {
         ))}
         
         {/* Trade Ships - Only appear when stations deployed at both endpoints */}
-        {deployedStations.some(s => s.location === 'earth') && deployedStations.some(s => s.location === 'moon') && (
-          <>
-            <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
-            {/* Pirate ships chasing Earth-Moon trade ship */}
-            {!destroyedPirates.has('em-pirate-1') && (
-              <PirateShip 
-                id="em-pirate-1" 
-                earthPosition={[0, 0, 0]} 
-                moonPosition={[24, 4, 8]} 
-                offset={-1.5} 
-                onPirateClick={handlePirateClick}
-                onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
-              />
-            )}
-            {!destroyedPirates.has('em-pirate-2') && (
-              <PirateShip 
-                id="em-pirate-2" 
-                earthPosition={[0, 0, 0]} 
-                moonPosition={[24, 4, 8]} 
-                offset={-3} 
-                onPirateClick={handlePirateClick}
-                onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
-              />
-            )}
-          </>
-        )}
-        {deployedStations.some(s => s.location === 'moon') && deployedStations.some(s => s.location === 'mars') && (
-          <>
-            <TrajectoryShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} />
-            {/* Pirate ships chasing Moon-Mars trade ship */}
-            {!destroyedPirates.has('mm-pirate-1') && (
-              <PirateShip 
-                id="mm-pirate-1" 
-                earthPosition={[24, 4, 8]} 
-                moonPosition={[64, 11, 23]} 
-                offset={-1.5} 
-                onPirateClick={handlePirateClick}
-                onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
-              />
-            )}
-            {!destroyedPirates.has('mm-pirate-2') && (
-              <PirateShip 
-                id="mm-pirate-2" 
-                earthPosition={[24, 4, 8]} 
-                moonPosition={[64, 11, 23]} 
-                offset={-3} 
-                onPirateClick={handlePirateClick}
-                onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
-              />
-            )}
-          </>
-        )}
+        {(() => {
+          const now = Date.now();
+          const PIRATE_SPAWN_DELAY = 30000; // 30 seconds
+          
+          const earthStation = deployedStations.find(s => s.location === 'earth');
+          const moonStation = deployedStations.find(s => s.location === 'moon');
+          const marsStation = deployedStations.find(s => s.location === 'mars');
+          
+          // Check if Earth-Moon pirates should spawn
+          const earthMoonReady = earthStation && moonStation && 
+            (now - Math.max(earthStation.deployedAt || 0, moonStation.deployedAt || 0) >= PIRATE_SPAWN_DELAY);
+          
+          // Check if Moon-Mars pirates should spawn
+          const moonMarsReady = moonStation && marsStation && 
+            (now - Math.max(moonStation.deployedAt || 0, marsStation.deployedAt || 0) >= PIRATE_SPAWN_DELAY);
+          
+          return (
+            <>
+              {earthStation && moonStation && (
+                <>
+                  <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
+                  {/* Pirate ships chasing Earth-Moon trade ship - only after 30 seconds */}
+                  {earthMoonReady && !destroyedPirates.has('em-pirate-1') && (
+                    <PirateShip 
+                      id="em-pirate-1" 
+                      earthPosition={[0, 0, 0]} 
+                      moonPosition={[24, 4, 8]} 
+                      offset={-1.5} 
+                      onPirateClick={handlePirateClick}
+                      onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+                    />
+                  )}
+                  {earthMoonReady && !destroyedPirates.has('em-pirate-2') && (
+                    <PirateShip 
+                      id="em-pirate-2" 
+                      earthPosition={[0, 0, 0]} 
+                      moonPosition={[24, 4, 8]} 
+                      offset={-3} 
+                      onPirateClick={handlePirateClick}
+                      onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+                    />
+                  )}
+                </>
+              )}
+              {moonStation && marsStation && (
+                <>
+                  <TrajectoryShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} />
+                  {/* Pirate ships chasing Moon-Mars trade ship - only after 30 seconds */}
+                  {moonMarsReady && !destroyedPirates.has('mm-pirate-1') && (
+                    <PirateShip 
+                      id="mm-pirate-1" 
+                      earthPosition={[24, 4, 8]} 
+                      moonPosition={[64, 11, 23]} 
+                      offset={-1.5} 
+                      onPirateClick={handlePirateClick}
+                      onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+                    />
+                  )}
+                  {moonMarsReady && !destroyedPirates.has('mm-pirate-2') && (
+                    <PirateShip 
+                      id="mm-pirate-2" 
+                      earthPosition={[24, 4, 8]} 
+                      moonPosition={[64, 11, 23]} 
+                      offset={-3} 
+                      onPirateClick={handlePirateClick}
+                      onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+                    />
+                  )}
+                </>
+              )}
+            </>
+          );
+        })()}
         
         
         {/* Alien Ship */}
