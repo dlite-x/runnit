@@ -3486,42 +3486,52 @@ const EarthVisualization = () => {
 
   // Sync pirates array based on which pirates are visible (30 second delay after station deployment)
   useEffect(() => {
-    const visiblePirates: Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }> = [];
-    
-    const now = Date.now();
-    const PIRATE_SPAWN_DELAY = 30000; // 30 seconds
-    
-    // Earth-Moon pirates (visible 30 seconds after both stations deployed)
-    const earthStation = deployedStations.find(s => s.location === 'earth');
-    const moonStation = deployedStations.find(s => s.location === 'moon');
-    if (earthStation && moonStation) {
-      const latestDeployTime = Math.max(earthStation.deployedAt || 0, moonStation.deployedAt || 0);
-      if (now - latestDeployTime >= PIRATE_SPAWN_DELAY) {
-        if (!destroyedPirates.has('em-pirate-1')) {
-          visiblePirates.push({ id: 'em-pirate-1', route: 'earth-moon', offset: -1.5, destroyed: false });
-        }
-        if (!destroyedPirates.has('em-pirate-2')) {
-          visiblePirates.push({ id: 'em-pirate-2', route: 'earth-moon', offset: -3, destroyed: false });
-        }
-      }
-    }
-    
-    // Moon-Mars pirates (visible 30 seconds after both stations deployed)
-    const marsStation = deployedStations.find(s => s.location === 'mars');
-    if (moonStation && marsStation) {
-      const latestDeployTime = Math.max(moonStation.deployedAt || 0, marsStation.deployedAt || 0);
-      if (now - latestDeployTime >= PIRATE_SPAWN_DELAY) {
-        if (!destroyedPirates.has('mm-pirate-1')) {
-          visiblePirates.push({ id: 'mm-pirate-1', route: 'moon-mars', offset: -1.5, destroyed: false });
-        }
-        if (!destroyedPirates.has('mm-pirate-2')) {
-          visiblePirates.push({ id: 'mm-pirate-2', route: 'moon-mars', offset: -3, destroyed: false });
+    const updatePiratesList = () => {
+      const visiblePirates: Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }> = [];
+      
+      const now = Date.now();
+      const PIRATE_SPAWN_DELAY = 30000; // 30 seconds
+      
+      // Earth-Moon pirates (visible 30 seconds after both stations deployed)
+      const earthStation = deployedStations.find(s => s.location === 'earth');
+      const moonStation = deployedStations.find(s => s.location === 'moon');
+      if (earthStation && moonStation) {
+        const latestDeployTime = Math.max(earthStation.deployedAt || 0, moonStation.deployedAt || 0);
+        if (now - latestDeployTime >= PIRATE_SPAWN_DELAY) {
+          if (!destroyedPirates.has('em-pirate-1')) {
+            visiblePirates.push({ id: 'em-pirate-1', route: 'earth-moon', offset: -1.5, destroyed: false });
+          }
+          if (!destroyedPirates.has('em-pirate-2')) {
+            visiblePirates.push({ id: 'em-pirate-2', route: 'earth-moon', offset: -3, destroyed: false });
+          }
         }
       }
-    }
+      
+      // Moon-Mars pirates (visible 30 seconds after both stations deployed)
+      const marsStation = deployedStations.find(s => s.location === 'mars');
+      if (moonStation && marsStation) {
+        const latestDeployTime = Math.max(moonStation.deployedAt || 0, marsStation.deployedAt || 0);
+        if (now - latestDeployTime >= PIRATE_SPAWN_DELAY) {
+          if (!destroyedPirates.has('mm-pirate-1')) {
+            visiblePirates.push({ id: 'mm-pirate-1', route: 'moon-mars', offset: -1.5, destroyed: false });
+          }
+          if (!destroyedPirates.has('mm-pirate-2')) {
+            visiblePirates.push({ id: 'mm-pirate-2', route: 'moon-mars', offset: -3, destroyed: false });
+          }
+        }
+      }
+      
+      setPirates(visiblePirates);
+      console.log(`👾 Updated pirates array: ${visiblePirates.length} pirates visible`, visiblePirates.map(p => p.id));
+    };
     
-    setPirates(visiblePirates);
-    console.log(`👾 Updated pirates array: ${visiblePirates.length} pirates visible`, visiblePirates.map(p => p.id));
+    // Update immediately
+    updatePiratesList();
+    
+    // Then update every second to check if 30 seconds have passed
+    const interval = setInterval(updatePiratesList, 1000);
+    
+    return () => clearInterval(interval);
   }, [deployedStations, destroyedPirates]);
 
   // Auto-hunt logic - runs continuously using React render cycle instead of setInterval
@@ -3530,23 +3540,7 @@ const EarthVisualization = () => {
     const deployedFrigates = builtSpheres.filter(s => s.type === 'frigate' && s.isDeployed);
     if (deployedFrigates.length === 0) return;
     
-    // Apply 30-second spawn delay check
-    const now = Date.now();
-    const PIRATE_SPAWN_DELAY = 30000; // 30 seconds
-    
-    const earthStation = deployedStations.find(s => s.location === 'earth');
-    const moonStation = deployedStations.find(s => s.location === 'moon');
-    const marsStation = deployedStations.find(s => s.location === 'mars');
-    
-    // Check if Earth-Moon pirates should be targetable
-    const earthMoonReady = earthStation && moonStation && 
-      (now - Math.max(earthStation.deployedAt || 0, moonStation.deployedAt || 0) >= PIRATE_SPAWN_DELAY);
-    
-    // Check if Moon-Mars pirates should be targetable
-    const moonMarsReady = moonStation && marsStation && 
-      (now - Math.max(moonStation.deployedAt || 0, marsStation.deployedAt || 0) >= PIRATE_SPAWN_DELAY);
-    
-    console.log(`🎮 Auto-hunt check: ${deployedFrigates.length} deployed frigates, ${pirates.length} pirates, ${Object.keys(piratePositions).length} positions, earthMoonReady=${earthMoonReady}, moonMarsReady=${moonMarsReady}`);
+    console.log(`🎮 Auto-hunt check: ${deployedFrigates.length} deployed frigates, ${pirates.length} pirates, ${Object.keys(piratePositions).length} positions`);
     
     setBuiltSpheres(prev => {
       let hasChanges = false;
@@ -3557,10 +3551,6 @@ const EarthVisualization = () => {
           const deployedLoc = ship.deployedLocation || 'earth';
           const alivePirates = pirates.filter(p => {
             if (destroyedPirates.has(p.id)) return false;
-            
-            // Apply 30-second delay filter based on route
-            if (p.route === 'earth-moon' && !earthMoonReady) return false;
-            if (p.route === 'moon-mars' && !moonMarsReady) return false;
             
             // Filter pirates based on deployment location
             // Earth: hunt earth-moon pirates
