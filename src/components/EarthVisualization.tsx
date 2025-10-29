@@ -11,6 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import earthTexture from '@/assets/earth-2k-texture.jpg';
 import moonTexture from '@/assets/moon-texture-2k.jpg';
 import marsTexture from '@/assets/mars-texture-2k.jpg';
@@ -2533,7 +2534,7 @@ const CountdownTimer = ({
 };
 
 const EarthVisualization = () => {
-  const { credits, spendCredits, setCredits } = useCredits(); // Hook for auto-incrementing credits
+  // Get basic hooks first (without planet income)
   const { co2ppm, temperature, co2Events, addCO2Event } = useEarthClimate(); // Hook for Earth climate tracking
   const [autoRotate, setAutoRotate] = useState(true); // Start with animation enabled
   const [showGrid, setShowGrid] = useState(false);
@@ -2688,6 +2689,12 @@ const EarthVisualization = () => {
   const { population: moonPopulation, growthRatePerHour: moonGrowthRate, adjustPopulation: adjustMoonPopulation } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.resources.food);
   const { population: eml1Population, growthRatePerHour: eml1GrowthRate, adjustPopulation: adjustEML1Population } = usePlanetPopulation('EML1', isEML1Colonized, tempEML1Resources.resources.food);
   const { population: marsPopulation, growthRatePerHour: marsGrowthRate, adjustPopulation: adjustMarsPopulation } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
+  
+  // Calculate total planet income (Earth population generates credits)
+  const planetIncomePerHour = earthGrowthRate;
+  
+  // Initialize credits hook with planet income and deployed station count
+  const { credits, spendCredits, setCredits, breakdown } = useCredits(planetIncomePerHour, deployedStations.length);
   
   // Now get resources again with actual population - THIS IS THE SINGLE SOURCE OF TRUTH
   const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource, addResource: addEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
@@ -3510,7 +3517,57 @@ const EarthVisualization = () => {
                         </div>
                         <span className="text-base text-slate-400">Credits</span>
                       </div>
-                      <span className="text-base font-bold text-green-400">+{Math.round((100 / 360000) * 3600)}/hr</span>
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <span className={`text-base font-bold cursor-help ${breakdown.net >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {breakdown.net >= 0 ? '+' : ''}{breakdown.net}/hr
+                          </span>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-64 bg-slate-800/95 border-slate-600">
+                          <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-slate-200">Credits Breakdown</h4>
+                            
+                            {/* Income Section */}
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-emerald-400">Income</p>
+                              <div className="space-y-1 pl-2">
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-slate-400">Earth Population</span>
+                                  <span className="text-green-400">+{breakdown.income.planetIncome}/hr</span>
+                                </div>
+                                {breakdown.income.spaceTrade > 0 && (
+                                  <div className="flex justify-between text-xs">
+                                    <span className="text-slate-400">Space Trade Network</span>
+                                    <span className="text-green-400">+{breakdown.income.spaceTrade}/hr</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Expenses Section */}
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-red-400">Expenses</p>
+                              <div className="space-y-1 pl-2">
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-slate-400">Fleet Upkeep</span>
+                                  <span className="text-red-400">{breakdown.expenses.fleet}/hr</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Divider */}
+                            <div className="border-t border-slate-600"></div>
+                            
+                            {/* Net Rate */}
+                            <div className="flex justify-between text-sm font-semibold">
+                              <span className="text-slate-200">Net Rate</span>
+                              <span className={breakdown.net >= 0 ? 'text-green-400' : 'text-red-400'}>
+                                {breakdown.net >= 0 ? '+' : ''}{breakdown.net}/hr
+                              </span>
+                            </div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
