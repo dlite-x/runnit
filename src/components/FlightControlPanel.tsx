@@ -249,14 +249,14 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-8 px-1"></TableHead>
-                <TableHead className="px-2">Name</TableHead>
-                <TableHead className="px-2">Dest</TableHead>
-                <TableHead className="px-2">Fuel</TableHead>
-                <TableHead className="px-2">Cargo</TableHead>
-                <TableHead className="px-2">Status</TableHead>
-                <TableHead className="px-2">ETA</TableHead>
-                <TableHead className="text-right px-2">Actions</TableHead>
+                <TableHead className="w-6 px-1"></TableHead>
+                <TableHead className="px-1">Name</TableHead>
+                <TableHead className="px-1">Dest</TableHead>
+                <TableHead className="px-1">Fuel</TableHead>
+                <TableHead className="px-1">Cargo</TableHead>
+                <TableHead className="px-1">Status</TableHead>
+                <TableHead className="px-1">ETA</TableHead>
+                <TableHead className="px-1">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -278,8 +278,8 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                         <Package className="w-4 h-4 text-orange-400" />
                       )}
                     </TableCell>
-                    <TableCell className="font-medium text-sm px-2">{ship.name}</TableCell>
-                    <TableCell className="px-2">
+                    <TableCell className="font-medium text-sm px-1">{ship.name}</TableCell>
+                    <TableCell className="px-1">
                       {ship.location === 'traveling' ? (
                         <span className="text-xs text-muted-foreground">{ship.destination}</span>
                       ) : (
@@ -299,8 +299,8 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                         </Select>
                       )}
                     </TableCell>
-                    <TableCell className="px-2">
-                      <div className="flex items-center gap-2">
+                    <TableCell className="px-1">
+                      <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1">
                           <span className="text-xs">
                             {currentFuel}/{requiredFuel || '-'}
@@ -325,7 +325,7 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="px-2">
+                    <TableCell className="px-1">
                       <div className="flex items-center gap-1">
                         <span className="text-xs">
                           {cargo.food}/{cargo.fuel}/{cargo.metal}
@@ -353,13 +353,13 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="px-2">
+                    <TableCell className="px-1">
                       <span className="text-xs">{getStatus(ship)}</span>
                     </TableCell>
-                    <TableCell className="px-2">
+                    <TableCell className="px-1">
                       <span className="text-xs">{getETA(ship)}</span>
                     </TableCell>
-                    <TableCell className="text-right px-2">
+                    <TableCell className="px-1">
                       {ship.location === 'traveling' ? (
                         <span className="text-xs text-muted-foreground">En Route</span>
                       ) : (
