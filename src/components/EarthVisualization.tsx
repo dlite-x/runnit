@@ -472,6 +472,12 @@ function StaticShip({
           }
         }
       }
+      // Hold position if in attack mode but no target assigned yet
+      else if (ship.isAttacking && !ship.targetPirateId) {
+        // Stay at current position while waiting for auto-hunt to assign next target
+        const currentPos = shipRef.current.position;
+        position = [currentPos.x, currentPos.y, currentPos.z];
+      }
       // Handle patrol orbital movement for frigates
       else if (ship.isPatrolling && ship.type === 'frigate') {
         const time = state.clock.getElapsedTime();
@@ -3447,14 +3453,14 @@ const EarthVisualization = () => {
       setBuiltSpheres(prevShips => prevShips.map(s => {
         if (s.targetPirateId === pirateId) {
           if (hasMorePirates) {
-            // More pirates exist - clear target but stay in attack mode
-            // Auto-hunt will pick up next target immediately
-            console.log(`⚔️ ${s.name} clearing target, staying in combat mode`);
+            // More pirates exist - keep attacking, just clear the destroyed target
+            // Auto-hunt will immediately find next target
+            console.log(`⚔️ ${s.name} target destroyed, searching for next target`);
             return {
               ...s,
+              isAttacking: true, // Explicitly keep attacking
               targetPirateId: undefined,
               lastShotTime: undefined
-              // Keep isAttacking: true so auto-hunt can immediately find next target
             };
           } else {
             // No more pirates - return home
