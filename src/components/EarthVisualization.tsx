@@ -325,6 +325,7 @@ function StaticShip({
     lastShotTime?: number;
     homePosition?: [number, number, number];
     isReturningHome?: boolean;
+    isDeployed?: boolean;
     deployedLocation?: 'earth' | 'moon' | 'mars' | 'eml1'; // Track where frigate is deployed
   };
   selected: boolean;
@@ -524,20 +525,23 @@ function StaticShip({
         const time = state.clock.getElapsedTime();
         const speed = ship.patrolOrbitSpeed || 0.25;
         
-        // Get the planet's position based on ship location
+        // Use deployedLocation for orbit center if deployed, otherwise use location
+        const orbitLocation = ship.isDeployed && ship.deployedLocation ? ship.deployedLocation : ship.location;
+        
+        // Get the planet's position based on deployed location
         let planetCenter: [number, number, number] = [0, 0, 0];
-        if (ship.location === 'earth') {
+        if (orbitLocation === 'earth') {
           planetCenter = [0, 0, 0];
-        } else if (ship.location === 'moon') {
+        } else if (orbitLocation === 'moon') {
           planetCenter = [26, 5, 10];
-        } else if (ship.location === 'mars') {
+        } else if (orbitLocation === 'mars') {
           planetCenter = [64, 11, 23];
-        } else if (ship.location === 'eml1') {
+        } else if (orbitLocation === 'eml1') {
           planetCenter = [16, 2.5, 5.3];
         }
         
         // Large orbital radius for patrol
-        const orbitRadius = ship.location === 'earth' ? 8 : ship.location === 'moon' ? 4 : ship.location === 'eml1' ? 3 : 10;
+        const orbitRadius = orbitLocation === 'earth' ? 8 : orbitLocation === 'moon' ? 4 : orbitLocation === 'eml1' ? 3 : 10;
         
         // Calculate orbital position
         const angle = time * speed;
