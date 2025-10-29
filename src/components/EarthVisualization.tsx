@@ -2895,7 +2895,10 @@ const EarthVisualization = () => {
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' | 'station' | 'frigate' } | null>(null);
   const [selectedFrigateForCombat, setSelectedFrigateForCombat] = useState<string | null>(null);
-  const [pirates, setPirates] = useState<Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }>>([]);
+  const [pirates, setPirates] = useState<Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }>>([
+    { id: 'test-pirate-1', route: 'earth-moon', offset: 0.3, destroyed: false },
+    { id: 'test-pirate-2', route: 'moon-mars', offset: 0.6, destroyed: false }
+  ]);
   const [piratePositions, setPiratePositions] = useState<Record<string, [number, number, number]>>({});
   const [destroyedPirates, setDestroyedPirates] = useState<Set<string>>(new Set());
   const [pirateHits, setPirateHits] = useState<Record<string, number>>({});
