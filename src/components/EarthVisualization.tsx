@@ -2602,45 +2602,53 @@ const EarthVisualization = () => {
   // Building levels for each planet
   const { buildingLevels: earthBuildings, upgradeBuilding: upgradeEarthBuilding } = useBuildingLevels('Earth');
   const { buildingLevels: moonBuildings, upgradeBuilding: upgradeMoonBuilding } = useBuildingLevels('Moon');
+  const { buildingLevels: eml1Buildings, upgradeBuilding: upgradeEML1Building } = useBuildingLevels('EML1');
   const { buildingLevels: marsBuildings, upgradeBuilding: upgradeMarsBuilding } = useBuildingLevels('Mars');
   
   // Planet resources for each planet (need to get these first with temp population)
   const tempEarthResources = usePlanetResources('Earth', earthBuildings, temperature, 100);
   const tempMoonResources = usePlanetResources('Moon', moonBuildings);
+  const tempEML1Resources = usePlanetResources('EML1', eml1Buildings);
   const tempMarsResources = usePlanetResources('Mars', marsBuildings);
   
   // Planet populations (depends on food stock)
   const { population: earthPopulation, growthRatePerHour: earthGrowthRate, adjustPopulation: adjustEarthPopulation } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
   const { population: moonPopulation, growthRatePerHour: moonGrowthRate, adjustPopulation: adjustMoonPopulation } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.resources.food);
+  const { population: eml1Population, growthRatePerHour: eml1GrowthRate, adjustPopulation: adjustEML1Population } = usePlanetPopulation('EML1', isEML1Colonized, tempEML1Resources.resources.food);
   const { population: marsPopulation, growthRatePerHour: marsGrowthRate, adjustPopulation: adjustMarsPopulation } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
   
   // Now get resources again with actual population - THIS IS THE SINGLE SOURCE OF TRUTH
   const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource, addResource: addEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
   const { resources: moonResources, productionRates: moonProduction, addResource: addMoonResource } = usePlanetResources('Moon', moonBuildings);
+  const { resources: eml1Resources, productionRates: eml1Production, addResource: addEML1Resource } = usePlanetResources('EML1', eml1Buildings);
   const { resources: marsResources, productionRates: marsProduction, addResource: addMarsResource } = usePlanetResources('Mars', marsBuildings);
   
   // Get current planet's building levels and upgrade function
   const getCurrentBuildings = () => {
     if (activeBuildingTab === 'earth') return earthBuildings;
     if (activeBuildingTab === 'moon') return moonBuildings;
+    if (activeBuildingTab === 'eml1') return eml1Buildings;
     return marsBuildings;
   };
   
   const getCurrentUpgradeFunction = () => {
     if (activeBuildingTab === 'earth') return upgradeEarthBuilding;
     if (activeBuildingTab === 'moon') return upgradeMoonBuilding;
+    if (activeBuildingTab === 'eml1') return upgradeEML1Building;
     return upgradeMarsBuilding;
   };
   
   const getCurrentResources = () => {
     if (activeBuildingTab === 'earth') return earthResources;
     if (activeBuildingTab === 'moon') return moonResources;
+    if (activeBuildingTab === 'eml1') return eml1Resources;
     return marsResources;
   };
   
   const getCurrentProduction = () => {
     if (activeBuildingTab === 'earth') return earthProduction;
     if (activeBuildingTab === 'moon') return moonProduction;
+    if (activeBuildingTab === 'eml1') return eml1Production;
     return marsProduction;
   };
 
@@ -2649,6 +2657,7 @@ const EarthVisualization = () => {
     const planetLower = planetLocation.toLowerCase();
     if (planetLower === 'earth') return earthResources;
     if (planetLower === 'moon') return moonResources;
+    if (planetLower === 'eml1') return eml1Resources;
     if (planetLower === 'mars') return marsResources;
     return earthResources; // Default fallback
   };
@@ -2658,6 +2667,7 @@ const EarthVisualization = () => {
     const planetLower = planetLocation.toLowerCase();
     if (planetLower === 'earth') return earthPopulation;
     if (planetLower === 'moon') return moonPopulation;
+    if (planetLower === 'eml1') return eml1Population;
     if (planetLower === 'mars') return marsPopulation;
     return 0;
   };
@@ -2686,6 +2696,10 @@ const EarthVisualization = () => {
       if (cargo.food > 0) addMoonResource('food', cargo.food);
       if (cargo.fuel > 0) addMoonResource('fuel', cargo.fuel);
       if (cargo.metal > 0) addMoonResource('metal', cargo.metal);
+    } else if (planetLower === 'eml1') {
+      if (cargo.food > 0) addEML1Resource('food', cargo.food);
+      if (cargo.fuel > 0) addEML1Resource('fuel', cargo.fuel);
+      if (cargo.metal > 0) addEML1Resource('metal', cargo.metal);
     } else if (planetLower === 'mars') {
       if (cargo.food > 0) addMarsResource('food', cargo.food);
       if (cargo.fuel > 0) addMarsResource('fuel', cargo.fuel);
@@ -2777,6 +2791,9 @@ const EarthVisualization = () => {
             if (ship.location === 'moon') {
               adjustMoonPopulation(ship.people);
               console.log(`Transferred ${ship.people} people to Moon`);
+            } else if (ship.location === 'eml1') {
+              adjustEML1Population(ship.people);
+              console.log(`Transferred ${ship.people} people to EML1`);
             } else if (ship.location === 'mars') {
               adjustMarsPopulation(ship.people);
               console.log(`Transferred ${ship.people} people to Mars`);
@@ -3078,6 +3095,8 @@ const EarthVisualization = () => {
         adjustEarthPopulation(-peopleInput);
       } else if (shipLocationLower === 'moon') {
         adjustMoonPopulation(-peopleInput);
+      } else if (shipLocationLower === 'eml1') {
+        adjustEML1Population(-peopleInput);
       } else if (shipLocationLower === 'mars') {
         adjustMarsPopulation(-peopleInput);
       }
@@ -3106,6 +3125,8 @@ const EarthVisualization = () => {
         adjustEarthPopulation(unloadPeople);
       } else if (shipLocationLower === 'moon') {
         adjustMoonPopulation(unloadPeople);
+      } else if (shipLocationLower === 'eml1') {
+        adjustEML1Population(unloadPeople);
       } else if (shipLocationLower === 'mars') {
         adjustMarsPopulation(unloadPeople);
       }
@@ -3429,6 +3450,29 @@ const EarthVisualization = () => {
                     ) : (
                       <div className="text-center py-6 text-slate-400 text-sm">
                         Moon not yet colonized
+                      </div>
+                    )}
+                  </>
+                ) : activeBuildingTab === 'eml1' ? (
+                  <>
+                    {isEML1Colonized ? (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-green-400" />
+                            <span className="text-base text-slate-400">Pop.</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-base font-bold text-slate-200">{eml1Population.toFixed(1)}</span>
+                            <span className={`text-base ${eml1GrowthRate >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {eml1GrowthRate >= 0 ? '+' : ''}{eml1GrowthRate}/h
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-6 text-slate-400 text-sm">
+                        EML1 not yet colonized
                       </div>
                     )}
                   </>
