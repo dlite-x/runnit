@@ -305,7 +305,6 @@ function StaticShip({
   onShipDoubleClick,
   piratePositions,
   onPirateDestroyed,
-  onPirateHit,
   onProjectileFire
 }: {
   ship: { 
@@ -331,7 +330,6 @@ function StaticShip({
   onShipDoubleClick?: () => void;
   piratePositions?: Record<string, [number, number, number]>;
   onPirateDestroyed?: (pirateId: string) => void;
-  onPirateHit?: (pirateId: string) => void;
   onProjectileFire?: (frigateId: string, startPos: [number, number, number], targetPos: [number, number, number], targetPirateId: string) => void;
 }) {
   const shipRef = useRef<THREE.Group>(null);
@@ -3622,11 +3620,11 @@ const EarthVisualization = () => {
     // Process the hit
     setPirateHits(prev => {
       const currentHits = (prev[pirateId] || 0) + 1;
-      console.log(`💥 Pirate ${pirateId} hit ${currentHits}/3 times`);
+      console.log(`💥 Pirate ${pirateId} hit ${currentHits}/5 times`);
       
-      // Check if pirate is destroyed (3 hits)
-      if (currentHits >= 3) {
-        console.log(`🔥 Pirate ${pirateId} destroyed after 3 hits!`);
+      // Check if pirate is destroyed (5 hits)
+      if (currentHits >= 5) {
+        console.log(`🔥 Pirate ${pirateId} destroyed after 5 hits!`);
         handlePirateDestroyed(pirateId);
         return { ...prev, [pirateId]: 0 }; // Reset hits
       }
@@ -3635,38 +3633,6 @@ const EarthVisualization = () => {
     });
     
     // Note: lastShotTime already updated when firing, not here
-  };
-
-  // Handle pirate hit (legacy - kept for compatibility)
-  const handlePirateHit = (pirateId: string) => {
-    console.log(`🎯 handlePirateHit called for ${pirateId}`);
-    setPirateHits(prev => {
-      const currentHits = (prev[pirateId] || 0) + 1;
-      console.log(`💥 Pirate ${pirateId} hit ${currentHits}/3 times`);
-      
-      // Check if pirate is destroyed (3 hits)
-      if (currentHits >= 3) {
-        console.log(`🔥 Pirate ${pirateId} destroyed after 3 hits!`);
-        handlePirateDestroyed(pirateId);
-        return { ...prev, [pirateId]: 0 }; // Reset hits
-      }
-      
-      return { ...prev, [pirateId]: currentHits };
-    });
-    
-    // Update last shot time for the frigate
-    const updateTime = Date.now();
-    console.log(`⏰ Setting lastShotTime to ${updateTime} for attacking ship targeting ${pirateId}`);
-    setBuiltSpheres(prev => prev.map(s => {
-      const shouldUpdate = s.isAttacking && s.targetPirateId === pirateId;
-      if (shouldUpdate) {
-        console.log(`✅ Updating ${s.name} lastShotTime to ${updateTime}`);
-      }
-      return shouldUpdate ? { 
-        ...s, 
-        lastShotTime: updateTime
-      } : s;
-    }));
   };
 
   // Fuel management handler
@@ -5298,7 +5264,6 @@ const EarthVisualization = () => {
             selected={selectedShip?.name === ship.name}
             piratePositions={piratePositions}
             onPirateDestroyed={handlePirateDestroyed}
-            onPirateHit={handlePirateHit}
             onProjectileFire={handleProjectileFire}
             onShipClick={() => {
               setSelectedShip({ name: ship.name, type: ship.type });
