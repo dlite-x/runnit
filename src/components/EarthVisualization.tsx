@@ -3364,75 +3364,90 @@ const EarthVisualization = () => {
   // Effect to auto-hunt pirates for deployed frigates
   useEffect(() => {
     const autoHuntPirates = () => {
-      setBuiltSpheres(prev => prev.map(ship => {
-        // Only auto-hunt for frigates that are deployed (not patrolling) and not currently attacking
-        if (ship.type === 'frigate' && ship.isDeployed && !ship.isAttacking && !ship.isReturningHome) {
-          // Find nearest alive pirate using piratePositions
-          const alivePirates = pirates.filter(p => !destroyedPirates.has(p.id));
-          
-          if (alivePirates.length > 0) {
-            // Find closest pirate
-            const shipPos = ship.staticPosition || [5, 0, 0];
-            let closestPirate = alivePirates[0];
-            let closestDistance = Infinity;
+      setBuiltSpheres(prev => {
+        let hasChanges = false;
+        const updated = prev.map(ship => {
+          // Only auto-hunt for frigates that are deployed and not currently attacking
+          if (ship.type === 'frigate' && ship.isDeployed && !ship.isAttacking && !ship.isReturningHome) {
+            // Find nearest alive pirate using piratePositions
+            const alivePirates = pirates.filter(p => !destroyedPirates.has(p.id));
             
-            alivePirates.forEach(pirate => {
-              const piratePos = piratePositions[pirate.id];
-              if (!piratePos) return;
+            console.log(`🔍 Auto-hunt check for ${ship.name}: ${alivePirates.length} pirates alive, piratePositions:`, piratePositions);
+            
+            if (alivePirates.length > 0) {
+              // Find closest pirate
+              const shipPos = ship.staticPosition || [5, 0, 0];
+              let closestPirate = alivePirates[0];
+              let closestDistance = Infinity;
               
-              const dx = piratePos[0] - shipPos[0];
-              const dy = piratePos[1] - shipPos[1];
-              const dz = piratePos[2] - shipPos[2];
-              const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+              alivePirates.forEach(pirate => {
+                const piratePos = piratePositions[pirate.id];
+                if (!piratePos) {
+                  console.log(`⚠️ No position found for pirate ${pirate.id}`);
+                  return;
+                }
+                
+                const dx = piratePos[0] - shipPos[0];
+                const dy = piratePos[1] - shipPos[1];
+                const dz = piratePos[2] - shipPos[2];
+                const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                
+                if (distance < closestDistance) {
+                  closestDistance = distance;
+                  closestPirate = pirate;
+                }
+              });
               
-              if (distance < closestDistance) {
-                closestDistance = distance;
-                closestPirate = pirate;
+              if (piratePositions[closestPirate.id]) {
+                console.log(`🎯 ${ship.name} auto-targeting pirate ${closestPirate.id} at distance ${closestDistance}`);
+                hasChanges = true;
+                return {
+                  ...ship,
+                  isAttacking: true,
+                  targetPirateId: closestPirate.id
+                };
               }
-            });
+            } else {
+              // No more pirates - return home
+              if (!ship.isReturningHome) {
+                console.log(`🏠 ${ship.name} - all pirates destroyed, returning home`);
+                hasChanges = true;
+                return {
+                  ...ship,
+                  isReturningHome: true
+                };
+              }
+            }
+          }
+          
+          // Check if returning home frigate has reached destination
+          if (ship.isReturningHome && ship.homePosition && ship.staticPosition) {
+            const dx = ship.homePosition[0] - ship.staticPosition[0];
+            const dy = ship.homePosition[1] - ship.staticPosition[1];
+            const dz = ship.homePosition[2] - ship.staticPosition[2];
+            const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
             
-            console.log(`🎯 ${ship.name} auto-targeting pirate ${closestPirate.id}`);
-            return {
-              ...ship,
-              isAttacking: true,
-              targetPirateId: closestPirate.id
-            };
-          } else {
-            // No more pirates - return home
-            if (!ship.isReturningHome) {
-              console.log(`🏠 ${ship.name} - all pirates destroyed, returning home`);
+            if (distance < 0.5) {
+              console.log(`✅ ${ship.name} returned home and idle`);
+              hasChanges = true;
               return {
                 ...ship,
-                isReturningHome: true
+                isReturningHome: false,
+                isDeployed: false,
+                homePosition: undefined
               };
             }
           }
-        }
+          return ship;
+        });
         
-        // Check if returning home frigate has reached destination
-        if (ship.isReturningHome && ship.homePosition && ship.staticPosition) {
-          const dx = ship.homePosition[0] - ship.staticPosition[0];
-          const dy = ship.homePosition[1] - ship.staticPosition[1];
-          const dz = ship.homePosition[2] - ship.staticPosition[2];
-          const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-          
-          if (distance < 0.5) {
-            console.log(`✅ ${ship.name} returned home and idle`);
-            return {
-              ...ship,
-              isReturningHome: false,
-              isDeployed: false,
-              homePosition: undefined
-            };
-          }
-        }
-        return ship;
-      }));
+        return hasChanges ? updated : prev;
+      });
     };
 
-    const interval = setInterval(autoHuntPirates, 100);
+    const interval = setInterval(autoHuntPirates, 500);
     return () => clearInterval(interval);
-  }, [pirates, destroyedPirates, piratePositions, builtSpheres]);
+  }, [pirates, destroyedPirates, piratePositions]);
 
   // Handle pirate hit
   const handlePirateHit = (pirateId: string) => {
