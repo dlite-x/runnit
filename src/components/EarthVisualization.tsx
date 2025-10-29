@@ -883,7 +883,6 @@ function FrigateProjectile({
   onComplete: () => void;
 }) {
   const projectileRef = useRef<THREE.Mesh>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
   const startTime = useRef(Date.now());
   const hasCompleted = useRef(false); // Flag to ensure onComplete fires only once
   
@@ -899,8 +898,8 @@ function FrigateProjectile({
   ];
   
   useFrame(() => {
-    if (projectileRef.current && glowRef.current) {
-      const speed = 10; // Fast laser speed
+    if (projectileRef.current) {
+      const speed = 10; // Fast projectile speed
       const elapsed = (Date.now() - startTime.current) / 1000;
       
       // Calculate new position (same as drone projectiles)
@@ -911,7 +910,6 @@ function FrigateProjectile({
       ];
       
       projectileRef.current.position.set(...newPos);
-      glowRef.current.position.set(...newPos);
       
       // Check if reached target or max distance
       const traveled = Math.sqrt(
