@@ -4096,7 +4096,7 @@ const EarthVisualization = () => {
                           )}
                           <SelectItem value="moon" className="text-slate-300 hover:bg-slate-700">Moon</SelectItem>
                           <SelectItem value="mars" className="text-slate-300 hover:bg-slate-700">Mars</SelectItem>
-                          {ship.type === 'colony' && ship.location === 'earth' && (
+                          {(ship.type === 'colony' || ship.type === 'cargo') && ship.location === 'earth' && (
                             <SelectItem value="eml1" className="text-slate-300 hover:bg-slate-700">EML-1</SelectItem>
                           )}
                         </SelectContent>
