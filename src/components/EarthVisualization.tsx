@@ -440,11 +440,11 @@ function StaticShip({
         const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         
         // Pirate speed is 0.126, frigate is 30% faster = 0.164
-        const frigateSpeed = 0.164;
+        const baseSpeed = 0.164;
         
-        // Pursuit curve: variable speed based on distance for more realistic motion
-        const pursuitBlend = Math.min(distance / 10, 1); // More direct when close
-        const chaseSpeed = frigateSpeed * (0.03 + 0.02 * (1 - pursuitBlend));
+        // Slow down slightly when very close for precision, otherwise full speed
+        const speedMultiplier = distance < 2 ? 0.7 : 1.0;
+        const chaseSpeed = baseSpeed * speedMultiplier;
         
         const newX = currentPos.x + (dx / distance) * chaseSpeed;
         const newY = currentPos.y + (dy / distance) * chaseSpeed;
@@ -459,7 +459,7 @@ function StaticShip({
         const now = Date.now();
         const timeSinceLastShot = ship.lastShotTime ? now - ship.lastShotTime : Infinity;
         
-        if (distance < 1.5 && timeSinceLastShot > 2000) { // 2 second cooldown between shots
+        if (distance < 1.5 && timeSinceLastShot > 1500) { // 1.5 second cooldown between shots
           console.log(`🔫 ${ship.name} shooting pirate ${ship.targetPirateId} at distance ${distance.toFixed(2)}!`);
           if (onPirateHit) {
             onPirateHit(ship.targetPirateId);
@@ -626,7 +626,7 @@ function StaticShip({
         )}
         
         {/* Laser shot visual - show when attacking and recently fired */}
-        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 200) && (
+        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 500) && (
           <LaserShot
             startPos={[shipRef.current.position.x, shipRef.current.position.y, shipRef.current.position.z]}
             endPos={piratePositions[ship.targetPirateId]}
@@ -882,12 +882,30 @@ function LaserShot({ startPos, endPos }: { startPos: [number, number, number]; e
   }, [points]);
   
   return (
-    <primitive object={new THREE.Line(geometry, new THREE.LineBasicMaterial({
-      color: 0x00ff00,
-      linewidth: 3,
-      transparent: true,
-      opacity: 0.8
-    }))} />
+    <group>
+      {/* Main laser beam */}
+      <mesh>
+        <primitive object={new THREE.Line(geometry, new THREE.LineBasicMaterial({
+          color: 0x00ff00,
+          linewidth: 5,
+          transparent: true,
+          opacity: 0.9
+        }))} />
+      </mesh>
+      {/* Glow cylinder for visibility */}
+      <mesh position={[
+        (startPos[0] + endPos[0]) / 2,
+        (startPos[1] + endPos[1]) / 2,
+        (startPos[2] + endPos[2]) / 2
+      ]}>
+        <cylinderGeometry args={[0.08, 0.08, Math.sqrt(
+          Math.pow(endPos[0] - startPos[0], 2) +
+          Math.pow(endPos[1] - startPos[1], 2) +
+          Math.pow(endPos[2] - startPos[2], 2)
+        ), 8]} />
+        <meshBasicMaterial color="#00ff00" transparent opacity={0.6} />
+      </mesh>
+    </group>
   );
 }
 
