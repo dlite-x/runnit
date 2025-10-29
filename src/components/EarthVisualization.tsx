@@ -4264,7 +4264,7 @@ const EarthVisualization = () => {
                               </SelectContent>
                             </Select>
                             <button
-                              className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                              className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-1"
                               disabled={!selectedShipActions[ship.name] || 
                                        (selectedShipActions[ship.name] === 'launch' && (!ship.destination || currentFuel < requiredFuel || ship.destination === ship.location))}
                               onClick={() => {
@@ -4312,7 +4312,7 @@ const EarthVisualization = () => {
                                 }
                               }}
                             >
-                              Execute
+                              <Play className="w-3 h-3" />
                             </button>
                           </>
                         )}
