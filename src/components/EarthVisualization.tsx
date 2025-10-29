@@ -3065,6 +3065,9 @@ const EarthVisualization = () => {
 
   // Cargo management handlers
   const handleOpenCargoDialog = (ship: typeof builtSpheres[0], mode: 'load' | 'unload' = 'load') => {
+    // Prevent stations from carrying cargo
+    if (ship.type === 'station') return;
+    
     setSelectedShipForCargo(ship);
     setCargoInputs({ food: 0, fuel: 0, metal: 0 });
     setCargoMode(mode);
@@ -4075,15 +4078,17 @@ const EarthVisualization = () => {
                         )}
                       </div>
                       
-                      {/* Cargo column - Clickable */}
+                      {/* Cargo column - Clickable (disabled for stations) */}
                       <button
-                        className="text-xs flex items-center gap-1 hover:bg-slate-600/50 px-1 rounded transition-colors cursor-pointer"
+                        className="text-xs flex items-center gap-1 hover:bg-slate-600/50 px-1 rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleOpenCargoDialog(ship, 'load');
+                          if (ship.type !== 'station') {
+                            handleOpenCargoDialog(ship, 'load');
+                          }
                         }}
-                        disabled={ship.location === 'traveling' || ship.location === 'preparing'}
-                        title="Manage cargo"
+                        disabled={ship.location === 'traveling' || ship.location === 'preparing' || ship.type === 'station'}
+                        title={ship.type === 'station' ? 'Stations cannot carry cargo' : 'Manage cargo'}
                       >
                         <span style={{ color: 'hsl(var(--resource-food))' }}>{cargo.food}</span>
                         <span className="text-slate-500">/</span>
