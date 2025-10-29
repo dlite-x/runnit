@@ -3441,19 +3441,45 @@ const EarthVisualization = () => {
 
   // Handle pirate destruction
   const handlePirateDestroyed = (pirateId: string) => {
-    setDestroyedPirates(prev => new Set([...prev, pirateId]));
-    // Frigates will automatically find next pirate or return home
-    setBuiltSpheres(prev => prev.map(s => {
-      if (s.targetPirateId === pirateId) {
-        return {
-          ...s,
-          isAttacking: false,
-          targetPirateId: undefined,
-          lastShotTime: undefined
-        };
-      }
-      return s;
-    }));
+    setDestroyedPirates(prev => {
+      const newDestroyed = new Set([...prev, pirateId]);
+      
+      // Check if there are any remaining alive pirates
+      const alivePirates = pirates.filter(p => !newDestroyed.has(p.id));
+      const hasMorePirates = alivePirates.length > 0;
+      
+      console.log(`💀 Pirate ${pirateId} destroyed. Remaining pirates: ${alivePirates.length}`);
+      
+      // Update frigates that were targeting this pirate
+      setBuiltSpheres(prevShips => prevShips.map(s => {
+        if (s.targetPirateId === pirateId) {
+          if (hasMorePirates) {
+            // More pirates exist - clear target but stay in attack mode
+            // Auto-hunt will pick up next target immediately
+            console.log(`⚔️ ${s.name} clearing target, staying in combat mode`);
+            return {
+              ...s,
+              targetPirateId: undefined,
+              lastShotTime: undefined
+              // Keep isAttacking: true so auto-hunt can immediately find next target
+            };
+          } else {
+            // No more pirates - return home
+            console.log(`🏠 ${s.name} - all pirates destroyed, returning home`);
+            return {
+              ...s,
+              isAttacking: false,
+              targetPirateId: undefined,
+              lastShotTime: undefined,
+              isReturningHome: true
+            };
+          }
+        }
+        return s;
+      }));
+      
+      return newDestroyed;
+    });
   };
 
   // Sync pirates array based on which pirates are visible
@@ -3495,8 +3521,8 @@ const EarthVisualization = () => {
     setBuiltSpheres(prev => {
       let hasChanges = false;
       const updated = prev.map(ship => {
-        // Only auto-hunt for frigates that are deployed and not currently attacking
-        if (ship.type === 'frigate' && ship.isDeployed && !ship.isAttacking && !ship.isReturningHome) {
+        // Only auto-hunt for frigates that are deployed and either not attacking OR attacking but target was destroyed
+        if (ship.type === 'frigate' && ship.isDeployed && (!ship.isAttacking || (ship.isAttacking && !ship.targetPirateId)) && !ship.isReturningHome) {
           // Find nearest alive pirate using piratePositions
           const alivePirates = pirates.filter(p => !destroyedPirates.has(p.id));
           
