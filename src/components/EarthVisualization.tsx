@@ -3530,7 +3530,23 @@ const EarthVisualization = () => {
     const deployedFrigates = builtSpheres.filter(s => s.type === 'frigate' && s.isDeployed);
     if (deployedFrigates.length === 0) return;
     
-    console.log(`🎮 Auto-hunt check: ${deployedFrigates.length} deployed frigates, ${pirates.length} pirates, ${Object.keys(piratePositions).length} positions`);
+    // Apply 30-second spawn delay check
+    const now = Date.now();
+    const PIRATE_SPAWN_DELAY = 30000; // 30 seconds
+    
+    const earthStation = deployedStations.find(s => s.location === 'earth');
+    const moonStation = deployedStations.find(s => s.location === 'moon');
+    const marsStation = deployedStations.find(s => s.location === 'mars');
+    
+    // Check if Earth-Moon pirates should be targetable
+    const earthMoonReady = earthStation && moonStation && 
+      (now - Math.max(earthStation.deployedAt || 0, moonStation.deployedAt || 0) >= PIRATE_SPAWN_DELAY);
+    
+    // Check if Moon-Mars pirates should be targetable
+    const moonMarsReady = moonStation && marsStation && 
+      (now - Math.max(moonStation.deployedAt || 0, marsStation.deployedAt || 0) >= PIRATE_SPAWN_DELAY);
+    
+    console.log(`🎮 Auto-hunt check: ${deployedFrigates.length} deployed frigates, ${pirates.length} pirates, ${Object.keys(piratePositions).length} positions, earthMoonReady=${earthMoonReady}, moonMarsReady=${moonMarsReady}`);
     
     setBuiltSpheres(prev => {
       let hasChanges = false;
@@ -3541,6 +3557,10 @@ const EarthVisualization = () => {
           const deployedLoc = ship.deployedLocation || 'earth';
           const alivePirates = pirates.filter(p => {
             if (destroyedPirates.has(p.id)) return false;
+            
+            // Apply 30-second delay filter based on route
+            if (p.route === 'earth-moon' && !earthMoonReady) return false;
+            if (p.route === 'moon-mars' && !moonMarsReady) return false;
             
             // Filter pirates based on deployment location
             // Earth: hunt earth-moon pirates
