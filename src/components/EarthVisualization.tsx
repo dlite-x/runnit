@@ -3361,7 +3361,34 @@ const EarthVisualization = () => {
     }));
   };
 
-  // Effect to auto-hunt pirates for deployed frigates
+  // Sync pirates array based on which pirates are visible
+  useEffect(() => {
+    const visiblePirates: Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }> = [];
+    
+    // Earth-Moon pirates (visible when both stations deployed)
+    if (deployedStations.some(s => s.location === 'earth') && deployedStations.some(s => s.location === 'moon')) {
+      if (!destroyedPirates.has('em-pirate-1')) {
+        visiblePirates.push({ id: 'em-pirate-1', route: 'earth-moon', offset: -1.5, destroyed: false });
+      }
+      if (!destroyedPirates.has('em-pirate-2')) {
+        visiblePirates.push({ id: 'em-pirate-2', route: 'earth-moon', offset: -3, destroyed: false });
+      }
+    }
+    
+    // Moon-Mars pirates (visible when both stations deployed)
+    if (deployedStations.some(s => s.location === 'moon') && deployedStations.some(s => s.location === 'mars')) {
+      if (!destroyedPirates.has('mm-pirate-1')) {
+        visiblePirates.push({ id: 'mm-pirate-1', route: 'moon-mars', offset: -1.5, destroyed: false });
+      }
+      if (!destroyedPirates.has('mm-pirate-2')) {
+        visiblePirates.push({ id: 'mm-pirate-2', route: 'moon-mars', offset: -3, destroyed: false });
+      }
+    }
+    
+    setPirates(visiblePirates);
+    console.log(`👾 Updated pirates array: ${visiblePirates.length} pirates visible`, visiblePirates.map(p => p.id));
+  }, [deployedStations, destroyedPirates]);
+
   useEffect(() => {
     const autoHuntPirates = () => {
       setBuiltSpheres(prev => {
