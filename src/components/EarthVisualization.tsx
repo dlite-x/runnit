@@ -626,12 +626,14 @@ function StaticShip({
         )}
         
         {/* Laser shot visual - show when attacking and recently fired */}
-        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 800) && (() => {
-          console.log(`💚 Rendering laser shot from ${ship.name} to ${ship.targetPirateId}`);
+        {ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId] && ship.lastShotTime && (Date.now() - ship.lastShotTime < 1000) && shipRef.current && (() => {
+          const startPos: [number, number, number] = [shipRef.current!.position.x, shipRef.current!.position.y, shipRef.current!.position.z];
+          const endPos = piratePositions[ship.targetPirateId!];
+          console.log(`💚 Rendering laser shot from ${ship.name} at`, startPos, 'to', endPos);
           return (
             <LaserShot
-              startPos={[shipRef.current.position.x, shipRef.current.position.y, shipRef.current.position.z]}
-              endPos={piratePositions[ship.targetPirateId]}
+              startPos={startPos}
+              endPos={endPos}
             />
           );
         })()}
