@@ -4087,7 +4087,7 @@ const EarthVisualization = () => {
                           ));
                         }}
                       >
-                        <SelectTrigger className="w-20 h-5 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden py-0">
+                        <SelectTrigger className="w-16 h-5 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 [&>svg]:hidden py-0 px-2">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
@@ -4250,7 +4250,7 @@ const EarthVisualization = () => {
                               value={selectedShipActions[ship.name] || ''}
                               onValueChange={(value) => setSelectedShipActions(prev => ({ ...prev, [ship.name]: value }))}
                             >
-                              <SelectTrigger className="w-20 h-5 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 py-0">
+                              <SelectTrigger className="w-16 h-5 text-xs bg-slate-700/50 border-slate-600/50 text-slate-300 py-0 px-2">
                                 <SelectValue placeholder="Select" />
                               </SelectTrigger>
                               <SelectContent className="bg-slate-800 border-slate-600 z-[20000]">
