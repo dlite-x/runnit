@@ -302,7 +302,8 @@ function StaticShip({
   ship, 
   selected, 
   onShipClick, 
-  onShipDoubleClick 
+  onShipDoubleClick,
+  piratePositions
 }: { 
   ship: { 
     type: 'colony' | 'cargo' | 'station' | 'frigate';
@@ -316,10 +317,13 @@ function StaticShip({
     totalTravelTime?: number;
     isPatrolling?: boolean;
     patrolOrbitSpeed?: number;
+    isAttacking?: boolean;
+    targetPirateId?: string;
   };
   selected: boolean;
   onShipClick?: () => void;
   onShipDoubleClick?: () => void;
+  piratePositions?: Record<string, [number, number, number]>;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
@@ -387,13 +391,38 @@ function StaticShip({
     return ship.staticPosition || [0, 0, 0];
   }, [ship.location, ship.startPosition, ship.endPosition, ship.departureTime, ship.totalTravelTime, ship.staticPosition, ship.name, ship.isPatrolling]);
 
-  // Use useFrame for continuous position updates during travel or patrol
+  // Use useFrame for continuous position updates during travel, patrol, or attack
   useFrame((state) => {
     if (shipRef.current) {
       let position = currentPosition;
       
+      // Handle attack movement for frigates
+      if (ship.isAttacking && ship.targetPirateId && piratePositions && piratePositions[ship.targetPirateId]) {
+        const targetPos = piratePositions[ship.targetPirateId];
+        const currentPos = shipRef.current.position;
+        
+        // Chase the pirate - move toward its position
+        const chaseSpeed = 0.05;
+        const newX = currentPos.x + (targetPos[0] - currentPos.x) * chaseSpeed;
+        const newY = currentPos.y + (targetPos[1] - currentPos.y) * chaseSpeed;
+        const newZ = currentPos.z + (targetPos[2] - currentPos.z) * chaseSpeed;
+        
+        position = [newX, newY, newZ];
+        
+        // Check if close enough to destroy pirate (within 0.5 units)
+        const distance = Math.sqrt(
+          Math.pow(targetPos[0] - newX, 2) +
+          Math.pow(targetPos[1] - newY, 2) +
+          Math.pow(targetPos[2] - newZ, 2)
+        );
+        
+        if (distance < 0.5) {
+          console.log(`💥 ${ship.name} destroyed pirate ${ship.targetPirateId}!`);
+          // TODO: Remove pirate from scene - for now just clear attack state
+        }
+      }
       // Handle patrol orbital movement for frigates
-      if (ship.isPatrolling && ship.type === 'frigate') {
+      else if (ship.isPatrolling && ship.type === 'frigate') {
         const time = state.clock.getElapsedTime();
         const speed = ship.patrolOrbitSpeed || 0.25;
         
@@ -787,13 +816,19 @@ function TrajectoryShip({ earthPosition, moonPosition }: {
 }
 
 function PirateShip({ 
+  id,
   earthPosition, 
   moonPosition, 
-  offset = 0 
+  offset = 0,
+  onPirateClick,
+  onPositionUpdate
 }: { 
+  id: string;
   earthPosition: [number, number, number]; 
   moonPosition: [number, number, number]; 
   offset?: number;
+  onPirateClick?: (id: string, position: [number, number, number]) => void;
+  onPositionUpdate?: (id: string, position: [number, number, number]) => void;
 }) {
   const shipRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.LineSegments>(null);
@@ -830,6 +865,11 @@ function PirateShip({
       
       shipRef.current.position.set(x, y, z);
       
+      // Update pirate position for frigate tracking
+      if (onPositionUpdate) {
+        onPositionUpdate(id, [x, y, z]);
+      }
+      
       // Point ship in direction of movement
       const nextT = t + 0.1;
       const nextX = centerX + (a * Math.cos(nextT)) / (1 + Math.sin(nextT) * Math.sin(nextT));
@@ -859,7 +899,22 @@ function PirateShip({
     <group>
       {/* Pirate Ship */}
       <group ref={shipRef}>
-        <mesh>
+        <mesh
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onPirateClick && shipRef.current) {
+              const pos = shipRef.current.position;
+              onPirateClick(id, [pos.x, pos.y, pos.z]);
+            }
+          }}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'default';
+          }}
+        >
           <boxGeometry args={[0.15, 0.08, 0.2]} />
           <meshStandardMaterial 
             color="#FF0000" 
@@ -2736,6 +2791,8 @@ const EarthVisualization = () => {
     people?: number, // Number of people on colony ships (max 50)
     isPatrolling?: boolean, // Patrol state for frigates
     patrolOrbitSpeed?: number, // Orbit speed for patrolling frigates
+    isAttacking?: boolean, // Combat state for frigates
+    targetPirateId?: string, // ID of pirate being targeted
     // New fields for static positioning
     staticPosition?: [number, number, number],
     travelProgress?: number,
@@ -2826,6 +2883,9 @@ const EarthVisualization = () => {
   
   // Ship launch modal state
   const [selectedShip, setSelectedShip] = useState<{ name: string; type: 'colony' | 'cargo' | 'station' | 'frigate' } | null>(null);
+  const [selectedFrigateForCombat, setSelectedFrigateForCombat] = useState<string | null>(null);
+  const [pirates, setPirates] = useState<Array<{ id: string; route: 'earth-moon' | 'moon-mars'; offset: number; destroyed: boolean }>>([]);
+  const [piratePositions, setPiratePositions] = useState<Record<string, [number, number, number]>>({});
   const [showShipLaunchModal, setShowShipLaunchModal] = useState(false);
   const [showTravelGuide, setShowTravelGuide] = useState(false);
   const [showInvestModal, setShowInvestModal] = useState(false);
@@ -3230,6 +3290,23 @@ const EarthVisualization = () => {
     setBuiltSpheres(prev => prev.filter(s => s.name !== shipName));
 
     console.log(`Deployed ${shipName} at ${location}`);
+  };
+
+  // Combat handler - assign frigate to attack pirate
+  const handlePirateClick = (pirateId: string, piratePosition: [number, number, number]) => {
+    if (selectedFrigateForCombat) {
+      // Assign the selected frigate to attack this pirate
+      setBuiltSpheres(prev => prev.map(s =>
+        s.name === selectedFrigateForCombat ? { 
+          ...s, 
+          isAttacking: true, 
+          targetPirateId: pirateId,
+          isPatrolling: false // Stop patrolling when attacking
+        } : s
+      ));
+      console.log(`🎯 ${selectedFrigateForCombat} targeting pirate ${pirateId}`);
+      setSelectedFrigateForCombat(null); // Clear selection
+    }
   };
 
   // Fuel management handler
@@ -4860,10 +4937,17 @@ const EarthVisualization = () => {
           <StaticShip 
             key={index} 
             ship={ship}
-            selected={selectedShip?.name === ship.name}
+            selected={selectedShip?.name === ship.name || selectedFrigateForCombat === ship.name}
+            piratePositions={piratePositions}
             onShipClick={() => {
-              setSelectedShip({ name: ship.name, type: ship.type });
-              setShowShipLaunchModal(true);
+              // Special handling for frigates - allow combat selection
+              if (ship.type === 'frigate' && !ship.isPatrolling && !ship.isAttacking) {
+                setSelectedFrigateForCombat(ship.name);
+                console.log(`⚔️ ${ship.name} selected for combat - click on a pirate to attack`);
+              } else {
+                setSelectedShip({ name: ship.name, type: ship.type });
+                setShowShipLaunchModal(true);
+              }
             }}
             onShipDoubleClick={() => {
               console.log(`${ship.name} double clicked!`);
@@ -4876,16 +4960,44 @@ const EarthVisualization = () => {
           <>
             <TrajectoryShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} />
             {/* Pirate ships chasing Earth-Moon trade ship */}
-            <PirateShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} offset={-1.5} />
-            <PirateShip earthPosition={[0, 0, 0]} moonPosition={[24, 4, 8]} offset={-3} />
+            <PirateShip 
+              id="em-pirate-1" 
+              earthPosition={[0, 0, 0]} 
+              moonPosition={[24, 4, 8]} 
+              offset={-1.5} 
+              onPirateClick={handlePirateClick}
+              onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+            />
+            <PirateShip 
+              id="em-pirate-2" 
+              earthPosition={[0, 0, 0]} 
+              moonPosition={[24, 4, 8]} 
+              offset={-3} 
+              onPirateClick={handlePirateClick}
+              onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+            />
           </>
         )}
         {deployedStations.some(s => s.location === 'moon') && deployedStations.some(s => s.location === 'mars') && (
           <>
             <TrajectoryShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} />
             {/* Pirate ships chasing Moon-Mars trade ship */}
-            <PirateShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} offset={-1.5} />
-            <PirateShip earthPosition={[24, 4, 8]} moonPosition={[64, 11, 23]} offset={-3} />
+            <PirateShip 
+              id="mm-pirate-1" 
+              earthPosition={[24, 4, 8]} 
+              moonPosition={[64, 11, 23]} 
+              offset={-1.5} 
+              onPirateClick={handlePirateClick}
+              onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+            />
+            <PirateShip 
+              id="mm-pirate-2" 
+              earthPosition={[24, 4, 8]} 
+              moonPosition={[64, 11, 23]} 
+              offset={-3} 
+              onPirateClick={handlePirateClick}
+              onPositionUpdate={(id, pos) => setPiratePositions(prev => ({ ...prev, [id]: pos }))}
+            />
           </>
         )}
         
