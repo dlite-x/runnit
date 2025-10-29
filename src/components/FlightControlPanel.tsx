@@ -60,6 +60,7 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
   const [cargoDialogOpen, setCargoDialogOpen] = useState(false);
   const [selectedShipForCargo, setSelectedShipForCargo] = useState<Ship | null>(null);
   const [cargoInputs, setCargoInputs] = useState({ food: 0, fuel: 0, metal: 0 });
+  const [selectedActions, setSelectedActions] = useState<Record<string, string>>({});
 
   const handleDestinationChange = (shipName: string, destination: string) => {
     onUpdateShip(shipName, { destination });
@@ -164,6 +165,79 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
     const requiredFuel = FUEL_REQUIREMENTS[origin]?.[ship.destination] || 0;
     const currentFuel = ship.fuel || 0;
     return currentFuel >= requiredFuel && ship.location !== 'traveling';
+  };
+
+  const canColonize = (ship: Ship): boolean => {
+    if (ship.type !== 'colony') return false;
+    if (ship.location === 'traveling' || ship.location === 'earth' || ship.location === 'preparing') return false;
+    return true;
+  };
+
+  const canDeploy = (ship: Ship): boolean => {
+    if (ship.type !== 'station') return false;
+    if (ship.location === 'traveling' || ship.location === 'preparing') return false;
+    return true;
+  };
+
+  const getAvailableActions = (ship: Ship): string[] => {
+    const actions: string[] = [];
+    
+    if (ship.location !== 'traveling') {
+      actions.push('launch');
+    }
+    
+    if (ship.type === 'colony') {
+      actions.push('colonize');
+    }
+    
+    if (ship.type === 'station') {
+      actions.push('deploy');
+    }
+    
+    return actions;
+  };
+
+  const isActionEnabled = (ship: Ship, action: string): boolean => {
+    switch (action) {
+      case 'launch':
+        return canLaunch(ship);
+      case 'colonize':
+        return canColonize(ship);
+      case 'deploy':
+        return canDeploy(ship);
+      default:
+        return false;
+    }
+  };
+
+  const handleExecuteAction = (ship: Ship) => {
+    const action = selectedActions[ship.name];
+    if (!action || !isActionEnabled(ship, action)) return;
+
+    switch (action) {
+      case 'launch':
+        onLaunchShip(ship.name);
+        break;
+      case 'colonize':
+        onColonizePlanet(ship.name, ship.location);
+        break;
+      case 'deploy':
+        onDeployStation(ship.name, ship.location);
+        break;
+    }
+  };
+
+  const getActionLabel = (action: string): string => {
+    switch (action) {
+      case 'launch':
+        return 'Launch';
+      case 'colonize':
+        return 'Colonize';
+      case 'deploy':
+        return 'Deploy';
+      default:
+        return action;
+    }
   };
 
   return (
@@ -286,44 +360,36 @@ const FlightControlPanel: React.FC<FlightControlPanelProps> = ({
                       <span className="text-xs">{getETA(ship)}</span>
                     </TableCell>
                     <TableCell className="text-right px-2">
-                      {ship.type === 'station' && ship.location !== 'traveling' ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-6 px-2 text-xs"
-                          onClick={() => onDeployStation(ship.name, ship.location)}
-                        >
-                          Deploy
-                        </Button>
-                      ) : ship.type === 'colony' && isArrived ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-6 w-6 p-0"
-                          onClick={() => onColonizePlanet(ship.name, ship.location)}
-                        >
-                          <Flag className="w-3.5 h-3.5 text-green-400" />
-                        </Button>
-                      ) : ship.location !== 'traveling' ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-6 w-6 p-0"
-                          onClick={() => onLaunchShip(ship.name)}
-                          disabled={!canLaunch(ship)}
-                        >
-                          <ArrowRight className={`w-4 h-4 ${canLaunch(ship) ? 'text-green-400' : 'text-muted-foreground'}`} />
-                        </Button>
-                      ) : ship.type === 'station' && ship.location === 'traveling' ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-6 px-2 text-xs"
-                          disabled
-                        >
-                          En Route
-                        </Button>
-                      ) : null}
+                      {ship.location === 'traveling' ? (
+                        <span className="text-xs text-muted-foreground">En Route</span>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <Select
+                            value={selectedActions[ship.name] || ''}
+                            onValueChange={(value) => setSelectedActions({ ...selectedActions, [ship.name]: value })}
+                          >
+                            <SelectTrigger className="w-24 h-7 text-xs">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent className="z-50 bg-background">
+                              {getAvailableActions(ship).map((action) => (
+                                <SelectItem key={action} value={action}>
+                                  {getActionLabel(action)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => handleExecuteAction(ship)}
+                            disabled={!selectedActions[ship.name] || !isActionEnabled(ship, selectedActions[ship.name])}
+                          >
+                            Execute
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
