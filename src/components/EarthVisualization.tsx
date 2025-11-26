@@ -3042,11 +3042,26 @@ const EarthVisualization = () => {
   const { buildingLevels: eml1Buildings, upgradeBuilding: upgradeEML1Building } = useBuildingLevels('EML1');
   const { buildingLevels: marsBuildings, upgradeBuilding: upgradeMarsBuilding } = useBuildingLevels('Mars');
   
-  // Planet resources for each planet (need to get these first with temp population)
-  const tempEarthResources = usePlanetResources('Earth', earthBuildings, temperature, 100);
-  const tempMoonResources = usePlanetResources('Moon', moonBuildings, undefined, 0);
-  const tempEML1Resources = usePlanetResources('EML1', eml1Buildings, undefined, 0);
-  const tempMarsResources = usePlanetResources('Mars', marsBuildings, undefined, 0);
+  // Get stored populations from localStorage to calculate accurate net food rates
+  const getStoredPopulation = (planet: string, defaultPop: number): number => {
+    const stored = localStorage.getItem('planet_population');
+    if (stored) {
+      const allPlanets = JSON.parse(stored);
+      return allPlanets[planet] ?? defaultPop;
+    }
+    return defaultPop;
+  };
+  
+  const storedEarthPop = getStoredPopulation('Earth', 100);
+  const storedMoonPop = getStoredPopulation('Moon', 0);
+  const storedEML1Pop = getStoredPopulation('EML1', 0);
+  const storedMarsPop = getStoredPopulation('Mars', 0);
+  
+  // Planet resources for each planet (using stored population for accurate net food rate)
+  const tempEarthResources = usePlanetResources('Earth', earthBuildings, temperature, storedEarthPop);
+  const tempMoonResources = usePlanetResources('Moon', moonBuildings, undefined, storedMoonPop);
+  const tempEML1Resources = usePlanetResources('EML1', eml1Buildings, undefined, storedEML1Pop);
+  const tempMarsResources = usePlanetResources('Mars', marsBuildings, undefined, storedMarsPop);
   
   // Planet populations (depends on net food rate)
   const { population: earthPopulation, growthRatePerHour: earthGrowthRate, adjustPopulation: adjustEarthPopulation } = usePlanetPopulation('Earth', true, tempEarthResources.productionRates.food);
