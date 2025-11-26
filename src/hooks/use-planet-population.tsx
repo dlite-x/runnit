@@ -17,7 +17,7 @@ const DEFAULT_POPULATIONS: { [key: string]: number } = {
 export function usePlanetPopulation(
   planet: string, 
   isColonized: boolean = true,
-  foodStock: number = 0
+  netFoodRate: number = 0
 ) {
   const [population, setPopulation] = useState<number>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -36,8 +36,8 @@ export function usePlanetPopulation(
 
     const interval = setInterval(() => {
       setPopulation((prev) => {
-        // Population grows if food > 0, declines if food <= 0
-        const growthDirection = foodStock > 0 ? 1 : -1;
+        // Population grows if net food rate > 0, declines if net food rate < 0
+        const growthDirection = netFoodRate > 0 ? 1 : (netFoodRate < 0 ? -1 : 0);
         
         // Growth rate: population * (1/360,000) per second
         const growthRatePerSecond = (prev / 360000) * growthDirection;
@@ -54,11 +54,12 @@ export function usePlanetPopulation(
     }, UPDATE_INTERVAL);
 
     return () => clearInterval(interval);
-  }, [planet, isColonized, foodStock, population]);
+  }, [planet, isColonized, netFoodRate, population]);
 
   // Calculate growth rate per hour for UI display
   // Growth per second * 3600 = growth per hour
-  const growthRatePerSecond = foodStock > 0 ? population / 360000 : -population / 360000;
+  const growthDirection = netFoodRate > 0 ? 1 : (netFoodRate < 0 ? -1 : 0);
+  const growthRatePerSecond = (population / 360000) * growthDirection;
   const growthRatePerHour = Math.round(growthRatePerSecond * 3600);
 
   // Function to manually adjust population (e.g., when loading people onto ships)

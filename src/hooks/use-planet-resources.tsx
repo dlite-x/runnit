@@ -51,15 +51,17 @@ export function usePlanetResources(
   useEffect(() => {
     const interval = setInterval(() => {
       setResources((prev) => {
-        // Calculate food production with temperature penalty (Earth only)
+        // Calculate food production
         let foodProduction = buildingLevels.farm / 3600; // per second
         
-        if (planet === 'Earth' && temperature !== undefined && population !== undefined) {
-          // Apply temperature penalty: (1 - temperature * 0.20) per farm level per hour
+        // Apply temperature penalty for Earth only
+        if (planet === 'Earth' && temperature !== undefined) {
           const tempPenalty = 1 - temperature * 0.20;
           foodProduction = (buildingLevels.farm * tempPenalty) / 3600;
-          
-          // Subtract population consumption: population / 100 / 3600 per second
+        }
+        
+        // Subtract population consumption for all planets with population
+        if (population !== undefined && population > 0) {
           const foodConsumption = population / 100 / 3600;
           foodProduction -= foodConsumption;
         }
@@ -123,13 +125,16 @@ export function usePlanetResources(
   // Calculate production rates based on building levels
   let foodRate = buildingLevels.farm;
   
-  // For Earth, calculate net food rate (production with temp penalty - consumption)
-  if (planet === 'Earth' && temperature !== undefined && population !== undefined) {
+  // Apply temperature penalty for Earth
+  if (planet === 'Earth' && temperature !== undefined) {
     const tempPenalty = 1 - temperature * 0.20;
-    const foodProduction = buildingLevels.farm * tempPenalty;
+    foodRate = buildingLevels.farm * tempPenalty;
+  }
+  
+  // Subtract population consumption for all planets
+  if (population !== undefined && population > 0) {
     const foodConsumption = population / 100;
-    // Keep precision - don't round to integer
-    foodRate = Number((foodProduction - foodConsumption).toFixed(2));
+    foodRate = Number((foodRate - foodConsumption).toFixed(2));
   }
   
   const productionRates = {
