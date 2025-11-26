@@ -3044,15 +3044,15 @@ const EarthVisualization = () => {
   
   // Planet resources for each planet (need to get these first with temp population)
   const tempEarthResources = usePlanetResources('Earth', earthBuildings, temperature, 100);
-  const tempMoonResources = usePlanetResources('Moon', moonBuildings);
-  const tempEML1Resources = usePlanetResources('EML1', eml1Buildings);
-  const tempMarsResources = usePlanetResources('Mars', marsBuildings);
+  const tempMoonResources = usePlanetResources('Moon', moonBuildings, undefined, 0);
+  const tempEML1Resources = usePlanetResources('EML1', eml1Buildings, undefined, 0);
+  const tempMarsResources = usePlanetResources('Mars', marsBuildings, undefined, 0);
   
-  // Planet populations (depends on food stock)
-  const { population: earthPopulation, growthRatePerHour: earthGrowthRate, adjustPopulation: adjustEarthPopulation } = usePlanetPopulation('Earth', true, tempEarthResources.resources.food);
-  const { population: moonPopulation, growthRatePerHour: moonGrowthRate, adjustPopulation: adjustMoonPopulation } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.resources.food);
-  const { population: eml1Population, growthRatePerHour: eml1GrowthRate, adjustPopulation: adjustEML1Population } = usePlanetPopulation('EML1', isEML1Colonized, tempEML1Resources.resources.food);
-  const { population: marsPopulation, growthRatePerHour: marsGrowthRate, adjustPopulation: adjustMarsPopulation } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.resources.food);
+  // Planet populations (depends on net food rate)
+  const { population: earthPopulation, growthRatePerHour: earthGrowthRate, adjustPopulation: adjustEarthPopulation } = usePlanetPopulation('Earth', true, tempEarthResources.productionRates.food);
+  const { population: moonPopulation, growthRatePerHour: moonGrowthRate, adjustPopulation: adjustMoonPopulation } = usePlanetPopulation('Moon', isMoonColonized, tempMoonResources.productionRates.food);
+  const { population: eml1Population, growthRatePerHour: eml1GrowthRate, adjustPopulation: adjustEML1Population } = usePlanetPopulation('EML1', isEML1Colonized, tempEML1Resources.productionRates.food);
+  const { population: marsPopulation, growthRatePerHour: marsGrowthRate, adjustPopulation: adjustMarsPopulation } = usePlanetPopulation('Mars', isMarsColonized, tempMarsResources.productionRates.food);
   
   // Calculate total planet income (Earth population generates credits)
   const planetIncomePerHour = earthGrowthRate;
@@ -3073,9 +3073,9 @@ const EarthVisualization = () => {
   
   // Now get resources again with actual population - THIS IS THE SINGLE SOURCE OF TRUTH
   const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource, addResource: addEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
-  const { resources: moonResources, productionRates: moonProduction, addResource: addMoonResource } = usePlanetResources('Moon', moonBuildings);
-  const { resources: eml1Resources, productionRates: eml1Production, addResource: addEML1Resource } = usePlanetResources('EML1', eml1Buildings);
-  const { resources: marsResources, productionRates: marsProduction, addResource: addMarsResource } = usePlanetResources('Mars', marsBuildings);
+  const { resources: moonResources, productionRates: moonProduction, addResource: addMoonResource } = usePlanetResources('Moon', moonBuildings, undefined, moonPopulation);
+  const { resources: eml1Resources, productionRates: eml1Production, addResource: addEML1Resource } = usePlanetResources('EML1', eml1Buildings, undefined, eml1Population);
+  const { resources: marsResources, productionRates: marsProduction, addResource: addMarsResource } = usePlanetResources('Mars', marsBuildings, undefined, marsPopulation);
   
   // Get current planet's building levels and upgrade function
   const getCurrentBuildings = () => {
