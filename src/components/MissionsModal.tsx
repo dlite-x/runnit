@@ -12,6 +12,7 @@ interface Mission {
   description: string;
   tips: string;
   reward: string;
+  points: number | string;
   difficulty: "easy" | "medium" | "hard";
   completed: boolean;
   category: "resource" | "exploration" | "development";
@@ -39,6 +40,7 @@ const getMissions = (gameState: GameState): Mission[] => [
     description: "Establish your first colony on Mars. Launch a ship with colonists to begin building humanity's first Martian settlement.",
     tips: "Build a Ship Construction Facility first, then use the Launch Ship modal to send colonists to Mars. Make sure you have enough resources for the journey.",
     reward: "1000 Credits",
+    points: "2-1 pts",
     difficulty: "easy",
     completed: gameState.isMarsColonized,
     category: "exploration",
@@ -50,6 +52,7 @@ const getMissions = (gameState: GameState): Mission[] => [
     description: "Grow your Mars colony to over 1000 inhabitants. Ensure sustainable resource production to support population growth.",
     tips: "Send multiple colonization missions and ensure your Mars colony has adequate food, water, and energy production to support growth.",
     reward: "1000 Credits",
+    points: 1,
     difficulty: "medium",
     completed: gameState.marsPopulation > 1000,
     category: "exploration",
@@ -61,6 +64,7 @@ const getMissions = (gameState: GameState): Mission[] => [
     description: "Establish a thriving space station at the Earth-Moon Lagrange Point 1 with over 100 inhabitants.",
     tips: "EML1 is a strategic location for space operations. Build space stations and continuously supply them with resources and colonists.",
     reward: "1 Antimatter",
+    points: 1,
     difficulty: "medium",
     completed: gameState.eml1Population > 100,
     category: "exploration",
@@ -72,6 +76,7 @@ const getMissions = (gameState: GameState): Mission[] => [
     description: "Build the ultimate interstellar vessel capable of reaching Proxima Centauri. This requires massive resources and advanced technology.",
     tips: "This is an end-game objective. Focus on maximizing all resource production and upgrading all facilities to maximum levels before attempting.",
     reward: "1 Joule",
+    points: 1,
     difficulty: "hard",
     completed: false,
     category: "development",
@@ -167,6 +172,8 @@ export function MissionsModal({ open, onOpenChange, gameState }: MissionsModalPr
                       <div className="flex items-center gap-2 text-xs">
                         <Trophy className="w-3 h-3 text-yellow-400" />
                         <span className="text-yellow-400 font-medium">{mission.reward}</span>
+                        <span className="text-muted-foreground">•</span>
+                        <span className="text-blue-400 font-medium">{mission.points} {typeof mission.points === 'number' ? 'pt' : ''}</span>
                       </div>
                     </div>
                   </div>
@@ -188,9 +195,16 @@ export function MissionsModal({ open, onOpenChange, gameState }: MissionsModalPr
                     {selectedMission.difficulty}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-2 mb-4">
-                  <Trophy className="w-5 h-5 text-yellow-400" />
-                  <span className="text-lg font-semibold text-yellow-400">{selectedMission.reward}</span>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-yellow-400" />
+                    <span className="text-lg font-semibold text-yellow-400">{selectedMission.reward}</span>
+                  </div>
+                  <span className="text-muted-foreground">•</span>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-blue-400" />
+                    <span className="text-lg font-semibold text-blue-400">{selectedMission.points} {typeof selectedMission.points === 'number' ? 'point' + (selectedMission.points !== 1 ? 's' : '') : ''}</span>
+                  </div>
                 </div>
                 {selectedMission.completed && (
                   <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 rounded-lg p-4 border border-emerald-500/30 animate-in fade-in slide-in-from-top-2">
