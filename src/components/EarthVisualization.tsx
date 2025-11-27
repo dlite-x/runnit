@@ -4350,7 +4350,7 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {Math.floor(getCurrentResources().fuel)}
+                      {getCurrentResources().fuel.toFixed(1)}
                     </span>
                     <span className="text-base text-green-400">
                       +{getCurrentProduction().fuel}/h
@@ -4364,7 +4364,7 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {Math.floor(getCurrentResources().metal)}
+                      {getCurrentResources().metal.toFixed(1)}
                     </span>
                     <span className="text-base text-green-400">
                       +{getCurrentProduction().metal}/h
@@ -4378,7 +4378,7 @@ const EarthVisualization = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-bold text-slate-200">
-                      {Math.floor(getCurrentResources().power)}
+                      {getCurrentResources().power.toFixed(1)}
                     </span>
                     <span className="text-base text-green-400">
                       +{getCurrentProduction().power}/h
