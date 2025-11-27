@@ -4,6 +4,7 @@ import { CheckCircle2, Circle, Trophy, Zap, Lightbulb, Sparkles } from "lucide-r
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useScore } from "@/hooks/use-score";
 
 interface Mission {
   id: string;
@@ -82,14 +83,16 @@ export function MissionsModal({ open, onOpenChange, gameState }: MissionsModalPr
   const missions = getMissions(gameState);
   const [selectedMission, setSelectedMission] = useState<Mission>(missions[0]);
   const [previousCompletionState, setPreviousCompletionState] = useState<{[key: string]: boolean}>({});
+  const { awardMissionPoints } = useScore();
 
   // Check for newly completed missions and show toast
   useEffect(() => {
     missions.forEach(mission => {
       const wasCompleted = previousCompletionState[mission.id];
       if (mission.completed && !wasCompleted) {
+        const pointsAwarded = awardMissionPoints(mission.id);
         toast.success(`🎉 Mission Complete: ${mission.title}!`, {
-          description: `You earned ${mission.reward}`,
+          description: `You earned ${mission.reward} and ${pointsAwarded} ${pointsAwarded === 1 ? 'point' : 'points'}!`,
           duration: 5000,
         });
       }
@@ -99,7 +102,7 @@ export function MissionsModal({ open, onOpenChange, gameState }: MissionsModalPr
     const newState: {[key: string]: boolean} = {};
     missions.forEach(m => { newState[m.id] = m.completed; });
     setPreviousCompletionState(newState);
-  }, [missions.map(m => m.completed).join(',')]);
+  }, [missions.map(m => m.completed).join(','), awardMissionPoints]);
 
   // Update selected mission when missions change
   useEffect(() => {

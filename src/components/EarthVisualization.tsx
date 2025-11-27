@@ -4,7 +4,7 @@ import { OrbitControls, Stars, Text, Html } from '@react-three/drei';
 import { TextureLoader, Vector3 } from 'three';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, Flag, ShoppingCart, Beaker } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Play, Pause, Grid3X3, Plane, Users, Zap, Factory, Building, Coins, Gem, Hammer, Fuel, Battery, UtensilsCrossed, FlaskConical, Wheat, Pickaxe, Globe, Moon as MoonIcon, Satellite, Rocket, Home, Package, Archive, ChevronUp, ChevronDown, Settings, Flag, ShoppingCart, Beaker, Trophy } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -27,6 +27,7 @@ import { useBuildingLevels } from '@/hooks/use-building-levels';
 import { usePlanetResources, ResourceStock } from '@/hooks/use-planet-resources';
 import { useEarthClimate } from '@/hooks/use-earth-climate';
 import { usePlanetPopulation } from '@/hooks/use-planet-population';
+import { useScore } from '@/hooks/use-score';
 
 interface EarthProps {
   autoRotate: boolean;
@@ -3086,6 +3087,9 @@ const EarthVisualization = () => {
     alivePirateCount
   );
   
+  // Initialize score hook
+  const { score } = useScore();
+  
   // Now get resources again with actual population - THIS IS THE SINGLE SOURCE OF TRUTH
   const { resources: earthResources, productionRates: earthProduction, spendResource: spendEarthResource, addResource: addEarthResource } = usePlanetResources('Earth', earthBuildings, temperature, earthPopulation);
   const { resources: moonResources, productionRates: moonProduction, addResource: addMoonResource } = usePlanetResources('Moon', moonBuildings, undefined, moonPopulation);
@@ -3950,7 +3954,14 @@ const EarthVisualization = () => {
           
           {/* Right side - Resources and Operations Toggle */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Score Display */}
+              <div className="flex items-center gap-1 text-slate-300 text-sm">
+                <Trophy className="w-4 h-4 text-yellow-400" />
+                <span className="font-medium">{score}</span>
+              </div>
+              
+              {/* Credits Display */}
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <div className="flex items-center gap-1 text-slate-300 text-sm cursor-help">
